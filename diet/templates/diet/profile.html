@@ -1,0 +1,216 @@
+{% extends "diet/layout.html" %}
+
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'diet/scripts/profile.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<div class="d-flex" style="width:100%;height: 100%;">
+    <div id="left-page" class="container profile_page">
+           <div id="profile-header">
+            <div class="img_container">
+                <div id="avatar">
+                    <input type="file" name="avatar_img" accept="image/*" class="d-none" id="id_avatar_img">
+                    {% if user.avatar_img %}
+                        <img src="{{user.avatar_img.url}}" >
+                    {% else %}
+                        <img src="{% static 'data_images/profile_images/profile.jpg' %}">
+                    {% endif %}
+                </div>
+                <div class="profile-nav"></div>
+            </div>
+            <h1>
+                {{user.username|capfirst }}
+            </h1>
+            <h1 class="d-none">{{form.username}}</h1>
+           </div>
+            <div class="info-card">
+                <div class="section-name">
+                    <p> Personal Info</p>
+                    <button type="button"></button>
+                </div>
+                <div class="section-content">
+                    <p> <b>Email:</b> {{user.email}}</p>
+                        <div class="d-flex justify-content-between">
+                            <p style="width: 30%;"><b>Age: </b>{{user.age}}</p>
+                            <div class="d-flex" style="width: 65%;">
+                                <b style="width:140px;">Birth Date:</b>
+                                <input type="date" name="birth_date" value="{{user.birth_date}}" class="form-control" style="width:70%">
+                            </div>
+                        </div>
+                        <b>Gender:</b>
+                        <p>{{form.gender}}</p>
+                        <div class="d-flex justify-content-between">
+                            <div style="width: 45%;">
+                                <b>Weight :</b>
+                                <span class="d-flex">{{form.weight}} <b>kg</b></span>
+                            </div>
+                            <div style="width: 45%;">
+                                <b>height: </b>
+                                <span class="d-flex">{{form.height}} <b>cm</b></span>
+                            </div>
+                        </div>
+                        <hr>
+                </div>
+            </div>
+            <div class="info-card">
+                <div class="section-name">
+                    <p> Lifestyle Info</p>
+                    <button type="button"></button>
+
+                </div>
+                <div class="section-content">
+                    <div class="d-flex mb-1 justify-content-between">
+                        <div style="width: 45%;">
+                            <b>Activity level: </b>
+                            {{ form.activity_level }}
+                        </div>
+                        <div style="width: 45%;">
+                            <b>Fluid intake: </b>
+                            <div class="d-flex align-items-center">
+                                {{ form.fluid_intake }}<b>L</b>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <b> Sleep Data</b>
+                        <div  class="d-flex mb-1 justify-content-between">
+                            <div class="d-flex align-items-center justify-content-between" style="width: 45%;">
+                                {{ form.sleep_quality }}
+                                <b style="overflow: hidden;">Quality</b>
+                            </div>
+
+                            <div class="d-flex align-items-center" style="width: 45%;">
+                            {{ form.sleep_duration }}
+                            <b>H</b>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+
+            </div>
+        </div>
+        <div class=" p-0 d-flex justify-content-center min-hide" >
+            <div class="vertical-line"></div>
+        </div>
+        <div id="right-page" class="container px-0 align-items-start justify-content-around profile_page min-hide" style="position: relative;padding: 25px;">
+            <div class="profile-nav min-hide" style="left: 78px;height: 65vh;top:40px;position:absolute;"></div>
+            <div class="info-card move" >
+                <div class="section-name">
+                    <p> Medical Info</p>
+                    <button type="button"></button>
+
+                </div>
+                <div class="section-content" style="calc(100% - 110px)">
+                    <b class="d-flex justify-content-between">
+                        medical History
+                        <i class="fas fa-plus add-btn" onclick="showForm(this,'medical',true)"></i>
+                    </b>
+                    <div name="own" class="content form-control" style="width: 100%;flex: {{ medical_history.own|length}};overflow: hidden;margin-bottom: 10px;">
+                       <ul> </ul>
+
+                    </div>
+                    <b >Family History </b>
+                    <div name="medical" class="content form-control" style="width: 100%;flex: {{ medical_history.others|length|add:'1' }};overflow: hidden;">
+                        <table  class="table table-hover table-sm p-0"></table>
+                    </div>
+                    <hr>
+                </div>
+
+            </div>
+            <div class="info-card move">
+                <div class="section-name">
+                    <p>current Plan</p>
+                    <button type="button"></button>
+                 </div>
+                <div class="section-content">
+                    <b>Diet Plan</b>
+                        <div class="current_plan p-0 px-1">
+                            {% if diet %}
+                                <img src="{{diet.image}}" height="100%">
+                                <label for="diet_select" id="diet_title">{{prefix}}{{diet.title}}</label>
+                            {% else %}
+                                <p> No Plan Assigned click to change</p>
+                            {% endif%}
+                            <select id="diet_select" onchange="setCurrPlan(this.value,'diet_title')">
+                                {% for plan in all_plans%}
+                                    {% if plan.plan.plan_type != 'exercies' %}
+                                        {% if plan.plan == diet %}
+                                            <option selected style="background-color: {% if plan.plan.plan_type == 'diet' %}rgba(var(--accent-color-rgb),0.3){% else %}inherit{% endif %};" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% else %}
+                                            <option style="background-color: {% if plan.plan.plan_type == 'diet' %}rgba(var(--accent-color-rgb),0.3){% else %}inherit{% endif %};" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <option value="new">Start a New Plan</option>
+                            </select>
+                        </div>   
+                    <b>Exercies Plan</b>
+                        <div class="current_plan p-0 px-1">
+                            {% if exercies %}
+                                <img src="{{exercies.image}}" style="height: 100%;display: inline-block;">
+                                <label for="exercies_select" id="exercies_title">{{prefix}}{{exercies.title}}</label>
+                            {% else %}
+                                <p> No Plan Assigned click to change</p>
+                            {% endif%}
+                            <select id="exercies_select" onchange="setCurrPlan(this.value,'exercies_title')">
+                                {% for plan in all_plans%}
+                                    {% if plan.plan.plan_type != 'diet' %}
+                                        {% if plan.plan == exercies %}
+                                            <option selected style="background-color: {% if plan.plan.plan_type == 'exercies' %}rgba(var(--primary-color-rgb),0.3){% else %}inherit{% endif %};;" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% else %}
+                                            <option style="background-color: {% if plan.plan.plan_type == 'exercies' %}rgba(var(--primary-color-rgb),0.3){% else %}inherit{% endif %}; ;" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <option value="new">Start a New Plan </option>
+                            </select>
+                        </div>   
+                    <hr>
+                </div>
+            </div>
+            <div class="info-card move" >
+                <div class="section-name">
+                    <p>Special Remarks</p>
+                    <button type="button"></button>
+                </div>
+                <div class="section-content" >
+                    <div name="remarks" class="content form-control" style="width: 100%;overflow: hidden;height:inherit;">
+                        <table  class="table table-hover table-sm p-0">
+                        </table>
+                    </div>
+                    <p style="font-size: 10px;"> this section includes any extra info to take note off while making a plan like prefrences or restrictions</p>
+                    <hr>
+                </div>
+            </div>
+        </div>
+
+</div>
+<form id="medical_form"  style="display: none;">
+    <div class="d-flex justify-content-between align-items-center">
+        {{ medical_form}}
+        <datalist id="issues">
+            {% for issue in issues%}
+             <option>{{issue.issue_name}}</option>
+            {% endfor %}
+        </datalist>
+        <i class="fas fa-check submit" onclick="addInfo(this)"></i>
+    </div>
+    <div id="other_input"></div>
+
+</form>
+<form id="remarks_form"  style="display: none;" >
+    <div class="d-flex justify-content-between align-items-center">
+        {{ remarks_form}}
+        <i class="fas fa-check submit" onclick="addInfo(this)"></i>
+    </div>
+</form>
+<style>
+   
+</style>
+{% endblock %}

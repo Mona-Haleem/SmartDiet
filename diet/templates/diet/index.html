@@ -1,0 +1,157 @@
+{% extends "diet/layout.html" %}
+{% load static %}
+
+{% block script %}
+    <script src="{% static 'diet/scripts/home.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<div class="d-flex" style="width:100%;height: 100%;">
+    <div id="left-page" class="container profile_page">
+           <div id="profile-header">
+            <div class="img_container">
+                <div id="avatar">
+                    <input type="file" name="avatar_img" accept="image/*" class="d-none" id="id_avatar_img">
+                    {% if user.avatar_img %}
+                        <img src="{{user.avatar_img.url}}" >
+                    {% else %}
+                        <img src="{% static 'data_images/profile_images/profile.jpg' %}">
+                    {% endif %}
+                </div>
+            </div>
+            <h1>
+                {{user.username|capfirst }}
+            </h1>
+           </div>
+
+            <div style="width: 100%; height: 100%;">
+                <h2 style="color: rgb(var(--accent-color-rgb));">Current Plan</h2>
+                <div class="pl-2">
+                    <h4>Diet Plan</h4>
+                        <div class="current_plan p-0 px-1" style="height: 15vh;">
+                            {% if diet %}
+                                <img src="{{diet.image}}" height="100%">
+                                <label for="diet_select" id="diet_title">{{prefix}}{{diet.title}}</label>
+                            {% else %}
+                                <p> No Plan Assigned click to change</p>
+                            {% endif%}
+                            <select id="diet_select" onchange="setCurrPlan(this.value,'diet_title')">
+                                {% for plan in all_plans%}
+                                    {% if plan.plan.plan_type != 'exercies' %}
+                                        {% if plan.plan == diet %}
+                                            <option selected style="background-color: {% if plan.plan.plan_type == 'diet' %}rgba(var(--accent-color-rgb),0.3){% else %}inherit{% endif %};" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% else %}
+                                            <option style="background-color: {% if plan.plan.plan_type == 'diet' %}rgba(var(--accent-color-rgb),0.3){% else %}inherit{% endif %};" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                                <option value="new">Start a New Plan</option>
+                            </select>
+                        </div>   
+                    <hr>
+                    <h4>Exercies Plan</h4>
+                        <div class="current_plan p-0 px-1" style="height: 15vh;">
+                            {% if exercies %}
+                                <img src="{{exercies.image}}" style="height: 100%;display: inline-block;">
+                                <label for="exercies_select" id="exercies_title">{{prefix}}{{exercies.title}}</label>
+                            {% else %}
+                                <p> No Plan Assigned click to change</p>
+                            {% endif%}
+                                <select id="exercies_select" onchange="setCurrPlan(this.value,'exercies_title')">
+                                    {% for plan in all_plans%}
+                                        {% if plan.plan.plan_type != 'diet' %}
+                                            {% if plan.plan == exercies %}
+                                                <option selected style="background-color: {% if plan.plan.plan_type == 'exercies' %}rgba(var(--primary-color-rgb),0.3){% else %}inherit{% endif %};;" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                            {% else %}
+                                                <option style="background-color: {% if plan.plan.plan_type == 'exercies' %}rgba(var(--primary-color-rgb),0.3){% else %}inherit{% endif %}; ;" value='[{{plan.plan.id}},{{plan.duration}},"{{plan.plan.title}}"]'>{{plan.plan.title}}</option>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <option value="new">Start a New Plan </option>
+                                </select>
+                        </div>                       
+                </div>
+            </div>
+    </div>
+               
+        <div class=" p-0 d-flex justify-content-center min-hide" >
+            <div class="vertical-line"></div>
+        </div>
+        <div id="right-page" class="container px-0 pt-0 justify-content-start  min-hide" style="position: relative;padding: 25px;">
+                <div class="d-flex bg-danger" style="height: 50px;width: 100%;text-align: center;">
+                    <div style="width: 50%;">Diet</div>
+                    <div style="width: 50%;"> Exercies</div>
+                </div>
+                <div id="head" class="row bg-warning" style="width: 100%;height: 40px;">
+                    <h3 id="summery_header" class="col p-3 px-4"> Plan_title</h3>
+                    <div id="score" class="score" style=" width: 70px !important"> 100 </div>
+                </div> 
+                <div class="fluid-container my-4 p-0" style="width: 100%;">
+                    <div class="row pl-5 pr-4" style="height: 40vh;">
+                        <div class="col-8 form-control" style="height: 100%;width: 90%s;">
+                            <ul>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                        </div>
+                    
+                        <div class="col-4" style="overflow: hidden;">
+                            <div  style="height: 100%;">
+                                <table class="table table-primary" >
+                                    <tr class="">
+                                        <td scope="row">R1C1</td>
+                                        <td>R1C2</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                                    <tr class="">
+                                        <td scope="row">Item</td>
+                                        <td>Item</td>
+                                    </tr>
+                               </table>
+                            </div>
+                       </div>
+                    </div>
+                </div>
+
+                <textarea class="form-control mx-auto" style="width: 90%; height: 15vh;" ></textarea>
+
+        </div>
+</div>
+
+<!--script
+type="module"
+src="https://gradio.s3-us-west-2.amazonaws.com/4.36.1/gradio.js"
+></script>
+
+<gradio-app src="https://autoplow-diet-footprint-and-nutrition.hf.space"></gradio-app-->
+{% endblock %}
+
+
+
+
+

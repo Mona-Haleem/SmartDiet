@@ -1,0 +1,21 @@
+{
+    "profile":[
+        "Welcome to smartDiet",
+        "Let's get started and build your profile",
+        "By default your username is set based on your email",
+        "But don't wory you can always change it just double click on it and pick whatever unique name you want",
+        "You can also uplode your own image",
+        "Next let's start filling our basic info",
+        "Such as birthday,  body measurements,fluid intake , activitiy and sleep qulity",
+        "And don't worry this info will only be used for creating customized plans for you",
+        "You can also include any medical issue or other info you wish to take notice of on all of your plans",
+        "Now let's go ahead and pick our first plan"
+    ],
+    "viewer":[
+        "Here you can view all of your current plans",
+        "Group them in folders",
+        "Discover new plans or creat new ones",
+        "Completly on your own or let the ai surprise you",
+        "You can also create your own recipes"
+    ]
+}

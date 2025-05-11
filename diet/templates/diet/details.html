@@ -1,0 +1,218 @@
+{% extends "diet/layout.html" %}
+
+{% load static %}
+
+{% block script %}
+    <link rel="stylesheet" href="{% static 'diet/styles/details.css' %}">
+
+    <script src="{% static 'diet/scripts/details.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+
+<div class="vertical-line min-hide" style="left:  calc(50% - 10px);"></div>
+ 
+<div class="nav-btn" style="left: 0px;z-index:10;" onclick="navtPages(-1)">
+    <i id="prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+</div>
+<div id="anchor">
+    <a href="{% url 'viewer' type %}">{{type}}</a> > 
+    <a href="{% url 'details' type ele.id ele.title %}">{{ele.title}}</a> >
+    <select id="anchor-select" onchange="scrollToSetion(this.value)" style="max-width:calc(100% - 160px); border: none;background-color: transparent;">
+        <option value="info-page" selected>Info Page</option>
+    </select>
+</div>
+<div class="item_viewer" style="padding-top:35px;">
+    
+    <div id="info-page">
+        <h1><div contenteditable="true" id="ele-title" onblur="updateTitle(event)">{{ele.title}}</div></h1>
+        <hr>
+        <div class="groups" style="pointer-events: all;position: relative;">
+            <h6 style="display: inline;">Groups:</h6>
+            {% for g in ele.groups%}
+            <span class="btn btn-danger">
+                <a  href="{% url 'viewer' type %}?collection={{ g.1 }}">
+                    {{g.0}}
+                </a>
+                <i class="fas fa-minus" style="width: 15px;" onclick="updateElementsGroups({{ele.user_ele_id}},0,`{{type}}`,{{g.1}},this.parentElement)"></i>
+            </span>
+            {% endfor %}
+            <span>   
+            <i class="fas fa-plus" style="width: 50px;" ></i>
+            <select id="groupEditor" name="groupEditor" class="form-control d-none" onchange="updateElementsGroups({{ele.user_ele_id}},this.value,`{{type}}`,0);this.blur();">
+                <option value="0" disabled selected> --------------------- </option>
+
+                {% for g in all_groups %}
+                    {% if g not in ele.groups %}
+                        <option value="{{g.1}}" > {{g.0}} </option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </span>
+
+        </div>
+        <div class="base-info">
+            <div class="img-container"> 
+                <input type="text" name="media_link" class="d-none form-control" id="media_link" style="position: absolute;z-index: 100;">
+                <img src="{% if ele.media.0 %}/media/{{ ele.media.0 }}{% else %}/static/images/logo.png{% endif %}" data-index="0">
+                <div class="nav-btn" style="left: 0px;">
+                    <i id="img_prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+                </div>
+                <div class="nav-btn" style="right: 0px;">
+                    <i  id="img_next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+                </div>
+                <div class="img-btns">
+                    <input type="file" name="img_upload" accept="image/*" class="d-none" id="img_upload">
+                    <i class="fas fa-upload" data-action="upload"></i>
+                    <i class="fas fa-link" data-action="link"></i>
+                    <!--<i class="fas fa-cloud-upload-alt" data-action="drive-upload"></i>--> 
+                    <i class="fas fa-external-link-alt" data-action="expand"></i>
+                </div>
+            </div>
+            <div class="plan-info">
+                <ul style="margin: 0;padding: 0;">
+                    <li><b>Creator:</b> {{ele.user.username}}</li>
+                    <li><b>Type :</b>{{ele.plan_type}}{{ele.category}}</li>
+                    {% if type == 'plans' %}
+                    <li><b>Goal:</b> <div contenteditable="true" id="ele-goal" class="editableDiv" onblur="updateGoal(event)">{{ele.goal}}</div></li>
+                    {% else %}
+                    <li style="position: relative;"><b>Serving:</b><input type="number" value="{{ele.serv}}" class="display-input" onchange="updateServing(event)"></li>
+                    <li style="position: relative;"><b>prep Time:</b>
+                        <input type="number" value="{{ele.prep_time|slice:":1"}}" class="display-input" onchange="updatePrepTime(event,true)"><span style="right: 42px;">H:</span>
+                        <input type="number" value="{{ele.prep_time|slice:"2:4"}}" class="display-input" onchange="updatePrepTime(event,false)" style="left: 123px;"><span style="right: 9px;">M</span>
+                    </li>
+
+                     <!-- <li><b>Nurtionts:</b>
+                        <ul class="ml-3">
+                           <li>calories:</li>
+                            <li>Protein:</li>
+                            <li>Carbs:</li>
+                            <li>Fats: </li>
+                            <li>Fiber:</li>
+                            <li>Vitamins: </li>
+                            <li>Minerals: </li>
+
+                        </ul>
+                    </li> -->
+                    {% endif %}
+                   
+                    
+                </ul>
+            </div>
+        </div>
+
+        <div id="index" >
+            <h4>{% if type == 'plans' %}
+                Contents :
+                {% else %}
+                Nuritients:
+                {% endif %}
+    
+            </h4>
+            <ul></ul>
+        </div>
+    </div>
+    
+       
+       
+        
+   
+    
+    
+    <div id="details" style="height: 100%;position: relative;" >
+        {% if ele.plan_type and ele.plan_type == 'full'%}
+        <div id="exercies_plan"  style="height: 50%;" >
+            <h3>Exercies plan:<input list="exerciesList" value="None assigned"/></h3>
+
+            <div class="base-info" style="height: 80%;">
+                <div class="img-container">
+                    <input type="text" name="media_link" class="d-none form-control" name="media_link" style="position: absolute;z-index: 100;">
+                    <img src="{% static 'images/logo.png' %}">
+                    <div class="nav-btn" style="left: 0px;">
+                        <i id="img_prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+                    </div>
+                    <div class="nav-btn" style="right: 0px;">
+                        <i  id="img_next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+                    </div>
+                    <div class="img-btns">
+                        <input type="file" name="img_upload" accept="image/*" class="d-none" id="img_upload">
+                        <i class="fas fa-upload" data-action="upload"></i>
+                        <i class="fas fa-link" data-action="link"></i>
+                        <i class="fas fa-external-link-alt" data-action="expand"></i>
+                    </div>
+                </div>
+                <div class="plan-info">
+                    <ul style="margin: 0;padding: 0;">
+                        <li><b>Creator:</b><span>{{ele.user.username}}</span></li>
+                        <li><b>Type :</b> exercies</li>
+                        <li><b>Goal:</b> <div contenteditable="true" id="exercies-goal" class="editableDiv" onblur="updateGoal(event)">{{ele.goal}}</div></li>  
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div id="diet_plan" style="height: 50%;" >
+            <h3>Diet plan:<input list="dietList" value="None assigned"/></h3>
+
+            <div class="base-info" style="height: 80%;">
+                <div class="img-container">
+                    <input type="text" name="media_link" class="d-none form-control" name="media_link" style="position: absolute;z-index: 100;">
+                    <img src="{% static 'images/logo.png' %}">
+                    <div class="nav-btn" style="left: 0px;">
+                        <i id="img_prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+                    </div>
+                    <div class="nav-btn" style="right: 0px;">
+                        <i  id="img_next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+                    </div>
+                    <div class="img-btns">
+                        <input type="file" name="img_upload" accept="image/*" class="d-none" id="img_upload">
+                        <i class="fas fa-upload" data-action="upload"></i>
+                        <i class="fas fa-link" data-action="link"></i>
+                        <i class="fas fa-external-link-alt" data-action="expand"></i>
+                    </div>
+                </div>
+                <div class="plan-info" >
+                    <ul style="margin: 0;padding: 0;">
+                        <li><b>Creator:</b><span>{{ele.user.username}}</span></li>
+                        <li><b>Type :</b> diet</li>
+                        <li><b>Goal:</b> <div contenteditable="true" id="diet-goal" class="editableDiv" onblur="updateGoal(event)">{{ele.goal}}</div></li> 
+                    </ul>
+                </div>
+            </div>
+            
+        </div>
+        
+        {% endif %}
+
+
+    </div>
+    <div class="media_viewer d-none"></div>
+
+    <div class="sec-btn" id ="deletbtn" ondrop="deletSection()" ondragover="event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+        <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
+    </div>
+
+    <div id="closeMediaViewer" class="d-none" onclick="restViewer()">X</div>
+
+    
+</div> 
+<div class="nav-btn" style="right: 0px;z-index:10;" onclick="navtPages(1)">
+    <i  id="next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+</div>
+<style>
+
+   /* #details{
+        font-size: 100%;
+    }
+     /*.detail{
+        font-size: 10px;       
+    } */
+  
+    
+</style>
+<script>
+    
+  
+</script>
+{% endblock %}

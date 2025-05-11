@@ -1,0 +1,110 @@
+{% extends "diet/layout.html" %}
+
+{% load static %}
+
+{% block script %}
+    <link rel="stylesheet" href="{% static 'diet/styles/details.css' %}">
+    
+    <!-- include quil css/js -->
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+   
+    <script defer src="{% static 'diet/scripts/classes.js' %}"></script>
+    <script defer src="{% static 'diet/scripts/details2.js' %}"></script>
+
+    {% endblock %}
+
+{% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+
+<div class="vertical-line min-hide" style="left:  calc(50% - 10px);"></div>
+ 
+<div class="nav-btn" style="left: 0px;z-index:10;">
+    <i id="prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+</div>
+<div id="anchor">
+    <a href="{% url 'viewer' type %}">{{type}}</a> > 
+    <a href="{% url 'details' type ele.id ele.title %}">{{ele.title}}</a> >
+    <select id="anchor-select" onchange="scrollToSetion(this.value)" style="max-width:calc(100% - 160px); border: none;background-color: transparent;">
+        <option value="info-page" selected>Info Page</option>
+    </select>
+</div>
+<div class="item_viewer" style="padding-top:35px;">
+   <div id="info-page">
+        <h1><input id="ele-title" value="{{ele.title}}"/></h1>
+        <hr>
+        <div class="groups" style="pointer-events: all;position: relative;">
+            <h6 style="display: inline;">Groups:</h6>
+            {% for g in ele.groups%}
+            <span class="btn btn-danger">
+                <a  href="{% url 'viewer' type %}?collection={{ g.1 }}">
+                    {{g.0}}
+                </a>
+                <i class="fas fa-minus" style="width: 15px;" data-id="{{g.1}}"></i>
+            </span>
+            {% endfor %}
+            <span>   
+                <i class="fas fa-plus" style="width: 50px;" ></i>
+                <select id="groupEditor" name="groupEditor" class="form-control d-none">
+                    <option value="0" disabled selected> --------------------- </option>
+
+                    {% for g in all_groups %}
+                        {% if g not in ele.groups %}
+                            <option value="{{g.1}}" > {{g.0}} </option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </span>
+        </div>    
+        <div id="index" >
+            <h4>{% if type == 'plans' %}
+                Contents :
+                {% else %}
+                Nuritients:
+                {% endif %}
+    
+            </h4>
+            <ul></ul>
+        </div>
+    </div>
+    {% if ele.plan_type and ele.plan_type == 'full'%}
+    <h3 id="diet_plan">Diet plan:<input list="dietList" value="None assigned" style="width:calc(100% - 175px)"/></h3> 
+            <datalist id="dietList">
+                {% for diet in diets%}
+                <option>{{diet}}</option>
+                {% endfor %}
+            </datalist>      
+    <h3 id="exercies_plan">Exercies plan:<input list="exerciesList" value="None assigned" style="width:calc(100% - 175px)"/></h3>
+    <datalist id="exerciesList">
+        {% for exe in exercies%}
+        <option>{{exe}}</option>
+        {% endfor %}
+    </datalist> 
+    {% endif %}
+    
+     <div id="details" style="height: 100%;position: relative;" >
+       
+
+
+    </div> 
+   
+
+
+    <div class="media_viewer d-none"></div>
+    
+
+    <div class="sec-btn" id ="deletbtn" ondragover="event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+        <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
+    </div>
+
+    <div id="closeMediaViewer" class="d-none">X</div>
+
+    
+</div>
+<div class="nav-btn" style="right: 0px;z-index:10;">
+    <i  id="next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+</div>
+
+
+{% endblock %}

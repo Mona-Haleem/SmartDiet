@@ -1,0 +1,118 @@
+{% extends "diet/layout.html" %}
+
+{% load static %}
+
+{% block script %}
+    <link rel="stylesheet" href="{% static 'diet/styles/viewer.css' %}">
+    <script src="{% static 'diet/scripts/viewer.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+
+<!-- <div class="row" style="width:100%;height: 100%;">
+    <div id="left-page" class="container profile_page"> 
+        {% for plan in plans %}
+        <div class="d-flex">
+            <img>
+            
+         
+         {% endfor %}   
+    </div>
+    <div class=" p-0 d-flex justify-content-center min-hide" >
+        <div class="vertical-line"></div>
+    </div>
+    <div id="right-page" class="container px-0 align-items-start justify-content-around profile_page min-hide" style="position: relative;padding: 25px;">
+    </div>  
+    
+
+</div> -->
+<div class="vertical-line min-hide" style="left:  calc(50% - 10px);"></div>
+ 
+
+<div class="nav-btn" style="left: 0px;">
+    <i id="prev" class="fas fa-caret-left icon " style="vertical-align: top;"></i>
+</div>
+<div style="display: flex;flex-direction: column;height: 100%;width: 100%;">
+    <form id="filters-form" class="controls justify-content-between mt-4 mx-4 m-1 " onsubmit="return false" style="height: 40px;display: flex;" >
+        <input id="search" name="search" autocomplete="off" class="form-control" style="width: 45%;">
+        <div class="d-flex justify-content-between" >
+            <select id="order" name="order"  class="form-control" style="width: 24%;">
+                <option value="" >order</option>
+                <option value="-last_modification">edited &darr;</option>
+                <option value="-creation_date">New &darr;</option>
+                <option value="last_modification">edited &uarr;</option>
+                <option value="creation_date">New &uarr;</option>
+                <option value="title">title</option>
+            <!----><option value="user__username">creator</option>
+            </select>
+            <div class="filter-container" style="width: 24%;">
+                <div class="filter-select" id="select-container" tabindex="5" onclick="this.classList.toggle('open')" onblur="this.classList.remove('open')">
+                    <span class="selected-options">filter</span>
+                    <div class="filter-menu" id="filter">
+                        
+                    </div>
+                </div>
+            </div>
+            <button id="collections" class="sub-btn" title="Collections" type="button">
+                <i class="fas fa-folder"></i>
+            </button>
+             <!----><button class="sub-btn" title="Discover">
+                <i class="fas fa-search   "></i>
+            </button>
+            <button id="add" class="sub-btn" title="Create">
+                <i class="fas fa-plus"></i>
+            </button>
+             <!----><button class="sub-btn" title="Create with Ai">
+                <i class="fas fa-atom"></i>
+            </button>
+        
+        </div>
+        
+    </form>
+    <form id="create-form" class="controls d-none justify-content-between mt-4 mx-4 m-1 " method="post" action="{% url 'create' %}" style="height: 40px;display: flex;" >
+        {% csrf_token %}
+        <input id="parent" name="parent" value="0" type="hidden">
+        <input id="title" name="title" autocomplete="off" class="form-control" style="width: 45%;" placeholder="title" required>
+        <div class="d-flex justify-content-between" >
+            <select id="plan-category" name="plan_category"  class="d-none form-control" style="width: 24%;" required >
+                <option disabled value="Create" selected> plan type </option>
+                <option value="diet">Diet</option>
+                <option value="exercies">Exercies</option>
+                <option value="full">Full</option>
+            </select>
+            <input list="categories"  id="recipe-category" name="recipe_category" autocomplete="off" class="d-none form-control" style="width: 24%;">
+            <datalist id="categories">
+                {% for cat in types%}
+                 <option>{{cat}}</option>
+                {% endfor %}
+            </datalist>
+
+            <input type="number" class="d-none form-control" name="duration" id="duration" style="width: 18%;" min="0" placeholder="duration" title="set value to 0 in case of no specfic duration" required>
+            
+            <select id="type" name="type"  class="d-none form-control" style="width: 18%;"  >
+                <option value="plans">plan</option>
+                <option value="recipes">Recipe</option>
+            </select>
+
+            <button class="sub-btn" title="submit" type="submit">
+                <i class="fas fa-check "></i>
+            </button>
+            <button id="cancel" class="sub-btn" title="cancel" type="button">
+                <i class="fas fa-close"></i>
+            </button>
+                     
+        </div>
+        
+    </form>
+    <div class="item_viewer">
+    
+    </div> 
+    
+</div>
+<div class="nav-btn" style="right: 0px;">
+    <i  id="next" class="fas fa-caret-right icon" style="vertical-align: top;"></i>    
+</div>
+
+
+{% endblock %}

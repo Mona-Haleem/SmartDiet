@@ -1,0 +1,140 @@
+{% extends "diet/layout.html" %}
+{% load static %}
+
+{% block body %}
+<form method="post" class="d-flex" style="width:100%;height: 100%;">
+    {% csrf_token %}
+
+        <div id="left-page" class="container d-flex justify-content-start">
+            <div id="card_1" class="info_card">
+                <h3 class="mb-3">Personal Info </h3>
+                <div class="info_card_body">
+                    <div class="d-flex mb-1 form_group">
+                        <div style="width:70%;margin-right:5%;">
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
+                        </div>
+                        <div style="width:25%;">
+                            {{ form.birthdate.label_tag }}
+                            {{ form.birthdate}}
+                        </div>
+                    </div>
+                    <div>            
+                        {{ form.gender.label_tag }}
+                        {{ form.gender }}
+                    </div>
+
+                    <div class="d-flex mb-1 form_group">
+                            <div style="width: 45%; margin-right: 10%;">
+                                {{ form.weight.label_tag }}
+                                {{ form.weight }}
+                        </div>
+                        <div style="width: 45%;">
+                            {{ form.height.label_tag }}
+
+                            {{ form.height}}
+                        </div>
+                    </div>
+                   
+                </div>
+                <hr style="position: relative;top: 2vh;">
+            </div>
+            
+            <div id="card_2" class="info_card">
+                
+                <h3 class="mb-3">Lifestyle Info </h3>
+                <div class="info_card_body">
+                    <div class="d-flex mb-1 form_group">
+                        <div style="width: 45%; margin-right: 10%;">
+                            {{ form.activity_level.label_tag }}
+                             {{ form.activity_level }}
+                        </div>
+                        <div style="width: 45%;">
+                            {{ form.fluid_intake.label_tag }}
+                             {{ form.fluid_intake }} 
+                        </div>
+                    </div>
+                    <div >
+                        <label> Sleep Data</label>
+                        <div class="d-flex mb-1 form_group">
+                         
+                            {{ form.sleep_quality }}
+                        
+                            {{ form.sleep_duration }}
+                        </div>
+                    </div>                  
+                </div>
+            </div>
+        
+        </div>
+        <div class=" p-0 d-flex justify-content-center" >
+        <div class="vertical-line"></div>
+        </div>
+        <div id="righ-page" class="container p-0">   
+            <div id="card_3" class="info_card">
+                <h3 class="mb-3">Food Preferences</h3>
+                <div class="info_card_body">
+                    {{ form2.food_preferences }}
+                </div>
+            </div>
+        </div>
+   
+</form>
+<!-- <div class="fill">
+    
+        
+        
+        <div>
+            <div class="card-header"></div>
+            
+        </div>-->
+
+        <!--  Factors Section 
+       <div >
+            <div class="card-header">Lifestyle Factors</div>
+            <div class="card-body">
+                
+                
+            </div>
+        </div>-->
+
+        <!-- Eating Habits Section 
+        <div>
+            <div class="card-header">Eating Habits</div>
+            <div class="card-body">
+                {{ form.current_diet_plan }}
+                <div class="form-group">
+                    {{ form.meal_frequency }}
+                </div>
+                <div class="form-group">
+                    {{ form.meal_timing }}
+                </div>
+                <div class="form-group">
+                    {{ form.portion_sizes }}
+                </div>
+            </div>
+        </div>-->
+
+        <!-- Health and Medical History Section 
+        <div>
+            <div class="card-header">Health and Medical History</div>
+            <div class="card-body">
+                {{ form.health_issues }}
+                {{ form.medication}}
+                {{ form.family_history }}
+            </div>
+        </div>-->
+
+        <!-- Food Preferences Section 
+        <div>
+            <div class="card-header">Food Preferences</div>
+            <div class="card-body">
+                <div class="form-group">
+                    {{ form.food_preferences }}
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>-->
+    </form>
+</div>{% endblock %}
