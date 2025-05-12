@@ -1,109 +1,69 @@
-Outline for README.md
-Project Title
+# SmartDiet
+#### Video Demo: 
+#### Description:
+ SmartDiet is an intelligent diet notebook with AI-powered assistant to help users monitor, customize, and optimize their diet, recipes, and fitness routines. Adapting to each user's profile, preferences, tracked history, and progress to offer personalized recommendations.
+## **Distinctiveness and Complexity:**
+This project stands out by combining AI-driven meal planning, family-centric health management, and deep personalization into a single platform. Unlike generic diet or fitness apps, it addresses the nuanced challenges of adapting plans to individual medical histories, dietary restrictions, and family dynamics while leveraging AI to automate and optimize goal-oriented routines.
+### **The complexity arises from**:
+- **Dynamic AI **Integration**:
+ Real-time suggestions, auto-generated plans, and gradual progression systems.
+- **RAG Pipeline Design**: Seamlessly integrating Mistral with LangChain’s retrieval system to pull context from structured user/family data (preferences, medical restrictions) and unstructured recipe/plan.
 
-A brief, descriptive title for your project.
-Introduction
+- **Dynamic Context Handling**: Ensuring the AI adapts to real-time inputs (e.g., daily feedback, new goals) while staying anchored to retrieved data for medically safe suggestions.
 
-Brief overview of the project.
-Purpose and goals of the project.
-Inspiration or motivation behind the project.
-Distinctiveness and Complexity
+- **Privacy-Aware Retrieval**: Balancing personalization with security by restricting RAG’s document access to user-specific or anonymized community data.
 
-A dedicated section explaining:
-Why the project is unique compared to others.
-What makes the project complex (e.g., features, technologies used, problem-solving involved).
-Challenges faced and how they were addressed.
-Features
+- **Plan Generation Logic**: Using Mistral to synthesize gradual, daily, or adaptive plans from retrieved templates, user history, and health constraints.
 
-List and describe the key features of the application.
-Highlight any standout functionality or innovations.
-File Structure
+- **Multi-Layered User Profiles**: Managing medical history, preferences, and family member data demands intricate database relationships and privacy safeguards.
 
-Description of each file created, with its purpose.
-Explanation of how files interact or contribute to the project.
-How to Run the Application
+- **Interactive Customization**: Drag-and-drop plans designing  introduce frontend/backend synchronization challenges.
 
-Step-by-step instructions on setting up and running the project.
-Include:
-Prerequisites (e.g., software, packages, tools).
-Installation steps.
-Usage instructions.
-Technologies and Tools
+- **Community-Driven Features**: Balancing public recipe sharing with personalized filtering/searching necessitates scalable architecture and user-centric design.
 
-List the programming languages, frameworks, libraries, or tools used.
-Briefly describe why these were chosen.
-Challenges and Solutions
+## **Key Features**
+1.**User Authentication**: Ensure secure access with user authentication, allowing users to create accounts, log in, and personalize their experience.
 
-Key challenges encountered during development.
-How those challenges were overcome.
-Future Improvements
+2.**Detailed user profiling**: Track dietary preferences, restrictions, medical history, and ingredient availability.
 
-Potential updates or enhancements that could be made.
-Features or functionality not yet implemented.
-Conclusion
+3.**Family Data Integration**:Create profiles for family members to enable collaborative meal planning.
 
-Summarize the project's significance.
-Reflect on the development experience and what you learned.
-Acknowledgments (Optional)
+4.**Recipe & Plan Management**:Build, edit, and customize diet/exercise plans or full routines.
 
-Acknowledge any resources, tools, or individuals that helped.
--------------------------------------------------------------
-Project Title
+5.**Community Discovery**:Share recipes/plans and explore content from users with similar profiles.
 
-Smart Diet: Personalized AI-Powered Diet and Fitness Planning
-Introduction
+6.**Plan Variation**:Generate derivatives of existing plans (e.g., keto adaptations, HIIT modifications).
 
-Brief overview of Smart Diet: a web application that uses AI to help users create personalized diet plans and fitness routines.
-Discuss the inspiration: a tool to maintain a healthy lifestyle, especially for busy individuals who may not have time or resources to consult with a professional.
-Explain the intended benefits of the project.
-Distinctiveness and Complexity
+7.**AI Assistant**: 
+    - **Guided Creation**: Real-time suggestions during plan/recipe design.
 
-Distinctiveness: Explain how Smart Diet differs from typical e-commerce, networking, or wiki projects, emphasizing its unique focus on health, AI integration, and user personalization.
-Complexity: Highlight the planned challenges, like implementing an AI-powered recommendation system, dynamic customization of plans, and integrating APIs for nutrition and AI.
-Features
+    - **Auto-Generated Plans**: AI-built routines based on goals, profiles, and feedback.
 
-List the features you mentioned:
-User login and profile page to store personal info and preferences.
-Gallery to organize and discover diet plans and recipes.
-AI-powered customization for plans and recipes based on user data.
-Text editor for detailed plan descriptions, including media uploads.
-Metrics tracking and feedback integration.
-Log page to view progress and history.
-Recommendation system to upgrade plans dynamically.
-Social features like chat and sharing with a community.
-File Structure
+    - **Gradual Progression**: Incremental adjustments to reach target plans safely.
 
-Explain the current file organization:
-Backend with Django.
-Separate folders for frontend files (HTML, CSS, JavaScript).
-Media folder for user-uploaded files.
-How to Run the Application
+    - **Daily Adaptive Plans**: Dynamically updated routines using daily feedback.
 
-Basic instructions to run the app, including prerequisites:
-Install Django and required libraries.
-Run the development server using python manage.py runserver.
-Open the application in a browser.
-Technologies and Tools
+8.**AI Chat Support:**:Modify plans via conversational AI interactions.
 
-Backend: Django.
-Frontend: HTML, CSS, JavaScript (native).
-APIs: Nutrient information APIs and AI APIs for recommendations (planned).
-Challenges and Solutions
+9.**today's plan Dashboard**:Track daily progress, view task details, and log feedback.
 
-Expected challenges:
-Integrating AI for accurate recommendations.
-Handling dynamic user data for personalized plans.
-Potential solutions (e.g., leveraging existing APIs, iterative development).
-Future Improvements
+10.**Progress Tracking**:Set goals, monitor metrics (daily/weekly/monthly), and score adherence.
 
-Mention features you plan to add:
-Advanced AI-based recommendations.
-Enhanced community features (chat, sharing, and following users).
-Notifications and progress alerts.
-Conclusion
+11.**Active Plan Assignment**: Assign time-bound plans with notifications for updates/reminders.
 
-Reflect on the purpose and potential impact of Smart Diet.
-Discuss the learning experience and goals for the project.
-Acknowledgments
+12.**notifications**: get notifications to follow the plan and record progress or upgrade the plan.
 
-Thank Django, API providers, or any other resources you found useful.
+13.**Theme Toggling:**:Switch between dark/light modes for accessibility.
+
+14.**Group Plans**:Organize plans/recipes into folders for teams or families.
+
+15.**Drag-and-Drop Design**:Customize layouts with text, media, pop-ups,Links, and styling options.
+
+16.**Advanced Search**:Filter community/user recipes by dietary tags, ingredients, or health goals.
+
+17.**Tutorial**: Simple and easy to folow tutorial Throwout the app.
+
+
+## **File Structure**
+
+## **How To Run:**
