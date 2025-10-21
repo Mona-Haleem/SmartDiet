@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+  <header>
+    <title>test</title>
+  </header>
+  <body>
+    <h1>lllllllllllllllllllllll</h1>
+    <div id="teest"></div>
+    <script>
+      fetch("http://127.0.0.1:8000/diet/test/")
+        .then((res) => res.json())
+        .then((data) => {
+          document.getElementById("teest").innerHTML = data;
+        });
+    </script>
+  </body>
+</html>

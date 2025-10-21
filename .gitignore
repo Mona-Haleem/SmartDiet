@@ -1,0 +1,101 @@
+# ============================
+# Django & Python
+# ============================
+__pycache__/
+*.py[cod]
+*.so
+
+# Local environment settings
+*.env
+.env
+.env.* 
+*.sqlite3
+db.sqlite3
+
+# Django static & media
+/staticfiles/
+/media/
+/static/
+
+# Migrations (optional – comment out if you want to keep them)
+# **/migrations/
+# !**/migrations/__init__.py
+
+# ============================
+# Python packaging
+# ============================
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ============================
+# Virtual environments
+# ============================
+venv/
+env/
+ENV/
+.venv/
+.myenv/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================
+# IDE & Editor junk
+# ============================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# ============================
+# System files
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# Logs & coverage
+# ============================
+*.log
+logs/
+.coverage
+.tox/
+.nox/
+coverage.xml
+htmlcov/
+.cache/
+.pytest_cache/
+
+# ============================
+# Jupyter notebooks (if any)
+# ============================
+.ipynb_checkpoints/
+
+# ============================
+# MyPy / Type checker
+# ============================
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# ============================
+# Local configs or secrets
+# ============================
+*.pem
+*.key
+*.crt
+secrets.json
