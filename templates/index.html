@@ -10,7 +10,7 @@
       fetch("http://127.0.0.1:8000/diet/test/")
         .then((res) => res.json())
         .then((data) => {
-          document.getElementById("teest").innerHTML = data;
+          document.getElementById("teest").innerHTML = JSON.stringify(data);
         });
     </script>
   </body>

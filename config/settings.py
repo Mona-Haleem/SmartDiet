@@ -9,9 +9,13 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
+from dotenv import load_dotenv
 from pathlib import Path
 
+load_dotenv()
+
+print(os.getenv('testKey'))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -62,7 +66,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -134,6 +137,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+TEST_RUNNER = "pytest_django.runner.PytestTestRunner"
 
 #AUTH_USER_MODEL = 'users.User'
 

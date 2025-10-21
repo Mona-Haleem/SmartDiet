@@ -1,1 +1,9 @@
 djangorestframework
+#testing
+pytest
+pytest-django
+pytest-cov
+pytest-watch
+
+#env
+python-dotenv
