@@ -138,7 +138,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TEST_RUNNER = "pytest_django.runner.PytestTestRunner"
 
-#AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User'
 
 # Session settings for "Remember Me"
 # SESSION_COOKIE_AGE = 1209600  # 2 weeks
@@ -149,3 +149,23 @@ TEST_RUNNER = "pytest_django.runner.PytestTestRunner"
 # LOGIN_REDIRECT_URL = 'recipes:list'
 # LOGOUT_REDIRECT_URL = 'users:login'
 
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 8, 
+        }
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+    {
+        'NAME': 'users.helpers.validators.PasswordStrenghtValidator',
+    },
+]

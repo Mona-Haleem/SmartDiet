@@ -1,43 +1,27 @@
-from django.test import TestCase #dbtesting
+from django.test import TestCase
 from django.contrib.auth import get_user_model
+
 User = get_user_model()
 
-class UserTestCase(TestCase):
+class UserModelTests(TestCase):
     def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="StrongPass!1"
+        )
 
-        return
-    def test_age_calculated_correctly(self):
-        return
-    
-    def test_user_serialized_correctly(self):
-        return
-    # def test_create_user_with_email(self):
-    #     """Test creating a user with email is successful"""
-    #     email = 'test@example.com'
-    #     password = 'TestPass123!'
-    #     user = User.objects.create_user(
-    #         username='testuser',
-    #         email=email,
-    #         password=password
-    #     )
-        
-    #     self.assertEqual(user.email, email)
-    #     self.assertTrue(user.check_password(password))
-    #     self.assertTrue(user.is_active)
-    #     self.assertFalse(user.is_staff)
+    def test_serialize_returns_expected_fields(self):
+        data = self.user.serialize()
+        self.assertIn("username", data)
+        self.assertIn("email", data)
+        #self.assertIn("gender", data)  # assuming default if no additions
+        self.assertEqual(data["username"], "testuser")
+        self.assertEqual(data["email"], "test@example.com")
 
+    def test_str_method_returns_username(self):
+        self.assertEqual(str(self.user), "testuser")
 
-    # def test_user_string_representation(self):
-    #     """Test the user string representation"""
-    #     user = User.objects.create_user(
-    #         username='testuser',
-    #         email='test@example.com'
-    #     )
-    #     self.assertEqual(str(user), 'testuser')
-
-
-    # def test_User_email_unique(self):
-    #     self.assertEqual(2,2,"setuo sucess")
-
-    # def test_User_created_with_email(self):
-    #     self.assertEqual(2,2,"setuo sucess")
+    # def test_age_method_returns_int(self):
+    #     age = self.user.age()
+    #     self.assertIsInstance(age, int)

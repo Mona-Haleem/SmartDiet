@@ -1,4 +1,10 @@
 djangorestframework
+#utilities
+Pillow
+#templates 
+django-bootstrap5
+
+
 #testing
 pytest
 pytest-django

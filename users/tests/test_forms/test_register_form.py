@@ -1,8 +1,6 @@
 from django.test import TestCase
 from users.forms.register_form import  RegisterForm
-from django.contrib.auth import get_user_model
-
-User = get_user_model()
+from users.models import User
 
 # class RegisterFormTests(TestCase):
 #     def test_valid_form(self):
