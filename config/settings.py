@@ -15,7 +15,6 @@ from pathlib import Path
 
 load_dotenv()
 
-print(os.getenv('testKey'))
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -42,9 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    'rest_framework',
     # Third-party
- #   'django_bootstrap5',
+    'rest_framework',
+    'django_bootstrap5',
   #  'widget_tweaks',
     
     # Local apps

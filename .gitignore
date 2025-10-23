@@ -3,6 +3,8 @@
 # ============================
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
 *.so
 
 # Local environment settings
@@ -99,3 +101,21 @@ htmlcov/
 *.key
 *.crt
 secrets.json
+
+# Pytest and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Django static and media
+staticfiles/
+media/
+
+# Byte-compiled files
+*.log
+*.pot
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
