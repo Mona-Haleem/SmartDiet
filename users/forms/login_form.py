@@ -1,8 +1,10 @@
 from django import forms
 from users.models import User
 from django.contrib.auth import authenticate
+from users.widgets.password_with_toggel import PasswordWithToggleInput
+from users.widgets.suppress_label import NoLabelForCustomWidgetForm
 
-class LoginForm(forms.Form):
+class LoginForm(NoLabelForCustomWidgetForm):
     login = forms.CharField(
         label="Username / Email",
         max_length=254,
@@ -13,8 +15,8 @@ class LoginForm(forms.Form):
     password = forms.CharField(
         label="Password",
         required=True,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
-    )
+        widget=PasswordWithToggleInput() 
+        )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -32,6 +34,7 @@ class LoginForm(forms.Form):
         if not user_obj:
             self.add_error("login", f"No account registered with '{login_input}'.")
             return cleaned_data
+       
         user = authenticate(username=user_obj.username, password=password) 
         if user is None:
             self.add_error("login", "Invalid username/email or password.")

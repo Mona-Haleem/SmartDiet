@@ -2,9 +2,10 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import validate_password
 from users.models import User
+from users.widgets.password_with_toggel import PasswordWithToggleInput
 import re
-
-class RegisterForm(forms.ModelForm):
+from users.widgets.suppress_label import NoLabelForCustomWidgetForm
+class RegisterForm(NoLabelForCustomWidgetForm):
     email = forms.EmailField(
         label="Email",
         required=True,
@@ -13,12 +14,13 @@ class RegisterForm(forms.ModelForm):
     password = forms.CharField(
         label="Password",
         required=True,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'})
+        widget=PasswordWithToggleInput()
     )
+
     confirmation = forms.CharField(
         label="Confirm Password",
         required=True,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
+        widget=PasswordWithToggleInput()
     )
 
     class Meta:

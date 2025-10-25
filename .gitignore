@@ -17,7 +17,7 @@ db.sqlite3
 # Django static & media
 /staticfiles/
 /media/
-/static/
+#/static/
 
 # Migrations (optional – comment out if you want to keep them)
 # **/migrations/

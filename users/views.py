@@ -18,6 +18,11 @@ def login_user(request):
         else:
             return render(request, "components/errorMsg.html", {"form": form})
     else:
+        if request.htmx:
+            return render(request, "components/authForm.html", {
+                "form": LoginForm(),
+                "slug":"login"
+            })
         return HttpResponseRedirect(reverse("index",args=["login"]))
 
 
@@ -44,6 +49,11 @@ def register(request):
         login(request, user)
         return redirect("index")
     else:
+        if request.htmx:
+            return render(request, "components/authForm.html", {
+                "form": RegisterForm(),
+                "slug":"register"
+            })
         return HttpResponseRedirect(reverse("index",args=["register"]))
 
     

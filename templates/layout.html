@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html lang="en" x-data="{ darkMode: false }" :class="{ 'dark': darkMode }">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>{% block title %}Diet{% endblock %}</title>
     <!-- use bootstrap -->
@@ -25,12 +25,15 @@
       crossorigin="anonymous"
     ></script>
     <!-- Alpine.js & HTMX -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+      defer
+    ></script>
     <script src="https://unpkg.com/htmx.org@2.0.0" defer></script>
 
     <!--load static files-->
-    <!-- <link rel="stylesheet" href="{% static 'diet/styles/styles.css' %}" /> -->
-    <!-- <script defer src="{% static 'diet/scripts/common.js' %}"></script> -->
+    <link rel="stylesheet" href="{% static 'common/styles.css' %}" />
+    <script type="module" src="{% static 'common/script.js' %}" defer></script>
 
     <!-- <script defer src="{% static 'diet/scripts/script.js' %}"></script> -->
     {% block script %}{% endblock %}
@@ -38,15 +41,22 @@
         <script type="text/babel" src="{% static 'diet/react/react.jsx' %}"></script>-->
   </head>
 
-  <body class="background_pattern">
-    <div class="main">
-    
-      <div id="main-content" style="overflow: hidden">
-        {% block body %} {% endblock %}
-      </div>
-     </div>
-   <footer>
-      <button class="sub-btn" id="theme-toggle"></button>
+  <body
+    class="d-flex justify-content-start align-items-start w-100 h-screen mx-auto p-3"
+  >
+    <main
+      class="main book w-100 h-100 {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}"
+    >
+    <div class="content">
+
+      {% block body %} {% endblock %}
+    </div>
+    </main>
+
+    <footer class="d-flex position-absolute bottom-3 left-0">
+      <button class="sub-btn" id="theme-toggle" @click="darkMode = !darkMode">
+        D
+      </button>
 
       {% if request.user.is_authenticated %}
       <a href="{% url 'logout' %}">

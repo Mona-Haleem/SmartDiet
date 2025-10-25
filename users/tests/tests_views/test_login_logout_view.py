@@ -85,6 +85,5 @@ class LogoutView(TestCase):
         self.client.login(username='testuser', password='StrongPassword1!')
         response = self.client.post(self.logout_url) 
         self.assertRedirects(response, self.index_url, status_code=302)
-        # Check user is logged out by accessing index again
         response = self.client.get(self.index_url)
         self.assertTemplateUsed(response, 'auth.html')

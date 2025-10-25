@@ -1,0 +1,40 @@
+<form
+  id="auth_form"
+  hx-post="{% url slug %}"
+  class="space-y-4"
+  hx-target="#error-container"
+  hx-swap="outerHTML"
+  name="{{ slug }}"
+>
+  {% csrf_token %} 
+  {{ form.as_p }}
+
+  <button type="submit" class="btn btn-primary w-100 main-btn">
+    {% if slug == 'login' %}Log In{% else %}Register{% endif %}
+  </button>
+
+  <!-- Switch between login/register -->
+  {% if slug == 'login' %}
+  <button
+    type="button"
+    hx-get="{% url 'register' %}"
+    hx-target="#auth_form"
+    hx-swap="outerHTML"
+    hx-push-url="{% url 'register' %}"
+    class="btn btn-outline-secondary main-btn"
+  >
+    Don't have an account ?Register
+  </button>
+  {% else %}
+  <button
+    type="button"
+    hx-get="{% url 'login' %}"
+    hx-target="#auth_form"
+    hx-swap="outerHTML"
+    hx-push-url="{% url 'login' %}"
+    class="btn btn-outline-secondary main-btn"
+  >
+    Already have an account? Log in
+  </button>
+  {% endif %}
+</form>
