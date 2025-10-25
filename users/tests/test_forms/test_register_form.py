@@ -2,41 +2,6 @@ from django.test import TestCase
 from users.forms.register_form import  RegisterForm
 from users.models import User
 
-# class RegisterFormTests(TestCase):
-#     def test_valid_form(self):
-#         form_data = {
-#             "email": "newuser@example.com",
-#             "password": "StrongPass!1",
-#             "confirmation": "StrongPass!1",
-#         }
-#         form = RegisterForm(data=form_data)
-#         self.assertTrue(form.is_valid())
-
-#     def test_password_mismatch(self):
-#         form = RegisterForm(data={
-#             "email": "user@example.com",
-#             "password": "StrongPass!1",
-#             "confirmation": "StrongPass!2"
-#         })
-#         self.assertFalse(form.is_valid())
-
-#     def test_duplicate_email(self):
-#         User.objects.create_user(username="dupe", email="dupe@example.com", password="StrongPass!1")
-#         form = RegisterForm(data={
-#             "email": "dupe@example.com",
-#             "password": "StrongPass!1",
-#             "confirmation": "StrongPass!1"
-#         })
-#         self.assertFalse(form.is_valid())
-
-#     def test_weak_password(self):
-#         form = RegisterForm(data={
-#             "email": "weak@example.com",
-#             "password": "12345",
-#             "confirmation": "12345"
-#         })
-#         self.assertFalse(form.is_valid())
-
 class RegisterFormTests(TestCase):
     def test_register_form_valid(self):
         form = RegisterForm(data={

@@ -1,0 +1,39 @@
+{% comment %}
+Reusable error message component.
+Expects:
+- message (string) or form (optional)
+- Example usage:
+   include "components/error_message.html" with form=form
+  or
+  include "components/error_message.html" with message="Something went wrong"
+{% endcomment %}
+
+{% if form.errors or message %}
+<div
+    id="error-container"
+    x-data="{ show: true }"
+    x-show="show"
+    x-transition
+>
+    <button
+        type="button"
+        @click="show = false"
+    >
+        &times;
+    </button>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+    {% if form.errors %}
+        <ul class="list-disc ml-5">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endif %}

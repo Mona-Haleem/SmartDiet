@@ -40,8 +40,17 @@ class RegisterForm(forms.ModelForm):
         8 chars, 1 uppercase, 1 lowercase, 1 special character.
         """
         password = self.cleaned_data.get('password')
-        validate_password(password)  
+        if not password:
+          return password
+        try:
+            validate_password(password)
+        except ValidationError as e:
+            for message in e.messages:
+                self.add_error('password', message)
+
+        
         return password
+
 
     def clean(self):
         """

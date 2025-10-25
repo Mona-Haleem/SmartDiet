@@ -1,52 +1,45 @@
-# from django.test import TestCase
-# from forms import LoginForm
-# from django.contrib.auth import get_user_model
-
-# User = get_user_model()
-
-# class LoginFormTests(TestCase):
-#     def setUp(self):
-#         self.user = User.objects.create_user(username="testuser", email="test@example.com", password="StrongPass!1")
-
-#     def test_valid_login_with_username(self):
-#         form = LoginForm(data={
-#             "username": "testuser",
-#             "password": "StrongPass!1"
-#         })
-#         self.assertTrue(form.is_valid())
-
-#     def test_valid_login_with_email(self):
-#         form = LoginForm(data={
-#             "username": "test@example.com",
-#             "password": "StrongPass!1"
-#         })
-#         self.assertTrue(form.is_valid())
-
-#     def test_invalid_login_wrong_password(self):
-#         form = LoginForm(data={
-#             "username": "test@example.com",
-#             "password": "WrongPass!1"
-#         })
-#         self.assertFalse(form.is_valid())
-
-#     def test_invalid_login_unsaved_email(self):
-#         form = LoginForm(data={
-#             "username": "ghost@example.com",
-#             "password": "StrongPass!1"
-#         })
-#         self.assertFalse(form.is_valid())
-
 from django.test import TestCase
+from users.models import User
 from users.forms.login_form import LoginForm
+
+
 class LoginFormTests(TestCase):
-    
-    def test_login_form_valid(self):
-        form = LoginForm(data={'login': 'test', 'password': '123'})
-        self.assertTrue(form.is_valid())
-        
-    def test_login_form_empty(self):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="testuser",
+            email="test@example.com",
+            password="strongpassword123"
+        )
+
+    def test_login_form_empty_fields(self):
+        """Form should be invalid if required fields are missing"""
         form = LoginForm(data={})
         self.assertFalse(form.is_valid())
-        self.assertIn('login', form.errors)
-        self.assertIn('password', form.errors)
+        self.assertIn("login", form.errors)
+        self.assertIn("password", form.errors)
+
+    def test_login_form_invalid_username(self):
+        """Form should add error if username does not exist"""
+        form = LoginForm(data={"login": "nonexistent", "password": "irrelevant"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("login", form.errors)
+
+    def test_login_form_wrong_password(self):
+        """Form should be invalid if password is incorrect"""
+        form = LoginForm(data={"login": "testuser", "password": "wrongpass"})
+        self.assertFalse(form.is_valid())
+        self.assertIn("login", form.errors)  
+
+    def test_login_form_valid_username(self):
+        """Form should be valid and authenticate correctly using username"""
+        form = LoginForm(data={"login": "testuser", "password": "strongpassword123"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.get_user(), self.user)
+
+    def test_login_form_valid_email(self):
+        """Form should be valid and authenticate correctly using email"""
+        form = LoginForm(data={"login": "test@example.com", "password": "strongpassword123"})
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.get_user(), self.user)
+
 

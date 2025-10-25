@@ -15,13 +15,10 @@ class UserModelTests(TestCase):
         data = self.user.serialize()
         self.assertIn("username", data)
         self.assertIn("email", data)
-        #self.assertIn("gender", data)  # assuming default if no additions
         self.assertEqual(data["username"], "testuser")
         self.assertEqual(data["email"], "test@example.com")
 
     def test_str_method_returns_username(self):
         self.assertEqual(str(self.user), "testuser")
 
-    # def test_age_method_returns_int(self):
-    #     age = self.user.age()
-    #     self.assertIsInstance(age, int)
+ 

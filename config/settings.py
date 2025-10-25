@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     # Third-party
     'rest_framework',
     'django_bootstrap5',
+    'django_htmx',
   #  'widget_tweaks',
     
     # Local apps
