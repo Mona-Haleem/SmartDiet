@@ -1,25 +1,10 @@
-export function toggel_theme(btn) {
-  const theme = localStorage.getItem("theme") === "dark" ? "" : "dark";
-  btn.innerText = theme === "dark" ? "L" : "D";
-  localStorage.setItem("theme", theme);
-  document.documentElement.setAttribute("data-theme", theme);
-}
+import { validators } from "./validators.js";
 
-export function showError(msg, parentEle) {
-  let errorEl = parentEle.querySelector(".input-error");
-  if (!errorEl) {
-    errorEl = document.createElement("p");
-    errorEl.classList.add("input-error");
-    errorEl.style.color = "red";
-    parentEle.appendChild(errorEl);
-  }
-  errorEl.textContent = msg;
-}
 
-export function removeError(parentEle) {
-  const errorEl = parentEle.querySelector(".input-error"); //.invalid-feedback
-  if (errorEl) errorEl.remove();
-}
+
+//to do
+//make a generic function that works with form validation 
+
 
 export function attachValidation(input, validateFn, errorMsg) {
   input.addEventListener("blur", () => {

@@ -24,6 +24,10 @@
       integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
       crossorigin="anonymous"
     ></script>
+    <!--load static files-->
+    <link rel="stylesheet" href="{% static 'common/styles.css' %}" />
+    <script type="module" src="{% static 'common/script.js' %}" defer></script>
+    {% block script %}{% endblock %}
     <!-- Alpine.js & HTMX -->
     <script
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
@@ -31,12 +35,8 @@
     ></script>
     <script src="https://unpkg.com/htmx.org@2.0.0" defer></script>
 
-    <!--load static files-->
-    <link rel="stylesheet" href="{% static 'common/styles.css' %}" />
-    <script type="module" src="{% static 'common/script.js' %}" defer></script>
 
     <!-- <script defer src="{% static 'diet/scripts/script.js' %}"></script> -->
-    {% block script %}{% endblock %}
     <!-- <script type="text/babel" id="page_script" src="{% static 'diet/react/context.jsx' %}"></script>   
         <script type="text/babel" src="{% static 'diet/react/react.jsx' %}"></script>-->
   </head>
@@ -53,8 +53,8 @@
     </div>
     </main>
 
-    <footer class="d-flex position-absolute bottom-3 left-0">
-      <button class="sub-btn" id="theme-toggle" @click="darkMode = !darkMode">
+    <footer class="d-flex position-absolute {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}">
+      <button class="sub-btn" id="theme-toggle" data-click-toggle-theme >
         D
       </button>
 

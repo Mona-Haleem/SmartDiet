@@ -16,29 +16,29 @@ class LoginFormTests(TestCase):
         form = LoginForm(data={})
         self.assertFalse(form.is_valid())
         self.assertIn("login", form.errors)
-        self.assertIn("password", form.errors)
+        self.assertIn("login_password", form.errors)
 
     def test_login_form_invalid_username(self):
         """Form should add error if username does not exist"""
-        form = LoginForm(data={"login": "nonexistent", "password": "irrelevant"})
+        form = LoginForm(data={"login": "nonexistent", "login_password": "irrelevant"})
         self.assertFalse(form.is_valid())
         self.assertIn("login", form.errors)
 
     def test_login_form_wrong_password(self):
         """Form should be invalid if password is incorrect"""
-        form = LoginForm(data={"login": "testuser", "password": "wrongpass"})
+        form = LoginForm(data={"login": "testuser", "login_password": "wrongpass"})
         self.assertFalse(form.is_valid())
         self.assertIn("login", form.errors)  
 
     def test_login_form_valid_username(self):
         """Form should be valid and authenticate correctly using username"""
-        form = LoginForm(data={"login": "testuser", "password": "strongpassword123"})
+        form = LoginForm(data={"login": "testuser", "login_password": "strongpassword123"})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_user(), self.user)
 
     def test_login_form_valid_email(self):
         """Form should be valid and authenticate correctly using email"""
-        form = LoginForm(data={"login": "test@example.com", "password": "strongpassword123"})
+        form = LoginForm(data={"login": "test@example.com", "login_password": "strongpassword123"})
         self.assertTrue(form.is_valid())
         self.assertEqual(form.get_user(), self.user)
 

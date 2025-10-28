@@ -1,6 +1,8 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from users.models import User
+import json 
+
 class LoginViewTests(TestCase):
 
     def setUp(self):
@@ -21,48 +23,53 @@ class LoginViewTests(TestCase):
     def test_login_with_username_success(self):
         response = self.client.post(self.login_url, {
             'login': 'testuser',
-            'password': 'StrongPassword1!'
+            'login_password': 'StrongPassword1!'
         })
-        self.assertRedirects(response, self.index_url, status_code=302)
+        self.assertIn("X-Redirect", response)
+        self.assertEqual(response["X-Redirect"], '/diet/')
         response = self.client.get(self.index_url)
         self.assertTemplateUsed(response, 'index.html')
 
     def test_login_with_email_success(self):
         response = self.client.post(self.login_url, {
             'login': 'test@example.com',
-            'password': 'StrongPassword1!'
+            'login_password': 'StrongPassword1!'
         })
-        self.assertRedirects(response, self.index_url, status_code=302)
+        self.assertIn("X-Redirect", response)
+        self.assertEqual(response["X-Redirect"], '/diet/')
         response = self.client.get(self.index_url)
         self.assertTemplateUsed(response, 'index.html')
 
     def test_login_invalid_credentials(self):
         response = self.client.post(self.login_url, {
             'login': 'testuser',
-            'password': 'WrongPassword!'
+            'login_password': 'WrongPassword!'
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("login"))  
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('login', data['errors'])
+ 
 
     def test_login_nonexistent_user(self):
         response = self.client.post(self.login_url, {
             'login': 'nosuchuser',
-            'password': 'AnyPassword123!'
+            'login_password': 'AnyPassword123!'
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("login"))
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('login', data['errors'])
 
     def test_login_empty_form(self):
         """POST /login with empty data should show field errors."""
         response = self.client.post(self.login_url, {})
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("login"))
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('login', data['errors'])
+        self.assertIn('login_password', data['errors'])
+
 
 class LogoutView(TestCase):
     

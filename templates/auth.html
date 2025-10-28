@@ -12,10 +12,7 @@
 
 {% block body%}
 <img class="logo_img d-block mb-3" src="{% static 'assets/logo.png' %}" />
-  <!-- Reusable error component -->
-  <div id="error-container">
-    {% include "./components/errorMsg.html" with form=form %}
-  </div>
+  
 
   <!-- Auth Form -->
     {% include "./components/authForm.html" with form=form slug=slug %}

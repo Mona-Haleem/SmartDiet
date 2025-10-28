@@ -3,8 +3,7 @@ from django.contrib.auth import  login, logout
 from django.db import IntegrityError
 from django.http import  JsonResponse, HttpResponseRedirect
 from django.urls import reverse
-from django_htmx.http import HttpResponseClientRedirect  
-from users.helpers import auth
+from core.helpers.ajaxRedirect import ajaxRedirect
 from users.models import User
 from users.forms.login_form import LoginForm
 from users.forms.register_form import RegisterForm
@@ -14,16 +13,24 @@ def login_user(request):
         form = LoginForm(request.POST)
         if form.is_valid():
             login(request, form.user)
-            return redirect("index")
+            return ajaxRedirect(reverse("index"), "Logged in successfully")
         else:
-            return render(request, "components/errorMsg.html", {"form": form})
-    else:
-        if request.htmx:
+            return JsonResponse({
+            "message": "There were validation errors.",
+            "errors": form.errors,
+            }, status=400)
+        
+    elif request.method  == "GET":
+        print(request.headers.get("HX-request"))
+        if request.headers.get("HX-Request") == "true":
             return render(request, "components/authForm.html", {
                 "form": LoginForm(),
                 "slug":"login"
             })
         return HttpResponseRedirect(reverse("index",args=["login"]))
+    
+    else:
+        return JsonResponse({"message": "Method not allowed"}, status=405)
 
 
 
@@ -31,10 +38,10 @@ def register(request):
     if request.method == "POST":
         form = RegisterForm(request.POST)
         if not form.is_valid():
-            return render(request, "components/errorMsg.html", {
-                "form": form
-            })
-        
+            return JsonResponse({
+            "message": "There were validation errors.",
+            "errors": form.errors,
+            }, status=400)        
         email = request.POST["email"]
         username = email.split('@')[0]
         password = request.POST["password"]
@@ -43,18 +50,23 @@ def register(request):
             user = User.objects.create_user(username.lower(), email, password)
             user.save()
         except IntegrityError:
-            return render(request, "components/errorMsg.html", {
-                "message": "Username already taken."
-            })
+            return JsonResponse({
+                "message": "Email already taken.",
+                "errors": "Email already taken.",
+            }, status=400)  
         login(request, user)
-        return redirect("index")
-    else:
-        if request.htmx:
+        return ajaxRedirect(reverse("index"), "Logged in successfully")
+    elif request.method  == "GET":
+        print(request.headers.get("HX-request"))
+        if request.headers.get("HX-Request") == "true":
+            print("htmx request")
             return render(request, "components/authForm.html", {
                 "form": RegisterForm(),
                 "slug":"register"
             })
         return HttpResponseRedirect(reverse("index",args=["register"]))
+    else:
+        return JsonResponse({"message": "Method not allowed"}, status=405)
 
     
 

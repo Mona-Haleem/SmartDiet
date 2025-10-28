@@ -1,13 +1,19 @@
 <form
   id="auth_form"
-  hx-post="{% url slug %}"
+  x-data="{errors:[],inputRefs:{}}"
+  x-init="$nextTick(()=>auth = new AuthForm($el ,$refs ,$data))"
+  @submit.prevent="auth.submitForm($event,'{% url slug %}')"
   class="space-y-4"
-  hx-target="#error-container"
-  hx-swap="outerHTML"
   name="{{ slug }}"
 >
-  {% csrf_token %} 
-  {{ form.as_p }}
+<!-- Reusable error component -->
+  <div id="error-container" x-ref="error-container">
+    <template x-for="error in errors">
+        <p class="input-error" x-text="error"></p>
+    </template>
+    {% include "./errorMsg.html" with form=form %}
+  </div>
+  {% csrf_token %} {{ form.as_p }}
 
   <button type="submit" class="btn btn-primary w-100 main-btn">
     {% if slug == 'login' %}Log In{% else %}Register{% endif %}
@@ -17,10 +23,7 @@
   {% if slug == 'login' %}
   <button
     type="button"
-    hx-get="{% url 'register' %}"
-    hx-target="#auth_form"
-    hx-swap="outerHTML"
-    hx-push-url="{% url 'register' %}"
+    @click="auth.swapContent('{% url 'register' %}')"
     class="btn btn-outline-secondary main-btn"
   >
     Don't have an account ?Register
@@ -28,10 +31,7 @@
   {% else %}
   <button
     type="button"
-    hx-get="{% url 'login' %}"
-    hx-target="#auth_form"
-    hx-swap="outerHTML"
-    hx-push-url="{% url 'login' %}"
+    @click="auth.swapContent('{% url 'login' %}')"
     class="btn btn-outline-secondary main-btn"
   >
     Already have an account? Log in

@@ -54,12 +54,15 @@ body {
   background-position: center !important;
   box-shadow: 0 0px 20px 6px #000;
   overflow: hidden;
-  background-clip: border-box;
+  background-clip: border-box !important;
   -webkit-background-clip: border-box;
 }
 
 main.closed {
   background: var(--book-closed);
+  border-radius: 0 50px 50px 0 ;
+  max-width: 800px !important;
+  margin: 0 auto;
 }
 
 main.opened {
@@ -78,9 +81,15 @@ footer {
   bottom: 50px;
   left: 0;
   z-index: 100;
-  padding: 0 100px;
+  padding: 0 20px;
 }
 
+footer.closed{
+  justify-content: flex-end;
+  margin: 0 calc(50% - 400px);
+  max-width: 800px !important;
+
+}
 /*---------elements----------*/
 label {
   margin: 5px 0;
@@ -105,8 +114,8 @@ input.form-control:focus {
   box-shadow: 0px 2px 2px 2px #0000001f;
 }
 
-.isInvalid {
-  border-color: red;
+input.isInvalid {
+  border-bottom-color: red !important;
 }
 
 .input-error {
@@ -125,6 +134,7 @@ input.form-control:focus {
   border: 2px solid rgba(var(--highlight-rgb), 0.3);
   color: rgb(var(--bright-lines-rgb)) !important;
 }
+
 .sub-btn {
   width: 40px;
   height: 40px;
@@ -179,8 +189,35 @@ input.form-control:focus {
   --bs-btn-disabled-border-color: rgb(var(--primary-color-rgb));
 }
 
-@media screen and (max-width: 1300px) {
+/*--------tests-------*/
+#content {
+  transition: opacity 0.3s;
+  opacity: 1;
 }
+
+/* Loader styling */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1em;
+}
+
+.spinner {
+  border: 3px solid #ddd;
+  border-top-color: #3498db;
+  border-radius: 50%;
+  width: 25px;
+  height: 25px;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* @media screen and (max-width: 1300px) {
+} */
 
 @media screen and (max-width: 992px) {
   main.opened {
@@ -191,10 +228,11 @@ input.form-control:focus {
   .content {
     padding: 0 80px 0 50px;
   }
-  footer {
+  footer ,footer.closed{
     justify-content: flex-end;
   }
 }
+
 @media screen and (max-width: 768px) {
   main.opened {
     background: var(--book-opened-sm);

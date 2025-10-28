@@ -26,12 +26,20 @@ export const validators = {
     validate: isValidEmail,
     errorMsg: 'Enter a valid email',
   },
+  login:{
+    validate: (input) => isValidEmail(input) || isValidUsername(input),
+    errorMsg: 'Enter a valid email',
+  },
+  login_password:{
+    validate: (input) => !!input,
+    errorMsg: 'Enter your password',
+  },
   password: {
     validate: isValidPassword,
     errorMsg: 'Password must be at least 8 chars, include upper, lower & symbol',
   },
-  confirm_password: {
-    validate: (val, form) => isPasswordMatching(form.password.value, val),
+  confirmation: {
+    validate: (val,password) => isPasswordMatching(password, val),
     errorMsg: 'Passwords do not match',
   },
 };

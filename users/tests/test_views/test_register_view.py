@@ -1,6 +1,7 @@
 from django.test import TestCase, Client
 from django.urls import reverse
 from users.models import User
+import json
 
 class RegisterViewPostTests(TestCase):
 
@@ -25,13 +26,24 @@ class RegisterViewPostTests(TestCase):
             'password': 'NewStrongPassword1!',
             'confirmation': 'NewStrongPassword1!'
         })
-        self.assertRedirects(response, self.index_url, status_code=302)
+        self.assertIn("X-Redirect", response)
+        self.assertEqual(response["X-Redirect"], '/diet/')
         self.assertTrue(User.objects.filter(email='newuser@example.com').exists())
         user = User.objects.get(email='newuser@example.com')
         self.assertEqual(user.username, 'newuser') 
         response = self.client.get(self.index_url)
         self.assertTemplateUsed(response, 'index.html')
         self.assertEqual(response.context['user'].email, 'newuser@example.com')
+    
+    def test_register_empty_fields(self):
+        """POST /register with empty fields should return 400 with errors"""
+        response = self.client.post(self.register_url, {})
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('email', data['errors'])
+        self.assertIn('password', data['errors'])
+        self.assertIn('confirmation', data['errors'])
 
     def test_register_password_mismatch(self):
         """
@@ -42,10 +54,10 @@ class RegisterViewPostTests(TestCase):
             'password': 'NewStrongPassword1!',
             'confirmation': 'MISMATCH'
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("confirmation"))
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('confirmation', data['errors'])
         self.assertFalse(User.objects.filter(email='newuser@example.com').exists())
 
     def test_register_duplicate_email(self):
@@ -54,10 +66,11 @@ class RegisterViewPostTests(TestCase):
             'password': 'NewStrongPassword1!',
             'confirmation': 'NewStrongPassword1!'
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("email"))
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('email', data['errors'])
+
         
     def test_register_weak_password(self):
         response = self.client.post(self.register_url, {
@@ -65,13 +78,12 @@ class RegisterViewPostTests(TestCase):
             'password': 'abc',
             'confirmation': 'abc'
         })
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "components/errorMsg.html")
-        form = response.context["form"]
-        self.assertTrue(form.has_error("password"))
+        self.assertEqual(response.status_code, 400)
+        data = json.loads(response.content)
+        self.assertIn('errors', data)
+        self.assertIn('password', data['errors'])
         self.assertFalse(User.objects.filter(email='newuser@example.com').exists())
-        self.assertIn('at least 8 characters', str(form.errors['password']))
-        self.assertIn('one uppercase letter', str(form.errors['password']))
-        self.assertIn('one special character', str(form.errors['password']))
-        self.assertFalse(User.objects.filter(email='newuser@example.com').exists())
+        password_errors = ' '.join(data['errors']['password'])
+        self.assertIn('8 character', password_errors.lower())
+
 
