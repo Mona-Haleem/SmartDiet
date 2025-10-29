@@ -4,7 +4,7 @@
  * Manages CSRF tokens, headers, and response parsing.
  * This class is injected into other services that need to make API calls.
  */
-export class ApiService {
+export default class ApiService {
   constructor(config = {}) {
     this.baseUrl = config.baseUrl || "";
     this.defaultHeaders = {

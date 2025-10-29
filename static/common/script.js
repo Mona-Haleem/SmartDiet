@@ -5,19 +5,18 @@
  * This is where all dependencies are injected (Dependency Injection).
  */
 import QueryCache from "../scripts_module/helpers/fetchData/QueryCache.js"
-import { ApiService } from "../scripts_module/helpers/fetchData/ApiService.js";
-import { QueryService } from "../scripts_module/helpers/fetchData/QueryService.js";
-import { EventDelegator } from "../scripts_module/helpers/eventDelegations.js";
+import ApiService from "../scripts_module/helpers/fetchData/ApiService.js";
+import QueryService from "../scripts_module/helpers/fetchData/QueryService.js";
+import EventDelegator from "../scripts_module/helpers/utils/eventDelegations.js";
 import Component from "../scripts_module/ComponentsClasses/Component.js";
-import AuthForm from "../scripts_module/ComponentsClasses/AuthForm.js";
-import {  initializeTheme } from "../scripts_module/theme.js";
 import * as dom from "../scripts_module/helpers/utils/DomUtils.js";
+//import AuthForm from "../scripts_module/ComponentsClasses/AuthForm.js";
  
 
 // 1. Initialize Services
-  const cache = new QueryCache({ defaultTTL: 5 * 60 * 1000 }); // 5 min TTL
-  const apiService = new ApiService();
-  export const queryService = new QueryService(apiService, cache);
+const cache = new QueryCache({ defaultTTL: 5 * 60 * 1000 }); 
+const apiService = new ApiService();
+export const queryService = new QueryService(apiService, cache);
 
 document.addEventListener("DOMContentLoaded", () => {
   
@@ -42,33 +41,26 @@ document.addEventListener("DOMContentLoaded", () => {
  // delegator.listen("blur");
  // delegator.listen("focus");
 
-  // 5. Initialize Components
-  // Find all components on the page and instantiate them
-  const authFormElement = document.getElementById("auth_form");
-  if (authFormElement) {
-    new AuthForm(authFormElement);
-  }
-  // ... you could add more component initializers here
-  // e.g., document.querySelectorAll('[data-component="profile-editor"]')
-  //          .forEach(el => new ProfileEditor(el));
+  
+  // 5. Run initial setup
+  const themeToggleBtn = document.getElementById("theme-toggle");
 
-  // 6. Run initial setup
-  initializeTheme();
+  dom.initializeTheme(themeToggleBtn);
 });
 
 // Handle Alpine.js re-initialization after htmx swaps (if needed)
-document.body.addEventListener("htmx:afterSwap", () => {
-  if (window.Alpine) {
-    window.Alpine.flushAndStopDeferringMutations();
-    window.Alpine.start();
-  }
-});
+// document.body.addEventListener("htmx:afterSwap", () => {
+//   if (window.Alpine) {
+//     window.Alpine.flushAndStopDeferringMutations();
+//     window.Alpine.start();
+//   }
+// });
 
 
 
-document.body.addEventListener("htmx:afterSwap", () => {
-  if (window.Alpine) Alpine.flushAndStopDeferringMutations();
-});
-document.body.addEventListener("htmx:afterSettle", () => {
-  if (window.Alpine) Alpine.start();
-});
+// document.body.addEventListener("htmx:afterSwap", () => {
+//   if (window.Alpine) Alpine.flushAndStopDeferringMutations();
+// });
+// document.body.addEventListener("htmx:afterSettle", () => {
+//   if (window.Alpine) Alpine.start();
+// });

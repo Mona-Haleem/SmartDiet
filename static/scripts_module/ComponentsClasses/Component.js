@@ -17,14 +17,12 @@ export default class Component {
 
   async swapContent(data) {
     try {
-      console.log(data, this.instanceId , this.isSwaping)
       const html = data;
       const tpl = document.createElement("template");
       tpl.innerHTML = html.trim();
       const newEl = tpl.content.firstElementChild;
 
       if (!newEl) throw new Error("No valid root element in template");
-      console.log(this.$el);
       const parent = this.$el.parentNode;
 
       if (newEl) {
@@ -32,15 +30,12 @@ export default class Component {
       }
 
       if (parent) {
-        // Replace old element with new one
         parent.replaceChild(newEl, this.$el);
       }
 
-      // Keep the same instance
-      // Reinitialize Alpine (x-data, x-init, etc.)
+    
       Alpine.initTree(this.$el);
 
-      // Refresh $refs for the new DOM
       this.refreshRefs();
       this.delete();
       return true;

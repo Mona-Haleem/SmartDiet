@@ -1,4 +1,5 @@
-export class QueryService {
+import * as dom from "../utils/DomUtils.js";
+export default class QueryService {
   constructor(apiService, cache) {
     this.apiService = apiService;
     this.cache = cache;
@@ -88,13 +89,15 @@ export class QueryService {
     try {
       context.stage = "fetching";
       const response = await queryFn(context);
-      if (!response.ok)
-        throw new Error(response.data.message || "error fetching data");
-      const redirectUrl = response.headers.get("X-Redirect");
-      if (redirectUrl) {
-        window.location.href = redirectUrl;
-        return; // stop further processing
+      if (!response.ok) {
+        const msg =
+          typeof response.data === "object" && response.data?.message
+            ? response.data.message
+            : "error fetching data";
+        throw new Error(msg);
       }
+
+      this.handleRedirect(response);
 
       context.response = response;
       context.data = response?.data ?? response; // allow raw or ApiService style
@@ -136,5 +139,13 @@ export class QueryService {
       context.ok = result.ok;
       return result;
     };
+  }
+
+  handleRedirect(response) {
+    const redirectUrl = response.headers.get("X-Redirect");
+    if (redirectUrl) {
+      window.location.href = redirectUrl;
+      return;
+    }
   }
 }
