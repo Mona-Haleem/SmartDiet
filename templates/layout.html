@@ -47,6 +47,7 @@
     <main
       class="main book w-100 h-100 {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}"
     >
+    <a href="{% url 'browse' %}">browse</a>
     <div class="content">
 
       {% block body %} {% endblock %}
