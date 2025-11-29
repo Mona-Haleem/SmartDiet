@@ -2,9 +2,10 @@ djangorestframework
 #utilities
 Pillow
 #templates 
-django-bootstrap5
-django-htmx
-
+#django-bootstrap5
+#django-htmx
+django-decorator-include
+#django-mptt
 #testing
 pytest
 pytest-django
@@ -13,3 +14,6 @@ pytest-watch
 
 #env
 python-dotenv
+
+#production test
+whitenoise

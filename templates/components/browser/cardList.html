@@ -1,0 +1,57 @@
+{% load static %}
+
+<div class="item_viewer h-100 w-100 p-4">
+  <div
+    class="w-100 card-list-grid"
+    x-data="{items:{{result.items}},mode:'{{mode}}'}"
+    x-init="$nextTick(()=>{
+      console.log('Initializing CardList');
+      cardList = new CardList($el,$refs,$data,paginator.updateData.bind(paginator));
+      paginator.pageClass = cardList;
+      return cardList
+    })"
+  >
+    <template name="item" x-for="(item , index) in items" :key="item.id">
+      <div class="ele-container p-2" :id="item.id" :data-type="item.type">
+        <div
+          class="image-container h-100 w-100"
+          :class="item.type === 'recipe' ? 'recipe' : item.category"
+          :title="`Last Edited:${new Date(item.edited).toLocaleDateString()}`"
+          draggable="true"
+          @drop="drop(event)"
+          @dragstart="drag(event)"
+        >
+          <a :href="item.details_path">
+            <img
+              :src="item.media"
+              :alt="item.name"
+              data-fallback="{% static 'assets/logo.png' %}" onerror="this.src=this.dataset.fallback;"
+            />
+            <div class="gradient-overlay"></div>
+            <div class="image-details">
+              <h5 class="m-0 p-0">
+                <span x-html="item.favorite ? '&#9829;' : '&#9825;'"></span>
+                <span x-html="item.shared ? '&#9821;' : '&#9820;'"></span>
+                <span x-text="item.name"></span>
+              </h5>
+              <p class="m-0 p-0" x-text="item.creator"></p>
+              <p class="m-0 p-0">
+                Created:
+                <span
+                  x-text="(new Date(item.created)).toLocaleDateString()"
+                ></span>
+              </p>
+              <p class="m-0 p-0" x-text="item.notes"></p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </template>
+    <div class="no-items" x-show="items.length === 0">
+      <p>No items found.</p>
+    </div>
+  </div>
+  <div class="page">
+    <input name="pageNumber" @change="paginator.paginateTo($event.target.value)"  x-model="page" /> 
+  </div>
+</div>

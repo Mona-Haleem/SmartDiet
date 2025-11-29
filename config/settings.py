@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-2w)^v07=-$)6s+rqys@olzjl6i9j!#^%e1ipy=q_cs@5ywcedf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -46,10 +46,12 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'django_htmx',
   #  'widget_tweaks',
+
+    'mptt',
     
     # Local apps
     'users.apps.UsersConfig',
-    'recipes.apps.RecipesConfig',
+    'healthHub.apps.HealthHubConfig',
     'core.apps.CoreConfig',
 
 ]
@@ -63,7 +65,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-    "django_htmx.middleware.HtmxMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
+    'core.middleware.error_middleware.CustomErrorMiddleware',
 
 ]
 
@@ -86,14 +90,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
+DB_NAME = os.environ.get('DB_NAME', 'db.sqlite3')
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / DB_NAME,
     }
 }
 
@@ -134,6 +138,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -142,6 +150,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 TEST_RUNNER = "pytest_django.runner.PytestTestRunner"
 
+LOGIN_URL = '/diet/users/login'   
 AUTH_USER_MODEL = 'users.User'
 
 # Session settings for "Remember Me"

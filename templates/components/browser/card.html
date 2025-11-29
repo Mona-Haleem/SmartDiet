@@ -1,0 +1,46 @@
+ 
+       
+     
+    
+<div class="ele-container" id='${ele.id}' data-type="${type}" >
+    <!-- <div class="dropdown" style="position:absolute;top:0; right:0;" onclick="(this) =>{this.parent}">
+        <span data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-ellipsis-v"></i>
+        </span>
+        <ul class="dropdown-menu">
+            <li class="dropdown-item"  onclick="deleteElement('${type}',${ele.id},this.closest('.ele-container'))"><i class="fas fa-trash"></i>Delete</li>
+            <li class="dropdown-item"  onclick="updateElementsGroups(${ele.id},${collection},'${type}-back',${collection},this.closest('.ele-container'))"><i class="fas fa-chevron-left"></i> Send Backword</li>
+            <li class="dropdown-item"  onclick="updateElementsGroups(${ele.id},0,'${type}',${collection},this.closest('.ele-container'))"><i class="fas fa-backward"></i> send to root Folder</li>
+        </ul>
+    </div> -->
+    <div class="image-container ${type==recipe?'#ddd':category=='diet'?#aaa:category=='exercies'?'#abc':'#cde'}" title="${ele.last_modification}"  draggable="true" ondrop="drop(event)" ondragstart="drag(event)">
+        <a href=/diet/${type}/${ele.element_id}/${encodeURIComponent(ele.title)}>    
+            <img src="${ele.media}" alt="${ele.title}">
+            <div class="gradient-overlay"></div>
+            <div class="image-details">
+                <h5 class="m-0 p-0">
+                    ${(ele.favourite)?'&#9829':'&#9825';}
+                    ${(ele.shared)?'&#9821':'&#9820';}
+                    ${ele.title}
+                </h5>
+                <p class="m-0 p-0">${ele.creator}</p>
+                <p class="m-0 p-0">Created: ${ele.created}</p>
+                <p class="m-0 p-0" >
+                    ${ele.notes}
+                </p>
+            </div>
+        </a>
+    </div>
+</div>
+{
+            "id": obj.id,
+            "name": obj.name,
+            "media":obj.media[0] or '/static/images/logo.png' ,
+            "category": obj.category,  
+            "type": obj.type,
+            "creator": obj.creator.username if obj.creator else None,
+            "shared": obj.shared,
+            "favorite": obj.favorite,
+            "edited": obj.edited.isoformat() ,
+            "created": obj.created.isoformat() 
+        }

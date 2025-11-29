@@ -1,0 +1,37 @@
+main.opened {
+  background: var(--book-opened-sm);
+  border-radius: 0 0 60px 60px;
+}
+
+.content {
+  padding-top: 35px;
+}
+footer {
+  justify-content: center;
+}
+/*-------------------------------- navigation css-----------------------*/
+.nav-sections {
+  height: 4vh;
+  width: 75vw;
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+}
+nav .nav-item {
+  writing-mode: lr;
+  transform: rotate(360deg);
+  border: 3px solid rgb(var(--primary-color-rgb));
+  border-radius: 15px 15px 0px 0px;
+  background-color: rgb(var(--primary-color-rgb));
+  position: relative;
+  box-shadow: 2px -4px 8px rgba(0, 0, 0, 0.8);
+  width: 20% !important;
+  text-wrap: nowrap;
+}
+nav .nav-item i {
+  transform: rotate(360deg);
+}
+
+.detail-page{
+  width: 100%;
+}

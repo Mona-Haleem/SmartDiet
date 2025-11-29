@@ -124,3 +124,151 @@ class UserCreationModelTest(TestCase):
         self.assertEqual(len(results), 2)
         self.assertEqual(results[0], base_recipe_2)
         self.assertEqual(results[1], self.base_recipe)
+
+"""
+UserCreation (Base model)
+🧪 Creation & Attributes
+
+✅ Can create a new UserCreation record directly.
+
+✅ created and edited timestamps are set correctly.
+
+✅ Default values (e.g., is_public=False) are applied.
+
+
+🧪 Manager / Factory (create_element)
+
+✅ Creates a UserCreation and corresponding subtype (Recipe or Plan).
+
+✅ Raises error or handles invalid element_type gracefully.
+
+✅ Creates minimal valid base data when only basic fields are provided.
+
+🧪 Relationships
+
+✅ Subtype (e.g., .recipe or .plan) exists after creation.
+
+
+
+🧪 Updates
+
+✅ Can update single fields (name, is_public, etc.) without affecting subtype.
+
+✅ edited field updates automatically on save.
+
+🧪 Deletion
+
+✅ Deleting UserCreation cascades and deletes its subtype (Recipe/Plan).
+
+✅ Deleting via queryset (UserCreation.objects.filter(...).delete()) also cascades properly.
+
+✅ Deleting a subtype (e.g., Recipe) also deletes its base.
+
+
+🧪 Collections (many-to-many)
+
+✅ Can assign a UserCreation to one or more collections.
+
+✅ Can query all elements in a collection via collection.elements.all().
+
+✅ Removing a collection does not delete the element (and vice versa).
+
+✅ Elements can belong to multiple collections.
+
+🍳 2. Recipe (Subtype)
+🧪 Creation & Linkage
+
+✅ Created automatically via UserCreation.create_element('recipe').
+
+✅ Manually creating Recipe with an existing UserCreation works.
+
+
+🧪 Data Fields
+
+✅ Can store and retrieve category, ingredients, directions, nutrients.
+
+✅ nutrients JSON field can handle arbitrary structures (e.g., dict, list).
+
+🧪 Deletion
+
+✅ Deleting the base record deletes the recipe.
+
+✅ Deleting the recipe deletes the base record.
+
+🏋️ 3. Plan (Subtype)
+🧪 Creation & Linkage
+
+✅ Created automatically via UserCreation.create_element('plan').
+
+✅ plan_type, period, and goal fields can be set and retrieved.
+
+🧪 Plan Details (one-to-many)
+
+✅ Can create PlanDetail linked to a plan.
+
+✅ Accessing plan.details.all() returns all related details.
+
+✅ Deleting a Plan cascades and deletes all PlanDetails.
+
+✅ PlanDetail fields (title, day_number, data) store correctly.
+
+✅ JSON field data handles flexible structures.
+
+📁 4. Collection (Groups)
+🧪 Creation & Hierarchy
+
+✅ Can create a root collection (no parent).
+
+✅ Can create nested collections (with parent).
+
+✅ unique_together (user, title) is enforced.
+
+✅ String representation shows title and user.
+
+✅ .is_root property correctly identifies top-level collections.
+
+🧪 Relationships
+
+✅ Can add multiple UserCreation elements to a collection.
+
+✅ Can add a single element to multiple collections.
+
+✅ Removing a collection unlinks elements, does not delete them.
+
+✅ Deleting a parent collection does not delete children (since SET_NULL).
+
+✅ Querying nested collections (e.g., collection.sub_collections.all()) returns correct children.
+
+🧪 Filtering with Collections
+
+✅ Filter all UserCreation objects belonging to a specific collection.
+
+✅ Filter elements in nested collections (if implemented).
+
+✅ Ordering by title works
+
+Integration & Functional Behavior
+🧪 Combined Scenarios
+
+✅ Creating elements and assigning them to multiple collections works seamlessly.
+
+
+✅ Lazy loading of subtype data only happens when accessed (.plan or .recipe).
+
+🧪 Edge Cases
+
+✅ Attempting to create a second subtype for the same base raises an integrity error.
+
+✅ Deleting an unrelated object does not affect others.
+
+✅ Null/blank optional fields save correctly.
+Performance / Query Sanity (optional, but valuable)
+
+These aren’t unit tests per se, but smoke tests or benchmarks:
+
+✅ Listing 1000+ elements doesn’t trigger unexpected JOINs.
+
+✅ Accessing .plan or .recipe doesn’t prefetch unnecessary data.
+
+✅ Query counts for typical list views stay within expected bounds (use Django’s assertNumQueries).
+"""

@@ -68,7 +68,7 @@ class PlanDetail(models.Model):
         related_name='details'
     )
     section = models.CharField(max_length=255)
-    detail = models.TextField(blank=True, default='')
+    detail = models.JSONField(default=list, blank=True)
     order = models.IntegerField(default=1)
 
     def __str__(self):

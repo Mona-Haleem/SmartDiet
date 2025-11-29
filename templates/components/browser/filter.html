@@ -1,0 +1,55 @@
+<form
+  id="filters-form"
+  class="controls justify-content-between mt-4 mx-4 m-1"
+  onsubmit="return false"
+  style="height: 40px; display: flex"
+  x-show="false"
+>
+  <input
+    id="search"
+    name="search"
+    autocomplete="off"
+    class="form-control"
+    style="width: 45%"
+  />
+  <div class="d-flex justify-content-between">
+    <select id="order" name="order" class="form-control" style="width: 24%">
+      <option value="">order</option>
+      <option value="-last_modification">edited &darr;</option>
+      <option value="-creation_date">New &darr;</option>
+      <option value="last_modification">edited &uarr;</option>
+      <option value="creation_date">New &uarr;</option>
+      <option value="title">title</option>
+      <!---->
+      <option value="user__username">creator</option>
+    </select>
+    <div class="filter-container" style="width: 24%">
+      <div
+        class="filter-select"
+        id="select-container"
+        tabindex="5"
+        onclick="this.classList.toggle('open')"
+        onblur="this.classList.remove('open')"
+      >
+        <span class="selected-options">filter</span>
+        <div class="filter-menu" id="filter">
+          {% for category in categories%}
+          <p>{{category}}</p>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <button id="collections" class="sub-btn" title="Collections" type="button">
+      <i class="fas fa-folder"></i>
+    </button>
+    <!----><button class="sub-btn" title="Discover">
+      <i class="fas fa-search"></i>
+    </button>
+    <button id="add" class="sub-btn" title="Create">
+      <i class="fas fa-plus"></i>
+    </button>
+    <!----><button class="sub-btn" title="Create with Ai">
+      <i class="fas fa-atom"></i>
+    </button>
+  </div>
+</form>

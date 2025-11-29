@@ -1,0 +1,66 @@
+{% load nested_tags %}
+
+<nav id="anchor" class="" style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb"
+  
+>
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item d-none d-sm-inline">
+      <a href="{% url 'browse' %}?type={{ele.type}}">{{ele.type}}</a>
+    </li>
+    <li class="breadcrumb-item d-none d-sm-inline">
+      <a href='{% url ele.type|add:"s" ele.id ele.name %}'>{{ele.name}}</a>
+    </li>
+    {% if ele.type == 'plan' %}
+
+    <li class="breadcrumb-item" x-data="{activeSection:'info page',activeId:'page1'}" x-init="$nextTick(()=> {paginator.activeSection = $data})">
+      <div class="dropdown" style="top: -31px; left: 5px">
+        <button
+          class="btn dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          x-text="activeSection"
+        >
+          info page
+        </button>
+        <ul class="dropdown-menu">
+          <li
+            class="dropdown-item"
+            data-navto="#info-page"
+            @click="paginator.paginateTo('page1');activeSection = 'info page';activeId = 'page1';"
+          >
+            info page
+          </li>
+          {% recursetree ele.details %} {% if not node.subSections %}
+          <li
+            class="dropdown-item"
+            data-navto="#section-{{node.id}}"
+            @click="paginator.paginateTo('section-{{node.id}}');activeSection = '{{node.section}}';activeId = 'section-{{node.id}}';"
+          >
+            {{node.section}}
+          </li>
+          {% else %}.
+          <li class="dropdown-item" data-navto="#section-{{node.id}}">
+            <div class="btn-group dropend w-100 dropdown-hover">
+              <button
+                class="btn dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                @click="paginator.paginateTo('section-{{node.id}}');activeSection = '{{node.section}}';activeId = 'section-{{node.id}}';"
+              >
+                {{node.section}}
+              </button>
+              <ul class="dropdown-menu">
+                {{ children }}
+              </ul>
+            </div>
+          </li>
+          {% endif %} {% endrecursetree %}
+        </ul>
+      </div>
+      
+    </li>
+    {% endif %}
+  </ol>
+</nav>

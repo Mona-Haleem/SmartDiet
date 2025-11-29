@@ -5,14 +5,14 @@ export default class NavigationManager {
   
   static pushUrl(url, state = {}) {
     if (typeof url !== "string" || !url.trim()) return;
-    const cleanUrl = new URL(`diet/${url}/`, window.location.origin).toString();
+    const cleanUrl = new URL(`diet/${url}`, window.location.origin).toString();
     if (window.location.href !== cleanUrl) {
       window.history.pushState(state, "", cleanUrl);
     }
   }
   static replaceUrl(url, state = {}) {
     if (typeof url !== "string" || !url.trim()) return;
-    const cleanUrl = new URL(`diet/${url}/`, window.location.origin).toString();
+    const cleanUrl = new URL(`diet/${url}`, window.location.origin).toString();
     if (window.location.href !== cleanUrl) {
       window.history.replaceState(state, "", cleanUrl);
     }

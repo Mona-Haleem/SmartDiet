@@ -15,10 +15,37 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path,re_path
+from django.contrib.auth.decorators import login_required
+from decorator_include import decorator_include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.conf.urls import handler404
+from django.shortcuts import render
+from django.views.static import serve
+
+def custom_404(request, exception):
+    return render(request, 'error.html', {
+        "error_code": 404,
+        "error_title": "Page Not Found",
+        "error_message": "The page you requested does not exist."
+    }, status=404)
+
+handler404 = custom_404
 
 urlpatterns = [
     path("diet/", include("core.urls")),
+    path(
+        "diet/collections/",
+        decorator_include(login_required, "healthHub.urls")
+    ),
     path("diet/users/", include("users.urls")),
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+]
+
+if settings.DEBUG:  # Only for development
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+ urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]

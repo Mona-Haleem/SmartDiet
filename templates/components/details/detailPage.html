@@ -1,0 +1,24 @@
+{% include "components/details/quickNav.html" %}
+<div
+  class="h-100 d-lg-flex justify-content-between test"
+  x-data="{ele:{{ele}},mediaIndex:0,activeTab:'info'}"
+  x-init="$nextTick(()=>{
+      console.log('Initializing CardList');
+      eleObj = new Plan($el,$refs,$data,paginator.updateData.bind(paginator))
+      paginator.pageClass = eleObj;
+      return eleObj
+    })"
+>
+<section class="h-100 detail-page" x-ref="page1" >
+  {% include "components/details/detailHeader.html" %}
+  {% include "components/details/mediaViewer.html" %}
+  {% include "components/details/infoTabs.html" %}
+</section>
+<section class="h-100 detail-page" x-ref="page2" >
+  {% if ele.type == 'plan' %} 
+  {% include "components/details/planDetails.html" %}
+  {% else %} 
+  {% include "components/details/recipeDetails.html" %}
+  {% endif %}
+</section>
+</div>

@@ -14,7 +14,7 @@ import * as dom from "../scripts_module/helpers/utils/DomUtils.js";
  
 
 // 1. Initialize Services
-const cache = new QueryCache({ defaultTTL: 5 * 60 * 1000 }); 
+export const cache = new QueryCache({ defaultTTL: 5 * 60 * 1000 }); 
 const apiService = new ApiService();
 export const queryService = new QueryService(apiService, cache);
 

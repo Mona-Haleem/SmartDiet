@@ -1,5 +1,8 @@
+from django.db.models import Q
+
 def construct_query(request,mode):
     filters = {}
+    exclude = {}
     order = '-edited'
     filter_map = {'q':'name__icontains','categories':'category__in','type':'type'}
     for key, value in request.GET.items():
@@ -12,4 +15,5 @@ def construct_query(request,mode):
         filters['creator']=request.user
     else:
         filters['shared']=True
-    return filters , order
+        exclude['creator']=request.user
+    return filters , order ,exclude

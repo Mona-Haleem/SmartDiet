@@ -1,0 +1,14 @@
+main.opened {
+    background: var(--book-opened-md);
+    border-radius: 0 50px 50px 0;
+  }
+
+  .content {
+    padding: 0 80px 0 50px;
+  }
+  footer ,footer.closed{
+    justify-content: flex-end;
+  }
+ .detail-page{
+  width: 100%;
+}

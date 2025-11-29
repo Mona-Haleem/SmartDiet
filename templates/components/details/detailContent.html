@@ -1,0 +1,29 @@
+{% if detail.type == 'p' %}
+<p class="{% for eff in detail.effect %}{{ eff }} {% endfor %}">
+  {% if detail.content|stringformat:"s" == detail.content %}
+    {{ detail.content}}
+  {% else %} 
+    {% for frag in detail.content %}
+    <span>
+        {% include "components/details/detailContent.html" with detail=frag %}
+    </span>
+    {% endfor %} 
+   {% endif %}
+</p>
+{% elif detail.type == 'ol' %}
+<ol>
+  {% for frag in detail.content %}
+  <li>
+    {% include "components/details/detailContent.html" with detail=frag %}
+  </li>
+  {% endfor %}
+</ol>
+{% elif detail.type == 'ul' %}
+<ul>
+  {% for frag in detail.content %}
+  <li>
+    {% include "components/details/detailContent.html" with detail=frag %}
+  </li>
+  {% endfor %}
+</ul>
+{% endif%}

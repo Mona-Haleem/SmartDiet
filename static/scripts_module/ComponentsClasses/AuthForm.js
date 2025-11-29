@@ -20,7 +20,7 @@ export default class AuthForm extends Component {
     }
     
     if(NavigationManager.allowPush && !NavigationManager.initState)
-      NavigationManager.pushUrl(this.$el.name);
+      NavigationManager.pushUrl(this.$el.name+'/');
 
     NavigationManager.initState = false
   }

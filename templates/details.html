@@ -3,13 +3,15 @@
 {% load static %} 
 
 {% block script %}
-
+<link rel="stylesheet" href="{% static 'details/styles.css' %}">
+<script defer type="module" src="{% static 'details/script.js' %}"></script>
 {% endblock %} 
 
 {% block title %}{% endblock %} 
 
 {% block body%}
-  
+  <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
 
-dd
+  {% include "components/paginator.html" %} 
+  
 {% endblock %}

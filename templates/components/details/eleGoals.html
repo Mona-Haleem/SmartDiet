@@ -1,0 +1,12 @@
+<section class="ele-info" x-show="activeTab === 'metrics'">
+  <b>Goal:</b>
+  <div
+    contenteditable="true"
+    id="ele-goal"
+    class="editableDiv"
+    @blur="ele.updateGoal($event.target.textContent)"
+    x-text="ele.goal"
+  >
+    {{ele.goal}}
+  </div>
+</section>

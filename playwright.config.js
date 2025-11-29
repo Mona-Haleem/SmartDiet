@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-
+const test_db_name = 'test_db.sqlite3';
 export default defineConfig({
   testDir: "./static/__tests__/e2e",
   testMatch: ["**/*.e2e.spec.js", "**/*.spec.js"],
@@ -33,6 +33,10 @@ export default defineConfig({
   // Configure projects for major browsers
   projects: [
     {
+      name: 'setup',
+      testMatch: /setup\/auth\.setup\.js/,
+    },
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
@@ -51,9 +55,13 @@ export default defineConfig({
 
   // Run your local dev server before starting the tests
   webServer: {
-    command: "python manage.py runserver",
+   command: 'python manage.py runserver',
     url: "http://127.0.0.1:8000/diet/",
     reuseExistingServer: !process.env.CI,
     timeout: 180 * 1000,
+    // Set the env var for the server process
+    env: {
+      DB_NAME: test_db_name,
+    },
   },
 });

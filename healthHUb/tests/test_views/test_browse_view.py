@@ -56,7 +56,7 @@ class MyTestSetup(TestCase):
         self.client.login(username='user1', password='Password1*')
         response = self.client.get(reverse('browse'))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'list.html')
+        self.assertTemplateUsed(response, 'browser.html')
         # Check 
         context_data = response.context[-1]  
         self.assertIn('result', context_data)

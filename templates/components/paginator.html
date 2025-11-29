@@ -1,0 +1,30 @@
+<div
+  x-data='{next: {{ result.next|yesno:"true,false" }}
+ , prev: {{ result.prev|yesno:"true,false" }}
+ , page: {{result.page|default:"0"}}}'
+  x-init="$nextTick(()=>paginator = new Paginator($data))"
+  class="paginator-container w-100 h-100"
+>
+  {% include children_template %}
+  <div
+    class="nav-btn"
+    style="left: 0px"
+    x-show="prev"
+    @click="paginator.paginateTo('prev')"
+  >
+    <i id="prev" class="fas fa-caret-left icon" style="vertical-align: top"></i>
+  </div>
+
+  <div
+    class="nav-btn"
+    style="right: 0px"
+    x-show="next"
+    @click="paginator.paginateTo('next')"
+  >
+    <i
+      id="next"
+      class="fas fa-caret-right icon"
+      style="vertical-align: top"
+    ></i>
+  </div>
+</div>

@@ -39,6 +39,7 @@ export default class ApiService {
     const fetchOptions = {
       method: method.toUpperCase(),
       headers: { ...headers, ...options?.headers },
+      signal: options.signal ?? undefined   
     };
     
     if (body) {

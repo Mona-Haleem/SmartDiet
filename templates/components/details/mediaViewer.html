@@ -1,0 +1,55 @@
+{% load static %}
+
+<div
+  class="img-container"
+>
+  <!-- <input
+    type="text"
+    name="media_link"
+    class="d-none form-control"
+    id="media_link"
+    style="position: absolute; z-index: 100"
+  /> -->
+  <img
+    :src="ele.media[mediaIndex]"
+    :alt="ele.name"
+    data-fallback="{% static 'assets/logo.png' %}"
+    onerror="this.src=this.dataset.fallback;"
+  />
+  <div
+    class="nav-btn"
+    style="left: 0px"
+    x-show="ele.media.length > 1"
+    @click="mediaIndex = mediaIndex == 0 ? ele.media.length - 1 : (mediaIndex - 1) "
+  >
+    <i
+      id="img_prev"
+      class="fas fa-caret-left icon"
+      style="vertical-align: top"
+    ></i>
+  </div>
+  <div
+    class="nav-btn"
+    style="right: 0px"
+    x-show="ele.media.length > 1"
+    @click="mediaIndex = (mediaIndex + 1) % ele.media.length"
+  >
+    <i
+      id="img_next"
+      class="fas fa-caret-right icon"
+      style="vertical-align: top"
+    ></i>
+  </div>
+  <!-- <div class="img-btns">
+    <input
+      type="file"
+      name="img_upload"
+      accept="image/*"
+      class="d-none"
+      id="img_upload"
+    />
+    <i class="fas fa-upload" data-action="upload"></i>
+    <i class="fas fa-link" data-action="link"></i>
+    <i class="fas fa-external-link-alt" data-action="expand"></i>
+  </div> -->
+</div>

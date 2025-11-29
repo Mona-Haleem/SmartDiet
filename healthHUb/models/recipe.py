@@ -10,7 +10,7 @@ class Recipe(models.Model):
     prep_time = models.DurationField(null=True, blank=True)
     serv = models.IntegerField(default=1)
     ingredients = models.JSONField(default=list, blank=True)
-    directions = models.TextField(default='')
+    directions = models.JSONField(default=list, blank=True)
     nutrients = models.JSONField(default=dict, blank=True)
 
     def __str__(self):

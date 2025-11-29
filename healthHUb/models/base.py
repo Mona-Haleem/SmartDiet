@@ -16,6 +16,7 @@ class UserCreation(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     edited = models.DateTimeField(auto_now=True)
     shared = models.BooleanField(default=False)
+    favorite = models.BooleanField(default=False)
     media = models.JSONField(default=list, blank=True)
     type = models.CharField(max_length=10, choices=ElementType.choices)
     category = models.CharField(max_length=50, blank=True, default='')
@@ -23,7 +24,6 @@ class UserCreation(models.Model):
     
     class Meta:
         unique_together = ('creator', 'name')
-        ordering = ['-edited']
         indexes = [
             models.Index(fields=['category']),
             models.Index(fields=['creator', '-edited']),

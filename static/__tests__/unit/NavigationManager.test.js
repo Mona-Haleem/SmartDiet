@@ -19,7 +19,7 @@ describe('NavigationManager - Unit Tests', () => {
     it('should push new URL to history', () => {
       const pushStateSpy = jest.spyOn(window.history, 'pushState');
       
-      NavigationManager.pushUrl('register');
+      NavigationManager.pushUrl('register/');
       
       expect(pushStateSpy).toHaveBeenCalled();
       expect(pushStateSpy).toHaveBeenCalledWith(
@@ -35,7 +35,7 @@ describe('NavigationManager - Unit Tests', () => {
       
       const pushStateSpy = jest.spyOn(window.history, 'pushState');
       
-      NavigationManager.pushUrl('login');
+      NavigationManager.pushUrl('login/');
       
       // Should not be called because URL is the same
       expect(pushStateSpy).not.toHaveBeenCalled();
@@ -55,7 +55,7 @@ describe('NavigationManager - Unit Tests', () => {
       const pushStateSpy = jest.spyOn(window.history, 'pushState');
       const state = { from: 'test' };
       
-      NavigationManager.pushUrl('register', state);
+      NavigationManager.pushUrl('register/', state);
       
       expect(pushStateSpy).toHaveBeenCalledWith(
         state,
@@ -69,7 +69,7 @@ describe('NavigationManager - Unit Tests', () => {
     it('should replace current history entry', () => {
       const replaceStateSpy = jest.spyOn(window.history, 'replaceState');
       
-      NavigationManager.replaceUrl('register');
+      NavigationManager.replaceUrl('register/');
       
       expect(replaceStateSpy).toHaveBeenCalled();
     });
@@ -79,7 +79,7 @@ describe('NavigationManager - Unit Tests', () => {
       
       const replaceStateSpy = jest.spyOn(window.history, 'replaceState');
       
-      NavigationManager.replaceUrl('login');
+      NavigationManager.replaceUrl('login/');
       
       expect(replaceStateSpy).not.toHaveBeenCalled();
     });

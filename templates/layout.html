@@ -26,8 +26,24 @@
     ></script>
     <!--load static files-->
     <link rel="stylesheet" href="{% static 'common/styles.css' %}" />
-    <script type="module" src="{% static 'common/script.js' %}" defer></script>
     {% block script %}{% endblock %}
+    <link
+      rel="stylesheet"
+      href="{% static 'common/styles-mobile.css' %}"
+      media="(max-width: 768px)"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'common/styles-tablet.css' %}"
+      media="(max-width: 992px)"
+    />
+    <link
+      rel="stylesheet"
+      href="{% static 'common/styles-desktop.css' %}"
+      media="(min-width: 1025px)"
+    />
+
+    <script type="module" src="{% static 'common/script.js' %}" defer></script>
     <!-- Alpine.js & HTMX -->
     <script
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
@@ -35,27 +51,39 @@
     ></script>
     <script src="https://unpkg.com/htmx.org@2.0.0" defer></script>
 
-
     <!-- <script defer src="{% static 'diet/scripts/script.js' %}"></script> -->
     <!-- <script type="text/babel" id="page_script" src="{% static 'diet/react/context.jsx' %}"></script>   
         <script type="text/babel" src="{% static 'diet/react/react.jsx' %}"></script>-->
+    <!--performance tip 
+        Preload the CSS
+      <link rel="preload" href="mobile.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+      <link rel="preload" href="tablet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+      <link rel="preload" href="desktop.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+
+      Fallback for older browsers <noscript>
+        <link rel="stylesheet" href="mobile.css">
+        <link rel="stylesheet" href="tablet.css">
+        <link rel="stylesheet" href="desktop.css">
+      </noscript>
+  -->
   </head>
 
   <body
     class="d-flex justify-content-start align-items-start w-100 h-screen mx-auto p-3"
   >
+    {% if request.user.is_authenticated %} 
+      {% include 'components/navBar.html' %} 
+    {% endif %}
     <main
       class="main book w-100 h-100 {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}"
     >
-    <a href="{% url 'browse' %}">browse</a>
-    <div class="content">
-
-      {% block body %} {% endblock %}
-    </div>
+      <div class="content">{% block body %} {% endblock %}</div>
     </main>
 
-    <footer class="d-flex position-absolute {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}">
-      <button class="sub-btn" id="theme-toggle" data-click-toggle-theme >
+    <footer
+      class="d-flex position-absolute {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}"
+    >
+      <button class="sub-btn" id="theme-toggle" data-click-toggle-theme>
         D
       </button>
 

@@ -31,6 +31,8 @@ export default class QueryService {
     } = options;
 
     let entry = this.cache.get(queryKey);
+    
+    const controller = new AbortController();
 
     // 🧠 Shared, mutable context across the whole lifecycle
     const context = {
@@ -46,10 +48,13 @@ export default class QueryService {
       error: null,
       stage: "init",
       meta: {}, // freeform data bag for user-defined info
+      abortController: controller,      
+      signal: controller.signal
     };
 
     // 1️⃣ Serve from cache if valid
     if (entry && !entry.isStale && !force && !entry.isFetching) {
+      console.log("serve from cache", queryKey);
       context.stage = "cache";
       context.data = entry.data;
       onSuccess?.(context);
@@ -67,7 +72,7 @@ export default class QueryService {
     if (entry && entry.isFetching) {
       return entry.data;
     }
-
+    console.log("fetching new data", queryKey);
     // 4️⃣ Prefetch — can modify context (including body)
     try {
       context.stage = "prefetch";
@@ -103,9 +108,9 @@ export default class QueryService {
       context.data = response?.data ?? response; // allow raw or ApiService style
       context.stage = "success";
 
-      // cache and notify
-      this.cache.set(queryKey, context.data, { ttl });
       onSuccess?.(context);
+      // cache and notify
+      this.cache.set(queryKey,  context.data, { ttl });
 
       return context.data;
     } catch (error) {
@@ -130,7 +135,7 @@ export default class QueryService {
     return async (context) => {
       console.log("beforr api service");
 
-      const result = await this.apiService[apiMethod](url, context?.body);
+      const result = await this.apiService[apiMethod](url, context?.body,{ signal: context.signal });
       console.log("after api service");
 
       // You can even modify context here if needed

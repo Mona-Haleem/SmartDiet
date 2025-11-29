@@ -1,0 +1,99 @@
+<section class="ele-info" x-show="activeTab === 'info'">
+  <ul>
+    <li>
+      <b>Creator:</b>
+      <span x-text="ele.creator">{{ ele.creator }}</span>
+    </li>
+    <li>
+      <b>Type:</b>
+      <span x-text="ele.category">{{ ele.category }}</span>
+    </li>
+    <li>
+      <b>Visibility:</b>
+      <span x-text="ele.share ? 'public' : 'private'">
+        {{ ele.share|yesno:"public,private" }}
+      </span>
+    </li>
+
+    {% if ele.type == 'recipe' %}
+    <li style="position: relative">
+      <b>Serving:</b>
+      <input
+        name="servings"
+        type="number"
+        class="display-input"
+        x-model="ele.serv"
+        value="{{ ele.serv }}"
+        @change="ele.updateServing($event)"
+      />
+    </li>
+
+    <!-- Prep Time -->
+    <li style="position: relative">
+      <b>Prep Time:</b>
+
+      <!-- Hours -->
+      <input
+        type="number"
+        class="display-input"
+        x-model="ele.prep_time.h"
+        value="{{ ele.prep_time.h }}"
+        @change="ele.updatePrepTime($event, true)"
+      />
+      <span style="right: 42px">H:</span>
+
+      <!-- Minutes -->
+      <input
+        type="number"
+        class="display-input"
+        x-model="ele.prep_time.m"
+        value="{{ ele.prep_time.m }}"
+        @change="ele.updatePrepTime($event, false)"
+        style="left: 123px"
+      />
+      <span style="right: 9px">M</span>
+    </li>
+
+    {% else %}
+
+    <!-- Duration -->
+    <li style="position: relative">
+      <b>Duration:</b>
+
+      <!-- Hours -->
+      <input
+        type="number"
+        class="display-input"
+        x-model="ele.duration.h"
+        value="{{ ele.duration.h }}"
+        @change="ele.updateDuration($event, true)"
+      />
+      <span style="right: 42px">H:</span>
+
+      <!-- Minutes -->
+      <input
+        type="number"
+        class="display-input"
+        x-mode="ele.duration.m"
+        value="{{ ele.duration.m }}"
+        @change="ele.updateDuration($event, false)"
+        style="left: 123px"
+      />
+      <span style="right: 9px">M</span>
+    </li>
+
+    {% endif %}
+    <li>
+      <b>Type :</b>
+      <span x-text="new Date(ele.created).toLocaleString()">
+        {{ ele.created|date:"F j, Y H:i" }}</span
+      >
+    </li>
+    <li>
+      <b>Type :</b>
+      <span x-text="new Date(ele.edited).toLocaleString()">
+        {{ ele.edited|date:"F j, Y H:i" }}</span
+      >
+    </li>
+  </ul>
+</section>

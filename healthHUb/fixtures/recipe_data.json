@@ -1,0 +1,1433 @@
+{
+  "recipes": [
+    {
+      "name": "Classic Spaghetti Bolognese",
+      "notes": "Rich and hearty Italian-style meat sauce served with pasta.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/recipes/spaghetti.jpg", "https://example.com/videos/spaghetti_tutorial.mp4"],
+      "type": "recipe",
+      "category": "Italian",
+      "prep_time": "00:30:00",
+      "serv": 2,
+      "ingredients": [
+        { "ingredient": "Spaghetti", "unit": "g", "amount": 200 },
+        { "ingredient": "Ground Beef", "unit": "g", "amount": 150 },
+        { "ingredient": "Tomato Sauce", "unit": "ml", "amount": 200 },
+        { "ingredient": "Olive Oil", "unit": "tbsp", "amount": 1 },
+        { "ingredient": "Garlic", "unit": "clove", "amount": 2 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Boil spaghetti until al dente." },
+          { "type": "p", "effect": "default", "content": "In a pan, sauté garlic in olive oil." },
+          { "type": "p", "effect": "default", "content": "Add ground beef and cook until brown." },
+          { "type": "p", "effect": "default", "content": "Add tomato sauce and simmer for 15 minutes." },
+          { "type": "p", "effect": "default", "content": "Mix with spaghetti and serve hot." }
+        ]}
+      ],
+      "nutrients": { "calories": 620, "protein": 35, "carbs": 60, "fat": 22 }
+    },
+    {
+      "name": "Avocado Toast Deluxe",
+      "notes": "A healthy breakfast option with creamy avocado and egg.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/avocado_toast.png"],
+      "type": "recipe",
+      "category": "Breakfast",
+      "prep_time": "00:10:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Whole Grain Bread", "unit": "slice", "amount": 2 },
+        { "ingredient": "Avocado", "unit": "unit", "amount": 1 },
+        { "ingredient": "Lemon Juice", "unit": "tsp", "amount": 1 },
+        { "ingredient": "Salt", "unit": "tsp", "amount": 0.25 },
+        { "ingredient": "Egg", "unit": "unit", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Toast the bread." },
+          { "type": "p", "effect": "default", "content": "Mash avocado with lemon juice and salt." },
+          { "type": "p", "effect": "default", "content": "Spread avocado mix on toast." },
+          { "type": "p", "effect": "default", "content": "Top with fried egg and serve warm." }
+        ]}
+      ],
+      "nutrients": { "calories": 420, "protein": 14, "carbs": 36, "fat": 26 }
+    },
+    {
+      "name": "Grilled Chicken Salad",
+      "notes": "Perfect post-workout meal packed with lean protein.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/chicken_salad.jpg"],
+      "type": "recipe",
+      "category": "Salad",
+      "prep_time": "00:20:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Chicken Breast", "unit": "g", "amount": 150 },
+        { "ingredient": "Lettuce", "unit": "cup", "amount": 2 },
+        { "ingredient": "Cherry Tomatoes", "unit": "unit", "amount": 6 },
+        { "ingredient": "Olive Oil", "unit": "tbsp", "amount": 1 },
+        { "ingredient": "Lemon Juice", "unit": "tsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Grill chicken until fully cooked." },
+          { "type": "p", "effect": "default", "content": "Chop vegetables." },
+          { "type": "p", "effect": "default", "content": "Toss all ingredients with olive oil and lemon juice." },
+          { "type": "p", "effect": "default", "content": "Serve immediately." }
+        ]}
+      ],
+      "nutrients": { "calories": 340, "protein": 40, "carbs": 8, "fat": 16 }
+    },
+    {
+      "name": "Keto Cheese Omelette",
+      "notes": "Low-carb breakfast suitable for Keto followers.",
+      "shared": false,
+      "favorite": false,
+      "media": ["https://example.com/images/keto_omelette.jpg"],
+      "type": "recipe",
+      "category": "Keto",
+      "prep_time": "00:10:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Egg", "unit": "unit", "amount": 3 },
+        { "ingredient": "Cheddar Cheese", "unit": "g", "amount": 50 },
+        { "ingredient": "Butter", "unit": "tbsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Whisk eggs." },
+          { "type": "p", "effect": "default", "content": "Melt butter in a pan." },
+          { "type": "p", "effect": "default", "content": "Pour eggs, sprinkle cheese, and fold omelette." },
+          { "type": "p", "effect": "default", "content": "Cook until set." }
+        ]}
+      ],
+      "nutrients": { "calories": 420, "protein": 28, "carbs": 2, "fat": 34 }
+    },
+    {
+      "name": "Vegan Buddha Bowl",
+      "notes": "Balanced vegan bowl with grains, veggies, and plant protein.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/buddha_bowl.jpg"],
+      "type": "recipe",
+      "category": "Vegan",
+      "prep_time": "00:25:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Quinoa", "unit": "cup", "amount": 1 },
+        { "ingredient": "Chickpeas", "unit": "cup", "amount": 1 },
+        { "ingredient": "Spinach", "unit": "cup", "amount": 1 },
+        { "ingredient": "Avocado", "unit": "unit", "amount": 0.5 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Cook quinoa." },
+          { "type": "p", "effect": "default", "content": "Mix with chickpeas and spinach." },
+          { "type": "p", "effect": "default", "content": "Top with sliced avocado." },
+          { "type": "p", "effect": "default", "content": "Drizzle with tahini dressing." }
+        ]}
+      ],
+      "nutrients": { "calories": 530, "protein": 21, "carbs": 58, "fat": 22 }
+    },
+    {
+      "name": "Overnight Oats with Berries",
+      "notes": "No-cook breakfast option for busy mornings.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/overnight_oats.jpg"],
+      "type": "recipe",
+      "category": "Breakfast",
+      "prep_time": "00:05:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Oats", "unit": "cup", "amount": 0.5 },
+        { "ingredient": "Milk", "unit": "cup", "amount": 1 },
+        { "ingredient": "Chia Seeds", "unit": "tbsp", "amount": 1 },
+        { "ingredient": "Mixed Berries", "unit": "cup", "amount": 0.5 },
+        { "ingredient": "Honey", "unit": "tsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Combine oats, milk, and chia seeds in a jar." },
+          { "type": "p", "effect": "default", "content": "Refrigerate overnight." },
+          { "type": "p", "effect": "default", "content": "Top with berries and honey before serving." }
+        ]}
+      ],
+      "nutrients": { "calories": 350, "protein": 10, "carbs": 45, "fat": 12 }
+    },
+    {
+      "name": "Teriyaki Salmon Bowl",
+      "notes": "Japanese-inspired salmon rice bowl with veggies.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/recipes/teriyaki_salmon.jpg"],
+      "type": "recipe",
+      "category": "Japanese",
+      "prep_time": "00:20:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Salmon Fillet", "unit": "g", "amount": 150 },
+        { "ingredient": "Soy Sauce", "unit": "tbsp", "amount": 2 },
+        { "ingredient": "Brown Rice", "unit": "cup", "amount": 1 },
+        { "ingredient": "Broccoli", "unit": "cup", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Marinate salmon in soy sauce." },
+          { "type": "p", "effect": "default", "content": "Pan-sear for 5 minutes each side." },
+          { "type": "p", "effect": "default", "content": "Serve over rice with steamed broccoli." }
+        ]}
+      ],
+      "nutrients": { "calories": 520, "protein": 38, "carbs": 42, "fat": 20 }
+    },
+    {
+      "name": "Greek Yogurt Parfait",
+      "notes": "Simple layered yogurt dessert or snack.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/yogurt_parfait.jpg"],
+      "type": "recipe",
+      "category": "Dessert",
+      "prep_time": "00:05:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Greek Yogurt", "unit": "cup", "amount": 1 },
+        { "ingredient": "Granola", "unit": "cup", "amount": 0.25 },
+        { "ingredient": "Strawberries", "unit": "cup", "amount": 0.5 },
+        { "ingredient": "Honey", "unit": "tsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Layer yogurt, granola, and strawberries." },
+          { "type": "p", "effect": "default", "content": "Drizzle with honey." },
+          { "type": "p", "effect": "default", "content": "Serve chilled." }
+        ]}
+      ],
+      "nutrients": { "calories": 280, "protein": 15, "carbs": 35, "fat": 8 }
+    },
+    {
+      "name": "Protein Pancakes",
+      "notes": "Fluffy pancakes rich in protein – great for athletes.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/recipes/protein_pancakes.jpg"],
+      "type": "recipe",
+      "category": "Fitness",
+      "prep_time": "00:15:00",
+      "serv": 2,
+      "ingredients": [
+        { "ingredient": "Oats", "unit": "cup", "amount": 1 },
+        { "ingredient": "Egg", "unit": "unit", "amount": 2 },
+        { "ingredient": "Protein Powder", "unit": "scoop", "amount": 1 },
+        { "ingredient": "Milk", "unit": "cup", "amount": 0.5 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Blend all ingredients." },
+          { "type": "p", "effect": "default", "content": "Pour onto a hot skillet." },
+          { "type": "p", "effect": "default", "content": "Flip when bubbles appear." },
+          { "type": "p", "effect": "default", "content": "Serve with fruit or nut butter." }
+        ]}
+      ],
+      "nutrients": { "calories": 410, "protein": 32, "carbs": 40, "fat": 12 }
+    },
+    {
+      "name": "Caesar Salad",
+      "notes": "Classic Caesar salad with a creamy dressing.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/caesar_salad.jpg"],
+      "type": "recipe",
+      "category": "Salad",
+      "prep_time": "00:10:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Romaine Lettuce", "unit": "cup", "amount": 2 },
+        { "ingredient": "Croutons", "unit": "cup", "amount": 0.5 },
+        { "ingredient": "Parmesan", "unit": "tbsp", "amount": 2 },
+        { "ingredient": "Caesar Dressing", "unit": "tbsp", "amount": 2 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Chop lettuce." },
+          { "type": "p", "effect": "default", "content": "Toss with croutons and dressing." },
+          { "type": "p", "effect": "default", "content": "Sprinkle parmesan on top." }
+        ]}
+      ],
+      "nutrients": { "calories": 290, "protein": 9, "carbs": 16, "fat": 20 }
+    },
+    {
+      "name": "Chili Con Carne",
+      "notes": "Spicy Mexican-style chili with beans and ground beef.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/recipes/chili_con_carne.jpg"],
+      "type": "recipe",
+      "category": "Mexican",
+      "prep_time": "00:45:00",
+      "serv": 3,
+      "ingredients": [
+        { "ingredient": "Ground Beef", "unit": "g", "amount": 200 },
+        { "ingredient": "Kidney Beans", "unit": "cup", "amount": 1 },
+        { "ingredient": "Tomato Sauce", "unit": "ml", "amount": 150 },
+        { "ingredient": "Chili Powder", "unit": "tsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Brown beef." },
+          { "type": "p", "effect": "default", "content": "Add beans, tomato sauce, and spices." },
+          { "type": "p", "effect": "default", "content": "Simmer for 30 minutes." }
+        ]}
+      ],
+      "nutrients": { "calories": 480, "protein": 36, "carbs": 32, "fat": 20 }
+    },
+    {
+      "name": "Shrimp Stir-Fry",
+      "notes": "Quick and colorful Asian-style stir fry.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/shrimp_stirfry.jpg"],
+      "type": "recipe",
+      "category": "Asian",
+      "prep_time": "00:15:00",
+      "serv": 2,
+      "ingredients": [
+        { "ingredient": "Shrimp", "unit": "g", "amount": 200 },
+        { "ingredient": "Bell Pepper", "unit": "unit", "amount": 1 },
+        { "ingredient": "Soy Sauce", "unit": "tbsp", "amount": 1 },
+        { "ingredient": "Garlic", "unit": "clove", "amount": 2 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Stir-fry shrimp and garlic." },
+          { "type": "p", "effect": "default", "content": "Add peppers and soy sauce." },
+          { "type": "p", "effect": "default", "content": "Serve with rice." }
+        ]}
+      ],
+      "nutrients": { "calories": 350, "protein": 32, "carbs": 15, "fat": 14 }
+    },
+    {
+      "name": "Mushroom Risotto",
+      "notes": "Creamy Italian rice dish with mushrooms and parmesan.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/risotto.jpg"],
+      "type": "recipe",
+      "category": "Italian",
+      "prep_time": "00:35:00",
+      "serv": 2,
+      "ingredients": [
+        { "ingredient": "Arborio Rice", "unit": "cup", "amount": 1 },
+        { "ingredient": "Mushrooms", "unit": "cup", "amount": 1 },
+        { "ingredient": "Parmesan", "unit": "tbsp", "amount": 2 },
+        { "ingredient": "Butter", "unit": "tbsp", "amount": 1 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Toast rice in butter." },
+          { "type": "p", "effect": "default", "content": "Add broth gradually." },
+          { "type": "p", "effect": "default", "content": "Mix in mushrooms and cheese." }
+        ]}
+      ],
+      "nutrients": { "calories": 450, "protein": 12, "carbs": 58, "fat": 16 }
+    },
+    {
+      "name": "Beef Tacos",
+      "notes": "Tasty street-style tacos with seasoned beef.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/beef_tacos.jpg"],
+      "type": "recipe",
+      "category": "Mexican",
+      "prep_time": "00:20:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Taco Shell", "unit": "unit", "amount": 3 },
+        { "ingredient": "Ground Beef", "unit": "g", "amount": 150 },
+        { "ingredient": "Lettuce", "unit": "cup", "amount": 1 },
+        { "ingredient": "Cheddar Cheese", "unit": "tbsp", "amount": 2 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Cook beef with taco seasoning." },
+          { "type": "p", "effect": "default", "content": "Fill shells with meat and toppings." },
+          { "type": "p", "effect": "default", "content": "Serve hot." }
+        ]}
+      ],
+      "nutrients": { "calories": 480, "protein": 28, "carbs": 35, "fat": 26 }
+    },
+    {
+      "name": "Tofu Stir-Fry",
+      "notes": "Vegan-friendly protein-rich stir fry.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/recipes/tofu_stirfry.jpg"],
+      "type": "recipe",
+      "category": "Vegan",
+      "prep_time": "00:15:00",
+      "serv": 2,
+      "ingredients": [
+        { "ingredient": "Tofu", "unit": "g", "amount": 200 },
+        { "ingredient": "Broccoli", "unit": "cup", "amount": 1 },
+        { "ingredient": "Soy Sauce", "unit": "tbsp", "amount": 2 },
+        { "ingredient": "Ginger", "unit": "tsp", "amount": 0.5 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Stir-fry tofu until golden." },
+          { "type": "p", "effect": "default", "content": "Add vegetables and sauce." },
+          { "type": "p", "effect": "default", "content": "Cook 5 minutes more." }
+        ]}
+      ],
+      "nutrients": { "calories": 370, "protein": 22, "carbs": 18, "fat": 24 }
+    },
+    {
+      "name": "Berry Smoothie",
+      "notes": "Refreshing smoothie packed with antioxidants.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/recipes/berry_smoothie.jpg"],
+      "type": "recipe",
+      "category": "Drink",
+      "prep_time": "00:05:00",
+      "serv": 1,
+      "ingredients": [
+        { "ingredient": "Mixed Berries", "unit": "cup", "amount": 1 },
+        { "ingredient": "Greek Yogurt", "unit": "cup", "amount": 0.5 },
+        { "ingredient": "Honey", "unit": "tsp", "amount": 1 },
+        { "ingredient": "Milk", "unit": "cup", "amount": 0.5 }
+      ],
+      "directions": [
+        { "type": "ol", "content": [
+          { "type": "p", "effect": "default", "content": "Add all ingredients to blender." },
+          { "type": "p", "effect": "default", "content": "Blend until smooth." },
+          { "type": "p", "effect": "default", "content": "Serve cold." }
+        ]}
+      ],
+      "nutrients": { "calories": 250, "protein": 10, "carbs": 35, "fat": 8 }
+    }
+  ],
+  "plans": [
+    {
+      "name": "Keto Diet Plan",
+      "notes": "Low-carb, high-fat diet to trigger ketosis and promote fat burning.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/keto.png"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "30 00:00:00",
+      "goal": "Weight loss and metabolic adaptation",
+      "details": [
+        {
+          "section": "Keto Guidelines",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Keep daily carbs under 25g",
+              "detail": [],
+              "order": 1
+            },
+            {
+              "section": "Focus on healthy fats",
+              "detail": [{ "type": "p", "effect": "default", "content": "avocado, olive oil, butter" }],
+              "order": 2
+            },
+            {
+              "section": "Eat moderate protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "from eggs, poultry, and fish" }],
+              "order": 3
+            },
+            {
+              "section": "Avoid",
+              "detail": [{ "type": "p", "effect": "default", "content": "sugar, bread, and starchy vegetables" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Body Weight",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "-5", "effect": "default" }, { "text": " kg", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Body Fat %",
+              "detail": [{ "type": "p", "effect": "default", "content": "-3%" }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "1800 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "100g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "130g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "25g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Mediterranean Diet Plan",
+      "notes": "Heart-healthy diet inspired by Mediterranean coastal cuisine.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/plans/mediterranean.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "28 00:00:00",
+      "goal": "Improve cardiovascular health and longevity",
+      "details": [
+        {
+          "section": "Mediterranean Principles",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Emphasize",
+              "detail": [{ "type": "p", "effect": "default", "content": "whole grains, olive oil, and vegetables" }],
+              "order": 1
+            },
+            {
+              "section": "Eat fish twice a week",
+              "detail": [],
+              "order": 2
+            },
+            {
+              "section": "Limit",
+              "detail": [{ "type": "p", "effect": "default", "content": "red meat and processed foods" }],
+              "order": 3
+            },
+            {
+              "section": "Optional",
+              "detail": [{ "type": "p", "effect": "default", "content": "moderate red wine consumption" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Cholesterol",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "-20", "effect": "default" }, { "text": " mg/dL", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Energy Levels",
+              "detail": [{ "type": "p", "effect": "default", "content": "high (subjective)" }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "2000 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "90g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "80g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "180g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Vegan Clean Eating Plan",
+      "notes": "Whole-food, plant-based approach focused on natural ingredients.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/plans/vegan_clean.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "21 00:00:00",
+      "goal": "Increase energy and improve digestion",
+      "details": [
+        {
+          "section": "Vegan Focus",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "100% plant-based",
+              "detail": [{ "type": "p", "effect": "default", "content": "legumes, grains, fruits, and veggies" }],
+              "order": 1
+            },
+            {
+              "section": "Avoid",
+              "detail": [{ "type": "p", "effect": "default", "content": "processed sugars and refined oils" }],
+              "order": 2
+            },
+            {
+              "section": "Combine",
+              "detail": [{ "type": "p", "effect": "default", "content": "grains and legumes for complete proteins" }],
+              "order": 3
+            },
+            {
+              "section": "Drink plenty of water",
+              "detail": [],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Fiber Intake",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "35", "effect": "default" }, { "text": " g/day", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Daily Steps",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "8000", "effect": "default" }, { "text": " count", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "1900 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "70g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "60g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "250g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Paleo Diet Challenge",
+      "notes": "Inspired by ancestral eating habits – unprocessed and nutrient-dense.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/paleo_challenge.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "30 00:00:00",
+      "goal": "Fat loss and improved digestion",
+      "details": [
+        {
+          "section": "Paleo Rules",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Eat",
+              "detail": [{ "type": "p", "effect": "default", "content": "lean meats, fish, fruits, vegetables, nuts, and seeds" }],
+              "order": 1
+            },
+            {
+              "section": "Avoid",
+              "detail": [{ "type": "p", "effect": "default", "content": "dairy, grains, and processed foods" }],
+              "order": 2
+            },
+            {
+              "section": "Focus on",
+              "detail": [{ "type": "p", "effect": "default", "content": "natural, whole ingredients" }],
+              "order": 3
+            },
+            {
+              "section": "Hydrate throughout the day",
+              "detail": [],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Body Fat %",
+              "detail": [{ "type": "p", "effect": "default", "content": "-4%" }],
+              "order": 1
+            },
+            {
+              "section": "Energy Levels",
+              "detail": [{ "type": "p", "effect": "default", "content": "stable (subjective)" }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "2100 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "120g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "110g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "80g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Intermittent Fasting 16:8",
+      "notes": "Timed eating pattern focusing on fasting and feeding windows.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/intermittent_fasting.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "30 00:00:00",
+      "goal": "Reduce body fat and improve insulin sensitivity",
+      "details": [
+        {
+          "section": "Fasting Strategy",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "16-hour fasting, 8-hour eating window",
+              "detail": [],
+              "order": 1
+            },
+            {
+              "section": "Focus on",
+              "detail": [{ "type": "p", "effect": "default", "content": "whole, nutrient-dense meals" }],
+              "order": 2
+            },
+            {
+              "section": "Avoid snacking",
+              "detail": [{ "type": "p", "effect": "default", "content": "during fasting periods" }],
+              "order": 3
+            },
+            {
+              "section": "Hydrate with",
+              "detail": [{ "type": "p", "effect": "default", "content": "water, tea, or black coffee" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Fasting Hours",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "16", "effect": "default" }, { "text": " hours", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Daily Caloric Intake",
+              "detail": [{ "type": "p", "effect": "default", "content": "1800 kcal" }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "1800 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "100g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "70g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "160g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DASH Diet Program",
+      "notes": "Designed to prevent hypertension through balanced nutrition.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/plans/dash_diet.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "28 00:00:00",
+      "goal": "Lower blood pressure and improve heart health",
+      "details": [
+        {
+          "section": "DASH Principles",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Reduce",
+              "detail": [{ "type": "p", "effect": "default", "content": "sodium and processed foods" }],
+              "order": 1
+            },
+            {
+              "section": "Emphasize",
+              "detail": [{ "type": "p", "effect": "default", "content": "fruits, vegetables, and low-fat dairy" }],
+              "order": 2
+            },
+            {
+              "section": "Limit",
+              "detail": [{ "type": "p", "effect": "default", "content": "red meat and sweets" }],
+              "order": 3
+            },
+            {
+              "section": "Control portion sizes",
+              "detail": [],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Sodium Intake",
+              "detail": [{ "type": "p", "effect": "default", "content": "<1500 mg/day" }],
+              "order": 1
+            },
+            {
+              "section": "Blood Pressure",
+              "detail": [{ "type": "p", "effect": "default", "content": "120/80 mmHg" }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "2000 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "80g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "60g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "220g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Low-Carb Balanced Diet",
+      "notes": "Moderate-carb diet focused on stabilizing blood sugar levels.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/lowcarb_balanced.jpg"],
+      "type": "plan",
+      "category": "diet",
+      "duration": "21 00:00:00",
+      "goal": "Control appetite and maintain steady energy",
+      "details": [
+        {
+          "section": "Low-Carb Rules",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Focus on",
+              "detail": [{ "type": "p", "effect": "default", "content": "lean meats, fish, eggs, and leafy greens" }],
+              "order": 1
+            },
+            {
+              "section": "Limit",
+              "detail": [{ "type": "p", "effect": "default", "content": "sugar and refined carbs" }],
+              "order": 2
+            },
+            {
+              "section": "Include",
+              "detail": [{ "type": "p", "effect": "default", "content": "nuts, seeds, and healthy fats" }],
+              "order": 3
+            },
+            {
+              "section": "Avoid",
+              "detail": [{ "type": "p", "effect": "default", "content": "processed snacks and sodas" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Carbohydrate Intake",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "100", "effect": "default" }, { "text": " g/day", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Daily Weight",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "-3", "effect": "default" }, { "text": " kg", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        },
+        {
+          "section": "Daily Nutrients",
+          "detail": [],
+          "order": 3,
+          "subsections": [
+            {
+              "section": "Calories",
+              "detail": [{ "type": "p", "effect": "default", "content": "1900 kcal" }],
+              "order": 1
+            },
+            {
+              "section": "Protein",
+              "detail": [{ "type": "p", "effect": "default", "content": "110g" }],
+              "order": 2
+            },
+            {
+              "section": "Fat",
+              "detail": [{ "type": "p", "effect": "default", "content": "90g" }],
+              "order": 3
+            },
+            {
+              "section": "Carbs",
+              "detail": [{ "type": "p", "effect": "default", "content": "100g" }],
+              "order": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "HIIT Fat Burner",
+      "notes": "High-Intensity Interval Training for maximum fat burn in short sessions.",
+      "shared": true,
+      "favorite": false,
+      "media": ["https://example.com/hiit_video.mp4"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "14 00:00:00",
+      "goal": "Fat loss and cardiovascular improvement",
+      "details": [
+        {
+          "section": "HIIT Schedule",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Warm-up",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 mins" }],
+              "order": 1
+            },
+            {
+              "section": "High-intensity exercises",
+              "detail": [{ "type": "p", "effect": "default", "content": "20 mins (burpees, jump squats, mountain climbers)" }],
+              "order": 2
+            },
+            {
+              "section": "Cool down",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 mins stretching" }],
+              "order": 3
+            },
+            {
+              "section": "Repeat",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 times per week" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Calories Burned per Session",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "500", "effect": "default" }, { "text": " kcal", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Workout Consistency",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 days/week" }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Push-Pull Strength Plan",
+      "notes": "Classic split routine alternating push and pull exercises for muscle building.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/push_pull.jpg"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "28 00:00:00",
+      "goal": "Muscle gain and strength",
+      "details": [
+        {
+          "section": "Push-Pull Split",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Push days",
+              "detail": [{ "type": "p", "effect": "default", "content": "Bench press, Shoulder press, Tricep dips" }],
+              "order": 1
+            },
+            {
+              "section": "Pull days",
+              "detail": [{ "type": "p", "effect": "default", "content": "Deadlifts, Pull-ups, Bicep curls" }],
+              "order": 2
+            },
+            {
+              "section": "Sets and reps",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 sets each exercise, 8-12 reps" }],
+              "order": 3
+            },
+            {
+              "section": "Frequency",
+              "detail": [{ "type": "p", "effect": "default", "content": "4 days per week" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Bench Press Max",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "+5", "effect": "default" }, { "text": " kg", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Pull-up Count",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "+3", "effect": "default" }, { "text": " rep", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Yoga Flexibility Program",
+      "notes": "Focus on improving flexibility, posture, and relaxation.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/plans/yoga.jpg"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "21 00:00:00",
+      "goal": "Increase flexibility and reduce stress",
+      "details": [
+        {
+          "section": "Daily Yoga Flow",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Warm-up stretches",
+              "detail": [{ "type": "p", "effect": "default", "content": "10 mins" }],
+              "order": 1
+            },
+            {
+              "section": "Asana sequence",
+              "detail": [{ "type": "p", "effect": "default", "content": "40 mins" }],
+              "order": 2
+            },
+            {
+              "section": "Meditation",
+              "detail": [{ "type": "p", "effect": "default", "content": "10 mins" }],
+              "order": 3
+            },
+            {
+              "section": "Focus on",
+              "detail": [{ "type": "p", "effect": "default", "content": "breathing and proper form" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Hold Duration",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "30", "effect": "default" }, { "text": " sec", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Daily Session Completion",
+              "detail": [{ "type": "p", "effect": "default", "content": "6 days/week" }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Cardio Endurance Plan",
+      "notes": "Structured plan to improve stamina and cardiovascular health.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/cardio.jpg"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "30 00:00:00",
+      "goal": "Increase running endurance",
+      "details": [
+        {
+          "section": "Weekly Cardio Plan",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Day 1",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 km jog" }],
+              "order": 1
+            },
+            {
+              "section": "Day 2",
+              "detail": [{ "type": "p", "effect": "default", "content": "Rest" }],
+              "order": 2
+            },
+            {
+              "section": "Day 3",
+              "detail": [{ "type": "p", "effect": "default", "content": "4 km run" }],
+              "order": 3
+            },
+            {
+              "section": "Day 4",
+              "detail": [{ "type": "p", "effect": "default", "content": "HIIT cardio 20 mins" }],
+              "order": 4
+            },
+            {
+              "section": "Day 5",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 km run" }],
+              "order": 5
+            },
+            {
+              "section": "Note",
+              "detail": [{ "type": "p", "effect": "default", "content": "Repeat weekly, increasing distance gradually" }],
+              "order": 6
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Distance Run",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "5", "effect": "default" }, { "text": " km", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Heart Rate Recovery",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "50", "effect": "default" }, { "text": " bpm", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CrossFit Challenge",
+      "notes": "High-intensity functional movements for strength and conditioning.",
+      "shared": true,
+      "favorite": false,
+      "media": ["https://example.com/crossfit_intro.mp4"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "21 00:00:00",
+      "goal": "Full-body strength and conditioning",
+      "details": [
+        {
+          "section": "CrossFit WOD",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Warm-up",
+              "detail": [{ "type": "p", "effect": "default", "content": "10 mins" }],
+              "order": 1
+            },
+            {
+              "section": "Strength component",
+              "detail": [{ "type": "p", "effect": "default", "content": "Deadlift, Squat, Bench press 3 sets" }],
+              "order": 2
+            },
+            {
+              "section": "MetCon",
+              "detail": [{ "type": "p", "effect": "default", "content": "15 min AMRAP (as many rounds as possible)" }],
+              "order": 3
+            },
+            {
+              "section": "Cool down",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 mins stretching" }],
+              "order": 4
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "WOD Completion Time",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "20", "effect": "default" }, { "text": " min", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Calories Burned per Session",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "600", "effect": "default" }, { "text": " kcal", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bodyweight Beginner Plan",
+      "notes": "No equipment required, perfect for beginners at home.",
+      "shared": false,
+      "favorite": false,
+      "media": ["/media/plans/bodyweight.jpg"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "14 00:00:00",
+      "goal": "Build foundational strength and mobility",
+      "details": [
+        {
+          "section": "Daily Bodyweight Routine",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Push-ups",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 sets x 10 reps" }],
+              "order": 1
+            },
+            {
+              "section": "Squats",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 sets x 15 reps" }],
+              "order": 2
+            },
+            {
+              "section": "Plank",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 x 30 sec" }],
+              "order": 3
+            },
+            {
+              "section": "Mountain Climbers",
+              "detail": [{ "type": "p", "effect": "default", "content": "3 x 20 reps" }],
+              "order": 4
+            },
+            {
+              "section": "Note",
+              "detail": [{ "type": "p", "effect": "default", "content": "Repeat daily or alternate days" }],
+              "order": 5
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Push-ups",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "15", "effect": "default" }, { "text": " rep", "effect": ["bold", "small"] }] }],
+              "order": 1
+            },
+            {
+              "section": "Squats",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "20", "effect": "default" }, { "text": " rep", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Full-Body Fitness Plan",
+      "notes": "Combination of strength, cardio, and mobility for overall fitness.",
+      "shared": true,
+      "favorite": false,
+      "media": ["/media/plans/full_body.jpg"],
+      "type": "plan",
+      "category": "exercise",
+      "duration": "28 00:00:00",
+      "goal": "Improve strength, endurance, and mobility",
+      "details": [
+        {
+          "section": "Weekly Full-Body Plan",
+          "detail": [],
+          "order": 1,
+          "subsections": [
+            {
+              "section": "Mon",
+              "detail": [{ "type": "p", "effect": "default", "content": "Strength training (upper body)" }],
+              "order": 1
+            },
+            {
+              "section": "Tue",
+              "detail": [{ "type": "p", "effect": "default", "content": "Cardio (running or cycling)" }],
+              "order": 2
+            },
+            {
+              "section": "Wed",
+              "detail": [{ "type": "p", "effect": "default", "content": "Mobility & stretching" }],
+              "order": 3
+            },
+            {
+              "section": "Thu",
+              "detail": [{ "type": "p", "effect": "default", "content": "Strength training (lower body)" }],
+              "order": 4
+            },
+            {
+              "section": "Fri",
+              "detail": [{ "type": "p", "effect": "default", "content": "HIIT cardio" }],
+              "order": 5
+            },
+            {
+              "section": "Sat",
+              "detail": [{ "type": "p", "effect": "default", "content": "Active rest or yoga" }],
+              "order": 6
+            },
+            {
+              "section": "Sun",
+              "detail": [{ "type": "p", "effect": "default", "content": "Rest" }],
+              "order": 7
+            }
+          ]
+        },
+        {
+          "section": "Target Metrics",
+          "detail": [],
+          "order": 2,
+          "subsections": [
+            {
+              "section": "Workout Days Completed",
+              "detail": [{ "type": "p", "effect": "default", "content": "5 days/week" }],
+              "order": 1
+            },
+            {
+              "section": "Calories Burned per Week",
+              "detail": [{ "type": "p", "effect": "default", "content": [{ "text": "3500", "effect": "default" }, { "text": " kcal", "effect": ["bold", "small"] }] }],
+              "order": 2
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}       

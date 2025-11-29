@@ -23,14 +23,15 @@ export default class QueryCache {
       error: null,
     };
   }
-
   set(key, data, { ttl = this.defaultTTL } = {}) {
+    key = JSON.stringify(key)
     const entry = this._createEntry(key, data, ttl);
     this.cache.set(key, entry);
     return entry;
   }
 
     get(key) {
+      key = JSON.stringify(key)
     const entry = this.cache.get(key);
     if (!entry) return null;
 
@@ -42,6 +43,7 @@ export default class QueryCache {
   }
 
   invalidate(key) {
+    key = JSON.stringify(key)
     const entry = this.cache.get(key);
     if (entry) {
       entry.isStale = true;
@@ -49,6 +51,7 @@ export default class QueryCache {
   }
 
   remove(key) {
+    key = JSON.stringify(key)
     this.cache.delete(key);
   }
   clear() {
@@ -56,6 +59,7 @@ export default class QueryCache {
   }
 
   setFetching(key, isFetching, { error = null } = {}) {
+    key = JSON.stringify(key)
     let entry = this.cache.get(key);
     if (!entry) {
       entry = this._createEntry(key, null, this.defaultTTL, isFetching);

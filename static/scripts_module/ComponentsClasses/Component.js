@@ -11,8 +11,10 @@ export default class Component {
     this.$refs = refs;
     this.$data = data;
     this.instanceId = this.constructor.getInstanceID(this);
+    console.log("component instance id", this.instanceId);
     this.$el.dataset.instanceId = this.instanceId;
     Component.instances[this.instanceId] = this;
+    
   }
 
   async swapContent(data) {
@@ -90,7 +92,23 @@ export default class Component {
     for (const key of Object.keys(this)) {
       this[key] = null;
     }
+
+    if (this._eventListeners) {
+    this._eventListeners.forEach(({ element, event, handler }) => {
+      element.removeEventListener(event, handler);
+    });
+    this._eventListeners = [];
+
+    this.$el.remove();
   }
+
+  }
+
+  addEventListener(element, event, handler) {
+  if (!this._eventListeners) this._eventListeners = [];
+  element.addEventListener(event, handler);
+  this._eventListeners.push({ element, event, handler });
+}
 
   updateData(newData) {
     for (const key in newData) {
