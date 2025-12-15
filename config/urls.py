@@ -39,6 +39,10 @@ urlpatterns = [
         "diet/collections/",
         decorator_include(login_required, "healthHub.urls")
     ),
+    path(
+        "diet/progres/",
+        decorator_include(login_required, "progress.urls")
+    ),
     path("diet/users/", include("users.urls")),
     path("admin/", admin.site.urls),
 ]

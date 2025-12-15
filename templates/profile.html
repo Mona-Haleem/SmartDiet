@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block script %}
+{% endblock %}
+
+{% block body %}
+<h1>Profile</h1>
+<p>{{ user }}</p>
+<p>
+            "id": {{user.id}},
+            "username": {{user.username}},
+            "email": {{user.email}},
+            "avatar_img":{{user.avatar_img}} ,
+            "birth_date": {{user.birth_date}},
+            "age":{{user.age}},
+            "weight": {{user.weight}},
+            "height": {{user.height}},
+            "gender": {{user.gender}},
+            "activity_level": {{user.activity_level}},
+            "fluid_intake": {{user.fluid_intake}},
+            "sleep_quality": {{user.sleep_quality}},
+            "sleep_duration":{{ user.sleep_duration}},
+          <ul>
+{% for r in user.restrictions.all %}
+    <li>{{ r.name }} ({{ r.type }}) - {{ r.remark }}</li>
+{% endfor %}
+</ul>
+
+</p>
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}">
+{% endblock %}
+
+
+
+
+

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     # Local apps
     'users.apps.UsersConfig',
     'healthHub.apps.HealthHubConfig',
+    'progress.apps.ProgressConfig',
     'core.apps.CoreConfig',
 
 ]

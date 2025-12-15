@@ -7,6 +7,8 @@ from core.helpers.ajaxRedirect import ajaxRedirect
 from users.models import User
 from users.forms.login_form import LoginForm
 from users.forms.register_form import RegisterForm
+from django.contrib.auth.decorators import login_required
+
 # Create your views here.
 def login_user(request):
     if request.method == "POST":
@@ -74,3 +76,9 @@ def logout_user(request):
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
+@login_required
+def profile(request):
+    print("-------gettting users -------------")
+    user = User.objects.get(email=request.user.email)
+    print("-----user------\n",user)
+    return render(request,"profile.html",{"user":user.serialize()})
