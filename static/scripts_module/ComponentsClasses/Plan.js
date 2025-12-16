@@ -1,10 +1,12 @@
 import { queryService, cache } from "../../common/script.js";
 import DietEle from "./DietEle.js";
 import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
+import MediaManager from "./detailsPage/mediaManager.js";
 export default class Plan extends DietEle {
   constructor(ele, refs, data, paginatorUpdateFn, extraRefs) {
     super(ele, refs, data, paginatorUpdateFn, extraRefs);
     this.extraRefs = extraRefs;
+    this.mediaManager = new MediaManager(this.$data.ele.creation_id,this.$data.ele.type,this.updateServerData,this.extraRefs.anchor);    
     console.log(this.$data.ele)
 
     this.$data.ele.created = formatDate(this.$data.ele.created);
@@ -116,6 +118,17 @@ export default class Plan extends DietEle {
       }
     );
   }
+
+  async deleteEle() {
+    console.log(dragEle)
+    if(!dragEle) return;
+    if(dragEle.classList.contains("viewer-img")){
+      this.mediaManager.deleteMedia(dragEle,this.$data);
+      dragEle = null;
+      return;
+    }
+  }
+
   async updateServerData(
     keyList,
     data,

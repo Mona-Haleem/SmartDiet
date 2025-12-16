@@ -1,7 +1,7 @@
 {% include "components/details/quickNav.html" %}
 <div
   class="h-100 d-lg-flex justify-content-between test"
-  x-data="{ele:{{ele}},mediaIndex:0,activeTab:'info'}"
+  x-data="{ele:{{ele}},mediaIndex:0,addMediaLink:false,mode:'details',activeTab:'info'}"
   x-init="$nextTick(()=>{
       console.log('Initializing CardList');
       eleObj = new Plan($el,$refs,$data,paginator.updateData.bind(paginator),paginator.refs)
@@ -9,16 +9,27 @@
       return eleObj
     })"
 >
+<template x-if="mode =='details'">
+  
 <section class="h-100 detail-page" x-ref="page1" >
   {% include "components/details/detailHeader.html" %}
   {% include "components/details/mediaViewer.html" %}
   {% include "components/details/infoTabs.html" %}
 </section>
+</template>
+<template x-if="mode =='details'">
+
 <section class="h-100 detail-page" x-ref="page2" >
   {% if ele.type == 'plan' %} 
   {% include "components/details/planDetails.html" %}
   {% else %} 
   {% include "components/details/recipeDetails.html" %}
   {% endif %}
+  
 </section>
+</template>
+{% include "components/details/expandedMediaViewer.html" %}
+<div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" ondragover="event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+    <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
+</div>
 </div>

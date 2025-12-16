@@ -1,8 +1,10 @@
 from django.shortcuts import render,get_object_or_404#, redirect
 #from django.db import IntegrityError
 from django.http import Http404, JsonResponse#, HttpResponseRedirect
+from django.conf import settings
+
 #from django.urls import reverse
-#from core.helpers.ajaxRedirect import ajaxRedirect
+from core.helpers.validators import validate_image
 from healthHub.models import UserCreation ,Recipe , Plan
 from healthHub.models import serializers as serializer
 from healthHub.helpers.paginator import paginator
@@ -13,6 +15,9 @@ from django.views import View
 from datetime import date, datetime, timedelta
 import json
 import math
+import uuid
+import os
+
 # Create your views here.
 
 @require_GET
@@ -143,7 +148,7 @@ class DetailsView(View):
             dublicate = UserCreation.objects.filter(creator=request.user,name=value,type=ele.base.type).exclude(id=ele.base.id)
             if dublicate.exists():
                 return JsonResponse({'error': 'Invalid username'},status=400)
-        if key == 'name' or key == 'notes':
+        if key in ['name' ,'notes','media']:
             setattr(ele.base, key, value)
             ele.base.save()
             return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
@@ -160,3 +165,52 @@ class DetailsView(View):
 
     def delete(self, request, id, name):
         return JsonResponse({"method": "DELETE"})
+
+
+def mediaManager(request,type,id):
+    if request.method == "POST":
+        print(request.FILES)
+        if not request.FILES.get('media'):
+            return JsonResponse({'error': 'No image provided'}, status=400)
+
+        img = request.FILES['media']
+        valid,error = validate_image(img)
+        print(valid,error)
+        if not valid:
+            return JsonResponse({'error': error }, status=400)   
+        
+        ext = os.path.splitext(img.name)[1].lower()
+        img_name = f"{uuid.uuid4().hex}{ext}"
+
+        upload_dir = os.path.join(settings.MEDIA_ROOT, type+'s', str(id))
+        os.makedirs(upload_dir, exist_ok=True)
+
+        image_path = os.path.join(upload_dir, img_name)
+
+        # Save file
+        with open(image_path, 'wb+') as destination:
+            for chunk in img.chunks():
+                destination.write(chunk)
+        ele = UserCreation.objects.get(id=id)
+        img_url = f"/media/{type}s/{id}/{img_name}"
+        ele.media.append(img_url)
+        ele.save()
+        return JsonResponse({'mediaUrl': img_url}, status=200)
+    elif request.method == "PATCH":
+        data = json.loads(request.body)
+        media_url = data.get('mediaUrl')
+        if not media_url:
+            return JsonResponse({'error': 'No media URL provided'}, status=400)
+        if(f"/media/{type}s/" in media_url):
+            media_url = f"/media/{type}s/" +media_url.split(f"/media/{type}s/")[-1]
+        print("Deleting media:", media_url)
+        ele = UserCreation.objects.get(id=id)
+        if media_url in ele.media:
+            ele.media.remove(media_url)
+            ele.save()
+            file_path = os.path.join(settings.MEDIA_ROOT, media_url.replace('/media/', ''))
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            return JsonResponse({'message': 'Media deleted successfully'}, status=200)
+        else:
+            return JsonResponse({'error': 'Media URL not found in element'}, status=404)

@@ -60,7 +60,7 @@ body {
 
 main.closed {
   background: var(--book-closed);
-  border-radius: 0 50px 50px 0 ;
+  border-radius: 0 50px 50px 0;
   max-width: 800px !important;
   margin: 0 auto;
 }
@@ -75,7 +75,16 @@ div.content {
   padding: 20px 45px 45px;
   z-index: 101;
 }
-
+div.content:has(.viewer-img.expand) {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  padding: 0;
+}
+.content div:has(.viewer-img.expand) {
+  padding: 0;
+  border: none;
+}
 footer {
   justify-content: flex-start;
   width: 100%;
@@ -85,51 +94,49 @@ footer {
   padding: 0 20px;
 }
 
-footer.closed{
+footer.closed {
   justify-content: flex-end;
   margin: 0 calc(50% - 400px);
   max-width: 800px !important;
-
 }
 /*-------------------------------- navigation css-----------------------*/
 
 .nav-sections {
-    height: 75vh;
-    width: 4vw;
-    background-color: transparent; 
-    font-family: 'Merriweather', serif;
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-
+  height: 75vh;
+  width: 4vw;
+  background-color: transparent;
+  font-family: "Merriweather", serif;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
 }
 
 nav .nav-item {
-    color: rgb(var(--dark-lines-rgb)) !important;
-    overflow: hidden;
-    writing-mode: vertical-lr;
-    transform: rotate(180deg);
-    border: 3px solid rgb(var(--primary-color-rgb));
-    border-radius: 0px 15px 15px 0px;
-    background-color: rgb(var(--primary-color-rgb));
-    position: relative;
-    box-shadow: 2px -4px 8px rgba(0,0,0,0.8);
-    height: 100%;
-    font-size: 100%;
-    line-height: 0.2 !important;
+  color: rgb(var(--dark-lines-rgb)) !important;
+  overflow: hidden;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  border: 3px solid rgb(var(--primary-color-rgb));
+  border-radius: 0px 15px 15px 0px;
+  background-color: rgb(var(--primary-color-rgb));
+  position: relative;
+  box-shadow: 2px -4px 8px rgba(0, 0, 0, 0.8);
+  height: 100%;
+  font-size: 100%;
+  line-height: 0.2 !important;
 }
 button a {
-    display:flex; 
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
 }
 /**************************************************/
 .nav-sections {
   height: 4vh;
   width: 100%;
-  padding-left: 5% ;
+  padding-left: 5%;
   display: flex;
   top: 5px;
   flex-direction: row;
@@ -147,10 +154,9 @@ nav .nav-item {
 nav .nav-item i {
   transform: rotate(360deg);
 }
-.nav-sections > .nav-item.active{
-    background-color: rgb(var(--secondary-color-rgb)) !important;
-    border-color: rgba(var(--highlight-rgb)) !important;
-    
+.nav-sections > .nav-item.active {
+  background-color: rgb(var(--secondary-color-rgb)) !important;
+  border-color: rgba(var(--highlight-rgb)) !important;
 }
 /* nav .nav-item i {
     transform: rotate(90deg);
@@ -224,7 +230,7 @@ input.isInvalid {
   border-radius: 5px;
   outline: none;
 }
-h1:has(div.invalid)::before{
+h1:has(div.invalid)::before {
   content: "invalid input";
   color: #dc3545;
   font-size: 15px;
@@ -333,11 +339,10 @@ h1:has(div.invalid)::before{
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-
-
-
 
 .paginator-container {
   position: relative;

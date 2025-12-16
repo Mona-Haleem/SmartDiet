@@ -16,7 +16,6 @@ export default class DietEle extends Component {
         this.layoutCalculator
       );
     this.scrollAnimator = new ScrollAnimator(this.$refs.details);
-
     this.paginatorUpdateFn = paginatorUpdateFn;
     this.updateData(0);
     if (!DietEle.PopStateEvent) {
@@ -52,6 +51,11 @@ export default class DietEle extends Component {
     }
   }
   async updateData(page) {
+    if(this.$data.mode === "fullImages") return;
+    if(this.$data.mode === "mediaViewer"){
+      this.onPaginate(undefined, 1)
+      return
+    }
     this.updatePgaesDisplay(page);
     this.requiredPages = this.layoutCalculator.calculatePages(
       this.$refs.details,
@@ -95,6 +99,30 @@ export default class DietEle extends Component {
   // }
 
   async onPaginate(direction, page = 1) {
+    console.log(direction, page);
+    if (this.$data.mode === "mediaViewer") {
+      const screenSize = this.layoutCalculator.calculateScreenSize(this.$el);
+      console.log(screenSize);
+      this.$data.displayedMedia = this.$data.ele.media.slice(
+        (page - 1) * screenSize,
+        page * screenSize
+      );
+      return {
+        next: this.$data.ele.media.length > page * screenSize,
+        prev: page > 1,
+        page,
+      };
+    } else if (this.$data.mode === "fullImages") {
+      console.log("full image page", page,this.$data.ele.media.length,Math.max(1, Math.min(page, this.$data.ele.media.length)));
+      page = Math.max(1, Math.min(page, this.$data.ele.media.length));
+      this.$data.displayedMedia = [this.$data.ele.media[page - 1]];
+      console.log(page, this.$data.displayedMedia);
+      return {
+        next: this.$data.ele.media.length > page,
+        prev: page > 0,
+        page,
+      };
+    }
     console.log(direction, page);
     console.log("called agin");
 

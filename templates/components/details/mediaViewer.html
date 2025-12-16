@@ -1,15 +1,6 @@
 {% load static %}
 
-<div
-  class="img-container"
->
-  <!-- <input
-    type="text"
-    name="media_link"
-    class="d-none form-control"
-    id="media_link"
-    style="position: absolute; z-index: 100"
-  /> -->
+<div class="img-container">
   <img
     :src="ele.media[mediaIndex]"
     :alt="ele.name"
@@ -40,16 +31,44 @@
       style="vertical-align: top"
     ></i>
   </div>
-  <!-- <div class="img-btns">
+  <div class="img-btns">
     <input
+      x-ref="imgUpload"
       type="file"
       name="img_upload"
       accept="image/*"
       class="d-none"
       id="img_upload"
+      @change="eleObj.mediaManager.uploadMedia($event.target,$data)"
     />
-    <i class="fas fa-upload" data-action="upload"></i>
-    <i class="fas fa-link" data-action="link"></i>
-    <i class="fas fa-external-link-alt" data-action="expand"></i>
-  </div> -->
+    <i
+      class="fas fa-upload"
+      data-action="upload"
+      @click="$refs.imgUpload.click()"
+    ></i>
+    <i
+      class="fas fa-link"
+      data-action="link"
+      @click="
+      addMediaLink = true;
+      $nextTick(() => $refs.mediaLink.focus())
+    "
+    ></i>
+    <i
+      class="fas fa-external-link-alt"
+      data-action="expand"
+      @click="eleObj.mediaManager.expandMediaViewer($data,paginator)"
+    ></i>
+  </div>
+  <input
+    x-ref="mediaLink"
+    type="text"
+    placeholder="Add Media Link"
+    name="media_link"
+    class="form-control"
+    x-show="addMediaLink"
+    id="media_link"
+    style="position: absolute; z-index: 100"
+    @blur="eleObj.mediaManager.appendMediaLink($event.target,$data)"
+  />
 </div>

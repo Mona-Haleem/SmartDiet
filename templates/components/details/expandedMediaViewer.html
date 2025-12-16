@@ -1,0 +1,24 @@
+<template x-if="mode !='details'">
+<div class="media_viewer" x-ref="mediaViewer">
+  <template x-for="(src, index) in $data.displayedMedia" :key="src">
+    <div
+      class="viewer-img"
+      :class="{ 'expand': mode === 'fullImages' }"
+      @click="eleObj.mediaManager.expandImage($data,index , paginator)"
+      draggable
+    >
+      <img :src="src" :alt="src" />
+    </div>
+  </template>
+</div>
+</template>
+<template x-if="mode !='details'">
+
+<div
+  id="closeMediaViewer"
+  x-show="mode!='details'"
+  @click="eleObj.mediaManager.restViewer($data,paginator)"
+>
+  X
+</div>
+</template>

@@ -2,7 +2,21 @@ export default class LayoutCalculator {
   constructor(containerWidth) {
     this.containerWidth = containerWidth;
   }
-
+  calculateScreenSize(ele){
+    const width = window.innerWidth;
+    const height = Math.round(ele.clientHeight / 160);
+    let size ;
+    const  sizeMap = {600:1*height , 795:2*height , 992:3*height , 1224:4*height};
+    for (const w in sizeMap) {
+      if (width <= w) {
+        size = sizeMap[w];
+        break;
+      }
+    }
+    if(!size) size = 6 * height;
+    
+    return  size;
+  }
   calculatePages(ele, mode,page) {
     
     //reset
@@ -10,7 +24,7 @@ export default class LayoutCalculator {
     ele.style.width = this.containerWidth + "px";
     //calc
     console.log(ele.clientHeight, this.containerWidth);
-    const requiredPages = Math.floor(ele.clientHeight / this.containerWidth);
+    const requiredPages = Math.max(1,Math.floor(ele.clientHeight / this.containerWidth));
     
     //updata ele
     this._updateContainerLayout(ele,requiredPages ,mode ,page);  
