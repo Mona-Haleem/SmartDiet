@@ -6,8 +6,76 @@ window.Paginator = Paginator;
 window.Plan = Plan;
 window.Recipe = Recipe;
 
+window.addEventListener("keydown", (event) => {
+    if( event.target.isContentEditable){
+        const div = event.target;
+        if (event.key === "Enter") {
+        if (event.shiftKey) {
+          event.preventDefault();
+          div.execCommand("insertText", false, "\n");
+        } else {
+          event.preventDefault();
+          div.blur();
+        }
+      }
+    }
+})
 
+let dragEle = null;
+const container = document.querySelector("#details");
 
+container.addEventListener("dragstart", (event) => {
+  const section = event.target.closest(".section"); 
+  console.log("dragstart", section,event.target);
+  if (!section) return;
+    console.log("dragstarted");
+  event.stopPropagation(); 
+
+  dragEle = section;
+  section.querySelector("i").style.display = "none";
+  
+  const btn =  document.querySelector("#deletbtn");
+  if (btn) btn.style.opacity = "0.8";
+  
+  section.querySelector("input")?.blur();
+ // const eles = section.children;
+//   for (let i = 1; i < eles.length; i++) {
+//     eles[i].style.display = "none";
+//   }
+});
+
+container.addEventListener("dragend", (event) => {
+  const section = event.target.closest(".section");
+  if (!section) return;
+    console.log("dragended");
+  dragEle = "";
+  section.querySelector("i").style.display = "";
+
+  const btn = document.querySelector("#deletbtn");
+  if (btn) btn.style.opacity = "0";
+
+//   const eles = section.children;
+//   for (let i = 1; i < eles.length; i++) {
+//     eles[i].style.display = "";
+//   }
+});
+
+container.addEventListener("dragover", (event) => {
+  const addbtn = event.target.closest(".addBtn");
+  if (!addbtn) return;
+
+  event.preventDefault(); 
+  addbtn.style.opacity = "0.8";
+  addbtn.style.height = "25px";
+});
+
+container.addEventListener("dragleave", (event) => {
+  const addbtn = event.target.closest(".addBtn");
+  if (!addbtn) return;
+
+  addbtn.style.opacity = "";
+  addbtn.style.height = "";
+});
 
 
 

@@ -1,14 +1,12 @@
 {% load nested_tags %}
 
-<nav id="anchor" class="" style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb"
-  
->
+<nav id="anchor" class="" style="--bs-breadcrumb-divider: '>'" aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item d-none d-sm-inline">
+    <li class="breadcrumb-item d-none d-sm-inline-block">
       <a href="{% url 'browse' %}?type={{ele.type}}">{{ele.type}}</a>
     </li>
     <li class="breadcrumb-item d-none d-sm-inline">
-      <a href='{% url ele.type|add:"s" ele.id ele.name %}'>{{ele.name}}</a>
+      <a href='{% url ele.type|add:"s" ele.id ele.name %}' x-ref="anchorName">{{ele.name}}</a>
     </li>
     {% if ele.type == 'plan' %}
 
@@ -39,7 +37,7 @@
           >
             {{node.section}}
           </li>
-          {% else %}.
+          {% else %}
           <li class="dropdown-item" data-navto="#section-{{node.id}}">
             <div class="btn-group dropend w-100 dropdown-hover">
               <button

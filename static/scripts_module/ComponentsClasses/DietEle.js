@@ -1,6 +1,5 @@
 import { baseUrl } from "../helpers/Constants.js";
 import Component from "./Component.js";
-import { queryService, cache } from "../../common/script.js";
 import NavigationManager from "../helpers/utils/NavigationManager.js";
 import LayoutCalculator from "./detailsPage/layoutCalculator.js";
 import SectionNavigator from "./detailsPage/sectionNavigator.js";
@@ -10,13 +9,13 @@ export default class DietEle extends Component {
   static resizeMode = false;
   constructor(ele, refs, data, paginatorUpdateFn) {
     super(ele, refs, data);
-
     this.layoutCalculator = new LayoutCalculator(this.$el.clientWidth);
-    this.sectionNavigator = new SectionNavigator(
-      this.$refs,
-      this.layoutCalculator
-    );
-    this.scrollAnimator = new ScrollAnimator(this.$refs.details)
+    if (this.$data.ele.type == "plan")
+      this.sectionNavigator = new SectionNavigator(
+        this.$refs,
+        this.layoutCalculator
+      );
+    this.scrollAnimator = new ScrollAnimator(this.$refs.details);
 
     this.paginatorUpdateFn = paginatorUpdateFn;
     this.updateData(0);
@@ -107,12 +106,18 @@ export default class DietEle extends Component {
       this.mode
     );
     console.log(page, scrollDistance);
-    this.scrollAnimator.scrollTo(scrollDistance)
+    this.scrollAnimator.scrollTo(scrollDistance);
     this.updatePgaesDisplay(page);
-
-    const activeSection = page !== undefined
-      ? this.sectionNavigator.getActiveSection(page, this.$data?.ele?.details,this.mode)
-      : undefined;
+    let activeSection;
+    if (this.$data.ele.type === "plan")
+      activeSection =
+        page !== undefined
+          ? this.sectionNavigator.getActiveSection(
+              page,
+              this.$data?.ele?.details,
+              this.mode
+            )
+          : undefined;
     return {
       ...this.createPageDateObject(page),
       activeSection,
@@ -215,9 +220,5 @@ export default class DietEle extends Component {
       const section = this.$data.ele.details[i];
       if (section.id == sectionId) return section.section;
     }
-  }
-
-  updateName(newName) {
-    console.log(newName, this.$data.name);
   }
 }

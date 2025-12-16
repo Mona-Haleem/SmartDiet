@@ -64,3 +64,4 @@ document.addEventListener("DOMContentLoaded", () => {
 // document.body.addEventListener("htmx:afterSettle", () => {
 //   if (window.Alpine) Alpine.start();
 // });
+

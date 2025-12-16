@@ -5,21 +5,6 @@ export default class SectionNavigator {
   }
 
   _calculateSectionOffset(sectionId) {
-    // let distance = 0;
-    // let node = this.refs[sectionId];
-    // while (node && node?.id !== "details") {
-    //   console.log("calculating distance", sectionId, distance, !!node);
-    //   distance += node.offsetLeft ?? 0;
-    //   node = node.parentElement;
-    //   // console.log(node);
-    //   if (!node) break;
-
-    //   if (
-    //     node &&
-    //     !(node?.className?.includes("section") || node?.id === "details")
-    //   )
-    //     node = node.parentElement;
-    // }
     let section = this.refs[sectionId];
     let container = this.refs.details;
     const parentBox  = container.getBoundingClientRect();

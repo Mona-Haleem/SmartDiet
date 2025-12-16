@@ -4,7 +4,7 @@
   x-data="{ele:{{ele}},mediaIndex:0,activeTab:'info'}"
   x-init="$nextTick(()=>{
       console.log('Initializing CardList');
-      eleObj = new Plan($el,$refs,$data,paginator.updateData.bind(paginator))
+      eleObj = new Plan($el,$refs,$data,paginator.updateData.bind(paginator),paginator.refs)
       paginator.pageClass = eleObj;
       return eleObj
     })"

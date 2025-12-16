@@ -1,3 +1,10 @@
-<section class="ele-info" x-show="activeTab === 'notes'">
+<section
+  contenteditable="true"
+  class="ele-info editableDiv"
+  @blur="eleObj.updateNotes($event.target)"
+  x-text="ele.notes"
+  x-show="activeTab === 'notes'"
+>
   {{ ele.notes }}
 </section>
+<div></div>

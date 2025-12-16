@@ -56,6 +56,9 @@ INSTALLED_APPS = [
     'core.apps.CoreConfig',
 
 ]
+# settings.py
+if DEBUG:
+    WHITENOISE_AUTOREFRESH = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

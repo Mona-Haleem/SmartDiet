@@ -4,7 +4,7 @@
     contenteditable="true"
     id="ele-goal"
     class="editableDiv"
-    @blur="ele.updateGoal($event.target.textContent)"
+    @blur="eleObj.updateGoal($event.target)"
     x-text="ele.goal"
   >
     {{ele.goal}}

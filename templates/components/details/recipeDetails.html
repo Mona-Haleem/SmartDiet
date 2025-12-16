@@ -1,19 +1,22 @@
+<div x-ref="details">
 
-<section class="section" id="ingredients">
-  <h3>Ingridents:</h3>
-  <ul class="pl-5 py-2">
-    {% for ing in ele.ingredients %}
-    <li class="d-block">a {{ing.amount}} {{ing.unit}} of {{ing.ingredient}}</li>
-    {% endfor %}
-  </ul>
-</section>
-
-<section class="section" id="directions">
-  <h3>Directions:</h3>
-  <p >
-    {% for detail in ele.directions %} 
-           {% include "components/details/detailContent.html" %}
-
+  <section class="section" id="ingredients">
+    <h3>Ingridents:</h3>
+    <ul class="pl-5 py-2">
+      {% for ing in ele.ingredients %}
+      <li class="d-block">a {{ing.amount}} {{ing.unit}} of {{ing.ingredient}}</li>
+      {% endfor %}
+    </ul>
+  </section>
+  
+  <section class="section" id="directions">
+    <h3>Directions:</h3>
+    <p >
+      {% for detail in ele.directions %} 
+      {% include "components/details/detailContent.html" %}
+      
       {% endfor %} 
-  </p>
-</section>
+    </p>
+  </section>
+  
+</div>

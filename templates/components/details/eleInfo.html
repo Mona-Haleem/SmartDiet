@@ -24,7 +24,7 @@
         class="display-input"
         x-model="ele.serv"
         value="{{ ele.serv }}"
-        @change="ele.updateServing($event)"
+        @change="eleObj.updateServing($event.target)"
       />
     </li>
 
@@ -38,7 +38,7 @@
         class="display-input"
         x-model="ele.prep_time.h"
         value="{{ ele.prep_time.h }}"
-        @change="ele.updatePrepTime($event, true)"
+        @change="eleObj.updatePrepTime($event.target, true)"
       />
       <span style="right: 42px">H:</span>
 
@@ -48,7 +48,7 @@
         class="display-input"
         x-model="ele.prep_time.m"
         value="{{ ele.prep_time.m }}"
-        @change="ele.updatePrepTime($event, false)"
+        @change="eleObj.updatePrepTime($event.target, false)"
         style="left: 123px"
       />
       <span style="right: 9px">M</span>
@@ -59,41 +59,26 @@
     <!-- Duration -->
     <li style="position: relative">
       <b>Duration:</b>
-
-      <!-- Hours -->
+      <span x-text="ele.formatedDuration">{{ele.duration}}</span>
       <input
         type="number"
-        class="display-input"
-        x-model="ele.duration.h"
-        value="{{ ele.duration.h }}"
-        @change="ele.updateDuration($event, true)"
+        class="hiddenNum"
+        @change="eleObj.updateDuration($event.target)"
+        x-model="ele.duration"
+        value="ele.duration"
+        min="1"
       />
-      <span style="right: 42px">H:</span>
 
-      <!-- Minutes -->
-      <input
-        type="number"
-        class="display-input"
-        x-mode="ele.duration.m"
-        value="{{ ele.duration.m }}"
-        @change="ele.updateDuration($event, false)"
-        style="left: 123px"
-      />
-      <span style="right: 9px">M</span>
     </li>
 
     {% endif %}
     <li>
-      <b>Type :</b>
-      <span x-text="new Date(ele.created).toLocaleString()">
-        {{ ele.created|date:"F j, Y H:i" }}</span
-      >
+      <b>Created :</b>
+      <span x-text="ele.created"> {{ ele.created|date:"F j, Y H:i" }}</span>
     </li>
     <li>
-      <b>Type :</b>
-      <span x-text="new Date(ele.edited).toLocaleString()">
-        {{ ele.edited|date:"F j, Y H:i" }}</span
-      >
+      <b>Edited :</b>
+      <span x-text="ele.edited"> {{ ele.edited|date:"F j, Y H:i" }}</span>
     </li>
   </ul>
 </section>

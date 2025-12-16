@@ -2,7 +2,7 @@
   x-data='{next: {{ result.next|yesno:"true,false" }}
  , prev: {{ result.prev|yesno:"true,false" }}
  , page: {{result.page|default:"0"}}}'
-  x-init="$nextTick(()=>paginator = new Paginator($data))"
+  x-init="$nextTick(()=>paginator = new Paginator($data,$refs))"
   class="paginator-container w-100 h-100"
 >
   {% include children_template %}

@@ -78,10 +78,7 @@ def plan(queryset, request):
             "edited": obj.base.edited.isoformat() ,
             "created": obj.base.created.isoformat(),
             "notes":obj.base.notes ,
-            "duration": {
-                "h": obj.duration.seconds // 3600,
-                "m": (obj.duration.seconds // 60) % 60
-            } if obj.duration else {"h":0,"m":0} ,
+            "duration":  obj.duration.days ,
             "goal": obj.goal,
             "details": obj.get_details(),
             "details_flat":json.dumps(details(obj.details.all().order_by('parent_section', 'order'))),

@@ -9,11 +9,12 @@ export default class LayoutCalculator {
     ele.style.columnCount = 1;
     ele.style.width = this.containerWidth + "px";
     //calc
-    const requiredPages = Math.ceil(ele.clientHeight / this.containerWidth);
+    console.log(ele.clientHeight, this.containerWidth);
+    const requiredPages = Math.floor(ele.clientHeight / this.containerWidth);
     
     //updata ele
     this._updateContainerLayout(ele,requiredPages ,mode ,page);  
-    return requiredPages;
+    return requiredPages ;
   }
   
   _updateContainerLayout(ele,requiredPages ,mode ,page){

@@ -126,7 +126,7 @@ export default class QueryService {
    * Runtime-safe query function generator
    * Returns a function that uses the current context.body
    */
-  createQueryFn(url, method) {
+  createQueryFn(url, method, body) {
     const apiMethod = method.toLowerCase();
     if (typeof this.apiService[apiMethod] !== "function") {
       throw new Error(`Invalid ApiService method: ${method}`);
@@ -135,7 +135,7 @@ export default class QueryService {
     return async (context) => {
       console.log("beforr api service");
 
-      const result = await this.apiService[apiMethod](url, context?.body,{ signal: context.signal });
+      const result = await this.apiService[apiMethod](url, context?.body || body,{ signal: context.signal });
       console.log("after api service");
 
       // You can even modify context here if needed

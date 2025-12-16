@@ -1,6 +1,7 @@
 export default class Paginator {
-  constructor(data) {
+  constructor(data,refs) {
     this.data = data;
+    this.refs = refs ;
     this.pageClass = null;
     window.addEventListener("resize", () => this.OnResize());
   }

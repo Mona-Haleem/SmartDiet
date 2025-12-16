@@ -3,32 +3,43 @@
 <span id="details" x-ref="details">
   {% recursetree ele.details %}
 
-  <!-- ondragover="event.preventDefault()" 
-    ondrop="reorderElements(this.closest('.section').children[2],this.closest('.section'));" -->
-  <div class="section" x-ref="section-{{node.id}}" id="section-{{node.id}}" data-order="{{node.order}}">
-    <span style="position: relative">
-      <i class="fas fa-plus add-btn"></i>
-      <!--onclick="createSection(this.closest('.section'),'parent')"-->
+  <div
+    class="section"
+    x-ref="section-{{node.id}}"
+    id="section-{{node.id}}"
+    "
+    data-order="{{node.order}}"
+    draggable="true"
+  >
+    <span
+      style="position: relative"
+      ondragover="event.preventDefault()"
+      ondrop="reorderElements(this.closest('.section').children[2],this.closest('.section'));"
+    >
+      <i
+        class="fas fa-plus add-btn"
+        onclick="createSection(this.closest('.section'),'parent')"
+      ></i>
       <span
         class="header display-input"
         contenteditable="true"
-      >{{node.section}}{% if node.detail or node.subSections %}:{% endif %}</span>
-      <!-- onlclick="console.log('dbclick');console.log('foucus');"
-            onblur="renameSection(this,${ele.id})",
-            onkeydown="this.style.border='none'" -->
+        onblur="renameSection(this,node.id)"
+        onkeydown="this.style.border='none'"
+        >{{node.section}}{% if node.detail or node.subSections %}:{% endif%}</span>
     </span>
-    <span class="detail">
-      <!-- ondblclick="startEditSection(this)"-->
-      {% for detail in node.detail %} 
-           {% include "components/details/detailContent.html" %}
-
-      {% endfor %} 
+    <span class="detail" ondblclick="startEditSection(this)">
+      {% for detail in node.detail %}
+       {% include "components/details/detailContent.html" %}
+      {% endfor %}
     </span>
     <span class="subSec"> {{ children }} </span>
-    <div class="addBtn sec-btn">+</div>
-    <!--         onclick="createSection(this.closest('.section'),'sibling')"
-        ondrop="reorderElements(this,this.closest('.section'));"
-        -->
+    <div
+      class="addBtn sec-btn"
+      onclick="createSection(this.closest('.section'),'sibling')"
+      ondrop="reorderElements(this,this.closest('.section'));"
+    >
+      +
+    </div>
   </div>
 
   {% endrecursetree %}
