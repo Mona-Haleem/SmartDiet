@@ -1,0 +1,48 @@
+{% load nested_tags %}
+
+{% recursetree details %}
+
+<div
+    class="section"
+    x-ref="section-{{node.id}}"
+    id="section-{{node.id}}"
+    data-order="{{node.order}}"
+    draggable="true"
+  >
+    <span
+      style="position: relative"
+      ondragover="event.preventDefault()"
+      ondrop="reorderElements(this.closest('.section').children[2],this.closest('.section'));"
+    >
+    <i
+    class="fas fa-plus add-btn"  
+    @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'parent'});"
+    ></i>
+    <i class="fas fa-edit editBtn" @click="eleObj.detailsEditor.init({{node.id}})"></i>
+    <span
+        class="header display-input"
+        contenteditable="true"
+        @blur="eleObj.handleSectionAction({{node.id}},'renameSection',{inputEle:$event.target})"
+        @keydown="this.style.border='none'"
+        x-text="$data.sections?.['{{node.id}}']?.data?.section"
+        >{{node.section}}</span>
+        <template x-if="$data.sections?.['{{node.id}}']?.data?.subSections?.length || $data.sections?.['{{node.id}}']?.data?.detail?.length">
+          <span>:</span>
+        </template>
+      </span>
+    <span class="detail" ondblclick="startEditSection(this)">
+      {% for detail in node.detail %}
+       {% include "components/details/detailContent.html"%}
+      {% endfor %}
+    </span>
+    <span class="subSec"> {{ children }} </span>
+    <div
+      class="addBtn sec-btn"
+      @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'siblings'});"
+      @drop="eleObj.handleSectionAction(undefined,'reorderSection',{targetId:{{node.id}},targetRelation:'siblings'});"
+    >
+      +
+    </div>
+  </div>
+
+   {% endrecursetree %}

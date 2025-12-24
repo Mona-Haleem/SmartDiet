@@ -24,6 +24,8 @@ export default class Plan extends DietEle {
     this.$data.ele.edited = formatDate(this.$data.ele.edited);
     this.$data.ele.formatedDuration = formatDuration(this.$data.ele.duration);
     console.log(this.$data.ele.formatedDuration);
+console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
+
   }
 
   _populateSectionObjects(data, parentId = null) {
@@ -171,7 +173,7 @@ export default class Plan extends DietEle {
     const sectionObj = this.$data.sections[sectionId];
     switch(action){
       case "createSection":
-        this.sectionsEditor.createSection(sectionId,args.targetRelation);
+        this.sectionsEditor.createSection(sectionId,args.targetRelation,this.$refs,this.$el,this.$data.ele.details);
         break;
       case "renameSection":
         this.sectionsEditor.renameSection(sectionId,args.inputEle,sectionObj.parentId,sectionObj.data);

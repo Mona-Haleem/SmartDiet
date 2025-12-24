@@ -21,9 +21,9 @@ window.addEventListener("keydown", (event) => {
     }
   }
   if(window.paginator){
-    if(event.key == "ArrowLeft")
+    if(event.key == "ArrowLeft" && window.paginator.data.prev)
       window.paginator.paginateTo("prev")
-    if(event.key == "ArrowRight")
+    if(event.key == "ArrowRight"&& window.paginator.data.next)
       window.paginator.paginateTo("next")
 
   }
@@ -94,7 +94,7 @@ container.addEventListener("dragover", (event) => {
   if (direction) {
     if (!autoPaginateTimeout) {
       autoPaginateTimeout = setTimeout(() => {
-        if (window.paginator) window.paginator.paginateTo(direction);
+        if (window.paginator && window.paginator.data[direction]) window.paginator.paginateTo(direction);
       }, 200);
     }
   } else {

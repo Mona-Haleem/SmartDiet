@@ -9,8 +9,10 @@ from healthHub.models import UserCreation ,Recipe , Plan ,PlanDetail
 from healthHub.models import serializers as serializer
 from healthHub.helpers.paginator import paginator
 from healthHub.helpers.construct_query import construct_query
+from healthHub.helpers.helpers import format_plan_details
 from django.views.decorators.http import require_GET
 from django.views import View
+from django.db.models import F
 
 from datetime import date, datetime, timedelta
 import json
@@ -220,7 +222,50 @@ class sectionsManager(View):
         return JsonResponse({"method": "GET"})
    
     def post(self, request,id):
-        return JsonResponse({"method": "POST"})
+        data = json.loads(request.body)
+        section_name = data.get("section", "section")
+        detail = data.get("detail", [])
+        target_id = id
+        target_relation = data.get("targetRelation")  
+        order = data.get("order", 1)
+
+        if target_relation == "parent":
+            parent_section = get_object_or_404(PlanDetail, id=target_id)
+        else:
+            sibling = get_object_or_404(PlanDetail, id=target_id)
+            parent_section = sibling.parent_section
+        
+        if parent_section:
+            plan = parent_section.plan
+        else:
+            plan = sibling.plan
+
+        
+        # Shift order of siblings if needed
+        siblings = PlanDetail.objects.filter(parent_section=parent_section).filter(order__gte=order)
+        siblings.update(order=F('order') + 1)
+
+        # Create new section
+        new_section = PlanDetail.objects.create(
+            parent_section=parent_section,
+            plan=plan,
+            section=section_name,
+            detail=detail,
+            order=order
+        )
+        details =format_plan_details([new_section])
+
+         # Render the HTML fragment
+        html = render(request, "components/details/section.html", {"details": details}).content.decode()
+        print("html =======>" ,details,html,new_section)
+        # Return JSON
+        response_data = {
+            "detail":details,
+            "html": html,
+        }
+
+        return JsonResponse(response_data, status=201)
+
 
     def patch(self,request,id):
         print(id)
@@ -240,7 +285,7 @@ class sectionsManager(View):
                     "content": value,
                     "effects": []
                 }
-
+            print(detail)
             return render(request, "components/details/detailContent.html", {
                 "detail":detail
             })
@@ -259,11 +304,19 @@ class sectionsManager(View):
             parent_section = PlanDetail.objects.get(id=parent_id) if parent_id else None
             ele.parent_section = parent_section
             ele.order = value
+            PlanDetail.objects.filter(
+                parent_section=parent_section
+            ).exclude(
+                id=ele.id
+            ).filter(
+             order__gte=ele.order
+            ).update(order=F('order') + 1)
         else:
             return JsonResponse(
                 {"error": "Invalid field."},
                 status=400
             )
+        print(ele.section , ele.order , ele.parent_section)
         ele.save()
         return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
 

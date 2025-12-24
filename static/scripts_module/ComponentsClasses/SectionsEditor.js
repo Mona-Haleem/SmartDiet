@@ -74,21 +74,38 @@ export default class SectioEditor {
         if (targetRelation == "parent") {
           targetEle.appendChild(sectionEle);
         } else {
-          targetEle.parentElement.insertBefore(sectionEle, targetEle.nextSibling);
-        
+          targetEle.parentElement.insertBefore(
+            sectionEle,
+            targetEle.nextSibling
+          );
         }
         //quicknav update
-        if(parentId !== this.sectionDict[sectionId].parentId){
-          const eleObj = this.sectionDict[sectionId]
-          const newParent =this.sectionDict[parentId] 
-          const oldParent = this.sectionDict[eleObj.parentId] 
-          newParent?.data.subSections.push(eleObj.data)
-          if(oldParent)
-            oldParent.data.subSections = 
-              oldParent?.data.subSections.filter(ele => ele.id = sectionId)
-          this.sectionDict[sectionId].parentId =parentId;
+        if (parentId !== this.sectionDict[sectionId].parentId) {
+          const eleObj = this.sectionDict[sectionId];
+          const newParent = this.sectionDict[parentId];
+          const oldParent = this.sectionDict[eleObj.parentId];
+          newParent?.data.subSections.push(eleObj.data);
+          if (oldParent)
+            oldParent.data.subSections = oldParent?.data.subSections.filter(
+              (ele) => (ele.id = sectionId)
+            );
+          this.sectionDict[sectionId].parentId = parentId;
         }
         // reorder updates
+        const eleSiblings = parentId
+          ? this.sectionDict[parentId]?.data.subSections
+          : Object.entries(this.sectionDict)
+              .filter(([key, value]) => !value.parentId)
+              .map(([key, value]) => value.data);
+        const eleData = this.sectionDict[sectionId].data;
+        for (let i = 0; i < eleSiblings.length; i++) {
+          if (
+            eleSiblings[i].id !== eleData.id &&
+            eleSiblings[i].order >= eleData.order
+          ) {
+            eleSiblings[i].order++;
+          }
+        }
         return ctx.data;
       },
       onError: (ctx) => {
@@ -111,12 +128,12 @@ export default class SectioEditor {
      * on save this fun is called*/
   }
 
-  async createSection(targetId, targetRelation) {
-    const url = `/diet/collections/plans/sections/${targetId}`;
+  async createSection(targetId, targetRelation, refs, el, data) {
+    const url = `/diet/collections/plans/sections/${targetId}/`;
     const parentId =
       targetRelation == "parent"
         ? targetId
-        : this.sectionDict[targetId].parentId;
+        : this.sectionDict[targetId]?.parentId;
     const avoidableTitles = this._getAvoidableTitles(parentId);
     let title = "section";
     let num = 1;
@@ -132,37 +149,69 @@ export default class SectioEditor {
         JSON.stringify({
           section: title,
           order,
+          detail: [
+            { type: "p", effect: "default", content: "new Section details" },
+          ],
           targetId,
           targetRelation,
         })
       ),
+      force: true,
       onSuccess: (ctx) => {
         console.log("sucess", ctx.data);
         //ui update
-        const html = ctx.data;
+        const targetEle = refs[`section-${targetId}`];
+        const html = ctx.data.html;
+        const eleData = ctx.data.detail[0];
         const tpl = document.createElement("template");
         tpl.innerHTML = html.trim();
         const newEl = tpl.content.firstElementChild;
 
         if (!newEl) throw new Error("No valid root element in template");
-        const targetEle = this.sectionDict[targetId].ref;
         if (targetRelation == "parent") {
           targetEle.appendChild(newEl);
+          this.sectionDict[parentId].data.subSections.push(eleData);
         } else {
           targetEle.insertAdjacentElement("afterend", newEl);
         }
-        //quicknav update
-
         // data update
-        //additem to the dict
-        newId = ctx.data.id.replace("section-", "");
-        this.sectionDict[newId] = {
-          data: ctx.data,
-          ref: newEl,
+
+        const eleSiblings = parentId
+          ? this.sectionDict[parentId]?.data.subSections
+          : Object.entries(this.sectionDict)
+              .filter(([key, value]) => !value.parentId)
+              .map(([key, value]) => value.data);
+
+        if (parentId) eleSiblings.push(eleData);
+        else data.push(eleData);
+        console.log(data, eleData.id, eleData);
+        this.sectionDict[eleData.id] = {
+          data: this._getSectionData(data, eleData.id),
           parentId,
         };
-        //update order for next siblings if any
+
+        for (let i = 0; i < eleSiblings.length; i++) {
+          if (
+            eleSiblings[i].id !== eleData.id &&
+            eleSiblings[i].order >= eleData.order
+          ) {
+            eleSiblings[i].order++;
+          }
+        }
+        Alpine.initTree(el);
+        const alpineData = Alpine.$data(el);
+        if (alpineData) {
+          refs = alpineData.$refs || {};
+        }
+        //quicknav update
+
         //redo ui calcus for paging and resize
+        let page = eleObj.sectionNavigator.getSectionPage(
+          `section-${eleData.id}`,
+          eleObj.mode
+        );
+        eleObj.updateData(page);
+        eleObj.onPaginate(undefined, page);
         return ctx.data;
       },
       onError: (ctx) => {
@@ -210,10 +259,10 @@ export default class SectioEditor {
   }
   _getNewSectionOrder(targetId, targetRelation) {
     if (targetRelation == "parent") {
-      const maxOrder = 0;
+      let maxOrder = 0;
       for (const key in this.sectionDict) {
         if (
-          this.sectionDict[key].parentId == parentId &&
+          this.sectionDict[key]?.parentId == targetId &&
           this.sectionDict[key].data.order > maxOrder
         ) {
           maxOrder = this.sectionDict[key].data.order;
@@ -221,7 +270,17 @@ export default class SectioEditor {
       }
       return maxOrder + 1;
     } else {
-      return this.sectionDict[targetId].data.order + 1;
+      return (this.sectionDict[targetId]?.data.order || 0) + 1;
+    }
+  }
+
+  _getSectionData(data, id) {
+    const nodes = [...data];
+    for (let i = 0; i < nodes.length; i++) {
+      if (nodes[i].id == id) return nodes[i];
+      else if (nodes[i].subSections) {
+        nodes.push(...nodes[i].subSections);
+      }
     }
   }
 }

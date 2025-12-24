@@ -318,15 +318,15 @@ export function createSectionDetailsEditor() {
     },
 
     addParagraph() { 
-      this.details.push({ type: "p", content: "" }); 
+      this.details.push({ type: "p", content: "" ,effect:[]}); 
     },
 
     addList(type) { 
-      this.details.push({ type, content: [{ content: "" }] }); 
+      this.details.push({ type, content: [{ content: "" ,type:"p",effect:[]}] }); 
     },
 
     addListItem(idx) { 
-      this.details[idx].content.push({ content: "" }); 
+      this.details[idx].content.push({ content: "" ,type:"p",effect:[]}); 
     },
 
     deleteDetail(idx) { 

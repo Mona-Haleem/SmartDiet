@@ -21,13 +21,19 @@ export default class Component {
       const html = data;
       const tpl = document.createElement("template");
       tpl.innerHTML = html.trim();
-      const newEl = tpl.content.firstElementChild;
+      //      const newEl = tpl.content.firstElementChild;
+      console.log(html);
+      const newEl = document.createDocumentFragment();
+      while (tpl.content.firstChild) {
+        newEl.appendChild(tpl.content.firstChild);
+      }
+      console.log("====================>\n", newEl);
 
       if (!newEl) throw new Error("No valid root element in template");
       targetEle = targetEle ? targetEle : this.$el;
       const parent = targetEle.parentNode;
 
-      if (newEl) {
+      if (newEl && newEl.dataset?.instanceId) {
         newEl.dataset.instanceId = this.instanceId;
       }
 
