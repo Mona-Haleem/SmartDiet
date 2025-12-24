@@ -4,10 +4,10 @@ export default class ScrollAnimator {
     this.currentAnimation = null;
   }
 
-  async scrollTo(targetValue, duration = 300) {
+  async scrollTo(targetValue,ele, duration = 300) {
     this.cancel();
 
-    const startingValue = parseInt(this.ele.style.right) || 0;
+    const startingValue = parseInt(ele.style.right) || 0;
     const distance = targetValue - startingValue;
     if (distance == 0) return Promise.resolve();
 
@@ -15,7 +15,7 @@ export default class ScrollAnimator {
 
     return new Promise((resolve) => {
       const step = (now) => {
-        this._step({
+        this._step(ele,{
           now,
           startTime,
           duration,
@@ -29,7 +29,7 @@ export default class ScrollAnimator {
       this.currentAnimation = requestAnimationFrame(step);
     });
   }
-  _step(state) {
+  _step(ele,state) {
     const {
       now,
       startTime,
@@ -43,14 +43,14 @@ export default class ScrollAnimator {
     const t = Math.min((now - startTime) / duration, 1);
     const eased = this._ease(t);
 
-    this.ele.style.right = startingValue + distance * eased + "px";
+    ele.style.right = startingValue + distance * eased + "px";
 
     if (t < 1) {
       this.currentAnimation = requestAnimationFrame((now2) =>
-        this._step({ ...state, now: now2 })
+        this._step(ele,{ ...state, now: now2 })
       );
     } else {
-      this.ele.style.right = targetValue + "px";
+      ele.style.right = targetValue + "px";
       this.currentAnimation = null;
       resolve();
     }

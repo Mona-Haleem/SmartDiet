@@ -29,7 +29,9 @@
 </section>
 </template>
 {% include "components/details/expandedMediaViewer.html" %}
-<div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" ondragover="event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+<div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" @dragover="$event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
     <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
 </div>
+{% include "components/details/detailsEditor.html" %}
+
 </div>

@@ -129,12 +129,13 @@ export default class DietEle extends Component {
     if (direction && direction !== "next" && direction !== "prev") {
       page = this.sectionNavigator.getSectionPage(direction, this.mode);
     }
+    if (!page && page !== 0) page = 1;
     const scrollDistance = this.layoutCalculator.getScrollPosition(
       page,
       this.mode
     );
     console.log(page, scrollDistance);
-    this.scrollAnimator.scrollTo(scrollDistance);
+    this.scrollAnimator.scrollTo(scrollDistance,this.$refs.details);
     this.updatePgaesDisplay(page);
     let activeSection;
     if (this.$data.ele.type === "plan")

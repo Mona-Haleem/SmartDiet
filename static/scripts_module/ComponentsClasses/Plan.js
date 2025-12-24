@@ -2,20 +2,52 @@ import { queryService, cache } from "../../common/script.js";
 import DietEle from "./DietEle.js";
 import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
 import MediaManager from "./detailsPage/mediaManager.js";
+import Section from "./SectionsEditor.js";
+import SectioEditor from "./SectionsEditor.js";
+import DetailsEditor from "./detailsEditor.js";
 export default class Plan extends DietEle {
   constructor(ele, refs, data, paginatorUpdateFn, extraRefs) {
     super(ele, refs, data, paginatorUpdateFn, extraRefs);
     this.extraRefs = extraRefs;
-    this.mediaManager = new MediaManager(this.$data.ele.creation_id,this.$data.ele.type,this.updateServerData,this.extraRefs.anchor);    
-    console.log(this.$data.ele)
-
+    this.mediaManager = new MediaManager(
+      this.$data.ele.creation_id,
+      this.$data.ele.type,
+      this.updateServerData,
+      this.extraRefs.anchor
+    );
+    this.$data.sections = {};
+    this._populateSectionObjects();
+    this.sectionsEditor = new SectioEditor(this.$data.sections);
+    this.detailsEditor = new DetailsEditor();
+    console.log(this.$data.next);
     this.$data.ele.created = formatDate(this.$data.ele.created);
     this.$data.ele.edited = formatDate(this.$data.ele.edited);
-    console.log(this.$data.ele)
     this.$data.ele.formatedDuration = formatDuration(this.$data.ele.duration);
     console.log(this.$data.ele.formatedDuration);
   }
 
+  _populateSectionObjects(data, parentId = null) {
+    const sections = data || this.$data.ele.details;
+    for (let i = 0; i < sections.length; i++) {
+      let currentSection = sections[i];
+      if (currentSection.subSections.length) {
+        this._populateSectionObjects(
+          currentSection.subSections,
+          currentSection.id
+        );
+      }
+      this.$data.sections[currentSection.id] = {
+        data: currentSection,
+        ref: this.$refs[`section-${currentSection.id}`],
+        // sectionObj: new Section(
+        //   currentSection.id,
+        //   this.$data.sections,
+        // ),
+        parentId
+      };
+    }
+  }
+  
   async updateName(targetEle) {
     const newName = targetEle.innerText.trim();
     const orgName = this.$data.ele.name;
@@ -56,7 +88,7 @@ export default class Plan extends DietEle {
       targetEle.innerText = orgGoal;
     }
   }
- async updateNotes(targetEle) {
+  async updateNotes(targetEle) {
     const newNotes = targetEle.innerText.trim();
     const orgNotes = this.$data.ele.notes;
     console.log(newNotes, orgNotes);
@@ -105,7 +137,7 @@ export default class Plan extends DietEle {
   }
 
   async updateDuration(targetEle) {
-    let duration = Math.max(1,Number(targetEle.value.trim()));
+    let duration = Math.max(1, Number(targetEle.value.trim()));
     if (isNaN(duration)) return;
     const value = duration * 24 * 60;
     await this.updateServerData(
@@ -114,21 +146,44 @@ export default class Plan extends DietEle {
         duration: value,
       },
       () => {
-        this.$data.ele.formatedDuration = formatDuration(`P${targetEle.value}D00H:00M:00S`);
+        this.$data.ele.formatedDuration = formatDuration(
+          `P${targetEle.value}D00H:00M:00S`
+        );
       }
     );
   }
 
   async deleteEle() {
-    console.log(dragEle)
-    if(!dragEle) return;
-    if(dragEle.classList.contains("viewer-img")){
-      this.mediaManager.deleteMedia(dragEle,this.$data);
+    console.log(dragEle);
+    if (!dragEle) return;
+    if (dragEle.classList.contains("viewer-img")) {
+      await this.mediaManager.deleteMedia(dragEle, this.$data);
       dragEle = null;
       return;
+    }else if(dragEle.id && dragEle.id.startsWith("section-")){
+      const sectionId = dragEle.id.replace("section-","");
+      this.$data.sections[sectionId]
+      this.sectionsEditor.deleteSection(sectionId,dragEle , this.$data);
     }
   }
 
+  async handleSectionAction(sectionId ,action, args={}){
+    const sectionObj = this.$data.sections[sectionId];
+    switch(action){
+      case "createSection":
+        this.sectionsEditor.createSection(sectionId,args.targetRelation);
+        break;
+      case "renameSection":
+        this.sectionsEditor.renameSection(sectionId,args.inputEle,sectionObj.parentId,sectionObj.data);
+        break;
+      case "reorderSection":
+        this.sectionsEditor.reorderSection(dragEle?.id?.replace("section-",""), args.targetId , args.targetRelation,this.$refs);
+        break;
+      case "editDetails":
+        this.detailsEditor.init(sectionId);
+        break;
+    }
+  }
   async updateServerData(
     keyList,
     data,
@@ -150,4 +205,6 @@ export default class Plan extends DietEle {
       ttl: 60 * 1000,
     });
   }
+
+  
 }

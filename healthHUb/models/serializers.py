@@ -81,7 +81,7 @@ def plan(queryset, request):
             "duration":  obj.duration.days ,
             "goal": obj.goal,
             "details": obj.get_details(),
-            "details_flat":json.dumps(details(obj.details.all().order_by('parent_section', 'order'))),
+            "flatDetails":json.dumps(details(obj.details.all().order_by('parent_section', 'order'))),
             "type" :obj.base.type, 
         })
     return serialized

@@ -53,7 +53,7 @@ export default class Paginator {
       console.log("active", this.activeSection);
       if (Paginator.resizeMode) return;
       Paginator.resizeMode = true;
-      if (this.activeSection?.activeSection) {
+      if (this.activeSection?.activeSection && this.pageClass.$data.mode == "details") {
         this.pageClass.updateData(0);
         const page = this.pageClass.sectionNavigator.getSectionPage(
           this.activeSection?.activeId,

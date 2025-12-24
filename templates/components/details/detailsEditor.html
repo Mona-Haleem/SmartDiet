@@ -1,0 +1,181 @@
+<!-- FILE 4: templates/components/details/detailsEditor.html -->
+<!-- PURPOSE: Editor UI template (no styles, no scripts) -->
+<!-- CREATE THIS NEW FILE -->
+
+<template x-if="mode === 'editor'">
+  <div class="editor-overlay">
+    <div class="editor-container" x-data="createSectionDetailsEditor()">
+      <!-- Header -->
+      <div class="editor-header">
+        <h1 class="editor-title" x-text="section"></h1>
+        <button class="close-btn" @click="closeEditor()">✕</button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button @click="addParagraph()">
+          <i class="fas fa-paragraph"></i>
+        </button>
+        <button @click="addList('ul')">
+          <i class="fas fa-list-ul"></i>
+        </button>
+        <button @click="addList('ol')">
+          <i class="fas fa-list-ol"></i>
+        </button>
+      </div>
+
+      <!-- Format Bar (shows when text is selected) -->
+         <div
+        class="format-bar"
+        x-show="showFormatBar"
+        x-transition
+        :style="`left: ${formatBarPosition.x}px; top: ${formatBarPosition.y}px;`"
+      >
+        <!-- Added @mousedown.prevent to keep focus in the editable area so selection isn't lost -->
+        <button @mousedown.prevent @click="applyFormat('bold')" title="Bold">
+          <strong>B</strong>
+        </button>
+        <button @mousedown.prevent @click="applyFormat('italic')" title="Italic">
+          <em>I</em>
+        </button>
+        <button @mousedown.prevent @click="applyFormat('underline')" title="Underline">
+          <u>U</u>
+        </button>
+        <button @mousedown.prevent @click="applyFormat('line-through')" title="Strikethrough">
+          <s>S</s>
+        </button>
+
+        <select
+          @mousedown.prevent
+          @change="applyFormat($event.target.value); $event.target.value = ''"
+        >
+          <option value="">Size</option>
+          <option value="text-sm">Small</option>
+          <option value="text-md">Medium</option>
+          <option value="text-lg">Large</option>
+          <option value="text-xl">XL</option>
+          <option value="text-2xl">2XL</option>
+        </select>
+
+        <input
+          type="color"
+          @mousedown.prevent
+          @input="applyFormat('color', $event.target.value)"
+          title="Text Color"
+        />
+      </div>
+
+      <!-- Details List -->
+      <div class="details-list">
+        <template x-for="(detail, index) in details" :key="index">
+          <div class="detail-item" :data-detail-index="index">
+            <!-- Controls (move up/down, delete) -->
+            <div class="detail-controls">
+              <button
+                @click="moveUp(index)"
+                :disabled="index === 0"
+                title="Move Up"
+              >
+                <i class="fas fa-arrow-up"></i>
+              </button>
+              <button
+                @click="moveDown(index)"
+                :disabled="index === details.length - 1"
+                title="Move Down"
+              >
+                <i class="fas fa-arrow-down"></i>
+              </button>
+              <button @click="deleteDetail(index)" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+
+            <!-- Paragraph -->
+            <template x-if="detail.type === 'p'">
+              <div
+                class="editable-content"
+                contenteditable="true"
+                @blur="updateContent(index, null, $event)"
+                x-html="renderContent(detail)"
+              ></div>
+            </template>
+
+            <!-- Ordered List -->
+            <template x-if="detail.type === 'ol'">
+              <div>
+                <ol>
+                  <template
+                    x-for="(item, itemIndex) in detail.content"
+                    :key="itemIndex"
+                  >
+                    <li class="list-item">
+                      <div
+                        class="editable-content"
+                        contenteditable="true"
+                        @blur="updateContent(index, itemIndex, $event)"
+                        x-html="renderContent(item)"
+                      ></div>
+                      <div class="list-item-controls">
+                        <button
+                          @click="deleteListItem(index, itemIndex)"
+                          title="Delete"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </li>
+                  </template>
+                </ol>
+                <button class="add-list-item-btn" @click="addListItem(index)">
+                  <i class="fas fa-plus"></i> Add Item
+                </button>
+              </div>
+            </template>
+
+            <!-- Unordered List -->
+            <template x-if="detail.type === 'ul'">
+              <div>
+                <ul>
+                  <template
+                    x-for="(item, itemIndex) in detail.content"
+                    :key="itemIndex"
+                  >
+                    <li class="list-item" :data-item-index="itemIndex">
+                      <div
+                        class="editable-content"
+                        contenteditable="true"
+                        @blur="updateContent(index, itemIndex, $event)"
+                        x-html="renderContent(item)"
+                      ></div>
+                      <div class="list-item-controls">
+                        <button
+                          @click="deleteListItem(index, itemIndex)"
+                          title="Delete"
+                        >
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </li>
+                  </template>
+                </ul>
+                <button class="add-list-item-btn" @click="addListItem(index)">
+                  <i class="fas fa-plus"></i> Add Item
+                </button>
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <!-- Save/Cancel Buttons -->
+      <div class="action-buttons">
+        <button class="btn-cancel" @click="cancelEdit()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button class="btn-save" @click="saveEdit()">
+          <i class="fas fa-save"></i> Save Changes
+        </button>
+      </div>
+    </div>
+  </div>
+</template>

@@ -1,15 +1,21 @@
+{% if detail.type == 'div' %}
+  {% for frag in detail.content %}
+    {% include "components/details/detailContent.html" with detail=frag %}
+  {% endfor %}
+{% else %}
+
 {% if detail.type == 'p' %}
-<p class="{% for eff in detail.effect %}{{ eff }} {% endfor %}">
+<span class="{% for eff in detail.effects %}{{ eff }} {% endfor %}" 
+   {% if detail.color %}style="color: {{ detail.color }};"{% endif %}
+  >
   {% if detail.content|stringformat:"s" == detail.content %}
-    {{ detail.content}}
+  {{ detail.content}}
   {% else %} 
-    {% for frag in detail.content %}
-    <span>
+  {% for frag in detail.content %}
         {% include "components/details/detailContent.html" with detail=frag %}
-    </span>
     {% endfor %} 
    {% endif %}
-</p>
+</span>
 {% elif detail.type == 'ol' %}
 <ol>
   {% for frag in detail.content %}
@@ -27,3 +33,4 @@
   {% endfor %}
 </ul>
 {% endif%}
+{% endif %}

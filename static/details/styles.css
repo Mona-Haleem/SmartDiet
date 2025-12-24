@@ -52,7 +52,6 @@ li.breadcrumb-item {
   opacity: 1;
 }
 
-
 .img-btns {
   background-color: rgba(var(--accent-color-rgb), 0.75);
   padding: 10px 20px;
@@ -202,7 +201,7 @@ li.breadcrumb-item {
 .hiddenNum {
   width: 15px;
   border: none;
-   background-color: transparent;
+  background-color: transparent;
 }
 .hiddenNum:focus {
   border: none;
@@ -356,7 +355,23 @@ ol {
   position: absolute;
   left: -20px;
   top: 2.5px;
+  cursor: pointer;
 }
+
+.section .header.invalid::before {
+  content: "invalid name already in use";
+  color: #dc3545;
+  font-size: 12px;
+  position: absolute;
+  bottom: -1.7em;
+}
+/* .editBtn{
+  display: block !important;
+  position: absolute;
+  cursor: pointer;
+  right: 0;
+  top: 0;
+} */
 /* 
 .measure{
   position: absolute;
@@ -366,6 +381,331 @@ ol {
   line-height: inherit;
 
 } */
+/* FILE 3: static/css/detailsEditor.css */
+/* PURPOSE: All styles for the editor */
+/* CREATE THIS NEW FILE */
+
+/* === EDITOR OVERLAY === */
+.editor-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.editor-container {
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+}
+
+/* === HEADER === */
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.editor-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.close-btn:hover {
+  background: #d32f2f;
+}
+
+/* === TOOLBAR === */
+.toolbar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.toolbar button {
+  padding: 8px 16px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.toolbar button:hover {
+  background: #45a049;
+  transform: translateY(-1px);
+}
+
+/* === DETAIL ITEMS === */
+.detail-item {
+  position: relative;
+  margin-bottom: 15px;
+  padding: 15px;
+  padding-right: 120px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+
+.detail-item:hover {
+  border-color: #4caf50;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.1);
+}
+
+/* === CONTROLS === */
+.detail-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+}
+
+.detail-controls button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.detail-controls button:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.detail-controls button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* === EDITABLE CONTENT === */
+.editable-content {
+  min-height: 40px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  line-height: 1.6;
+}
+
+.editable-content:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}
+
+/* === LIST ITEMS === */
+.list-item {
+  position: relative;
+  margin-bottom: 10px;
+  padding-right: 35px;
+}
+
+.list-item-controls {
+  position: absolute;
+  right: 0;
+  top: 5px;
+}
+
+.list-item-controls button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 12px;
+  background: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.list-item-controls button:hover {
+  background: #ff1744;
+}
+
+.details-list ol,
+.details-list ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+/* === FORMAT BAR === */
+.format-bar {
+  position: fixed;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 8px;
+  display: flex;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 10000;
+}
+
+.format-bar button,
+.format-bar select,
+.format-bar input {
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.format-bar button:hover {
+  background: #f0f0f0;
+}
+
+.format-bar input[type="color"] {
+  width: 40px;
+  height: 32px;
+  padding: 2px;
+  cursor: pointer;
+}
+
+/* === ACTION BUTTONS === */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #e0e0e0;
+}
+
+.action-buttons button {
+  flex: 1;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-cancel {
+  background: #f44336;
+  color: white;
+}
+
+.btn-cancel:hover {
+  background: #d32f2f;
+}
+
+.btn-save {
+  background: #4caf50;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #45a049;
+}
+
+.add-list-item-btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.add-list-item-btn:hover {
+  background: #1976d2;
+}
+
+/* === EFFECT CLASSES (match your Django template) === */
+.font-weight\:bold {
+  font-weight: bold;
+}
+.font-style\:italic {
+  font-style: italic;
+}
+.text-decoration\:underline {
+  text-decoration: underline;
+}
+.text-decoration\:line-through {
+  text-decoration: line-through;
+}
+.font-size\:sm {
+  font-size: 14px;
+}
+.font-size\:md {
+  font-size: 16px;
+}
+.font-size\:lg {
+  font-size: 18px;
+}
+.font-size\:xl {
+  font-size: 20px;
+}
+.font-size\:2xl {
+  font-size: 24px;
+}
+/***/
 @media screen and (max-width: 1224px) {
   .viewer-img {
     width: calc((100% - 2rem) / 4);

@@ -1,11 +1,12 @@
 import Paginator from "../scripts_module/ComponentsClasses/Paginator.js";
 import Plan from "../scripts_module/ComponentsClasses/Plan.js";
 import Recipe from "../scripts_module/ComponentsClasses/Recipe.js";
+import { createSectionDetailsEditor } from "../scripts_module/ComponentsClasses/sectionDetailsEditor.js";
 
 window.Paginator = Paginator;
 window.Plan = Plan;
 window.Recipe = Recipe;
-
+window.createSectionDetailsEditor = createSectionDetailsEditor;
 window.addEventListener("keydown", (event) => {
   if (event.target.isContentEditable) {
     const div = event.target;
@@ -19,72 +20,101 @@ window.addEventListener("keydown", (event) => {
       }
     }
   }
+  if(window.paginator){
+    if(event.key == "ArrowLeft")
+      window.paginator.paginateTo("prev")
+    if(event.key == "ArrowRight")
+      window.paginator.paginateTo("next")
+
+  }
 });
 
 window.dragEle = null;
-const container = document.querySelector("#details");
-if (container) {
-  window.addEventListener("dragstart", (event) => {
-    const section = event.target.closest(".section");
-    console.log("dragstart", section, event.target);
-    if (!section) return;
-    console.log("dragstarted");
-    event.stopPropagation();
-
-    dragEle = section;
-    section.querySelector("i").style.display = "none";
-
-    const btn = document.querySelector("#deletbtn");
-    if (btn) btn.style.opacity = "0.8";
-
-    section.querySelector("input")?.blur();
-  });
-
-  window.addEventListener("dragend", (event) => {
-    const section = event.target.closest(".section");
-    if (!section) return;
-    console.log("dragended");
-    dragEle = "";
-    section.querySelector("i").style.display = "";
-
-    const btn = document.querySelector("#deletbtn");
-    if (btn) btn.style.opacity = "0";
-
-  });
-
-  window.addEventListener("dragover", (event) => {
-    const addbtn = event.target.closest(".addBtn");
-    if (!addbtn) return;
-
-    event.preventDefault();
-    addbtn.style.opacity = "0.8";
-    addbtn.style.height = "25px";
-  });
-
-  window.addEventListener("dragleave", (event) => {
-    const addbtn = event.target.closest(".addBtn");
-    if (!addbtn) return;
-
-    addbtn.style.opacity = "";
-    addbtn.style.height = "";
-  });
-}
-
 const btn = document.querySelector("#deletbtn");
 
-  window.addEventListener("dragstart", (event) => {
-    dragEle = event.target.closest(".viewer-img");
-    console.log("dragstart");
-    if (!dragEle) return;
-    console.log("dragstarted");
-    event.stopPropagation();
-    btn.style.opacity = "0.8";
+window.addEventListener("dragstart", (event) => {
+  const section = event.target.closest(".section");
+  const img = event.target.closest(".viewer-img");
+  console.log("dragstart", section, event.target);
+  if (!section || img) return;
+  console.log("dragstarted");
+  event.stopPropagation();
 
-  });
+  dragEle = section || img;
+  if (section) section.querySelector("i").style.display = "none";
 
-  window.addEventListener("dragend", (event) => {
-     btn.style.opacity = "0";
-  });
+  if (btn) btn.style.opacity = "0.8";
+
+});
+
+let dropPoint = null;
+window.addEventListener("dragend", (event) => {
+  if (!dragEle ) return;
+  console.log("dragended");
+  if(dragEle?.classList.contains("section")){
+    dragEle.querySelector("i").style.display = "";
+    clearDargEffects();
+  }
+  dragEle = "";
+  if (btn) btn.style.opacity = "0";
+});
+
+window.addEventListener("dragover", (event) => {
+  const addbtn = event.target.closest(".addBtn");
+  if (!addbtn) return;
+  dropPoint = addbtn;
+  event.preventDefault();
+  addbtn.style.opacity = "0.8";
+  addbtn.style.height = "25px";
+});
+
+window.addEventListener("dragleave", clearDargEffects);
+
+function clearDargEffects(){
+if (!dropPoint) return;
+  dropPoint.style.opacity = "";
+  dropPoint.style.height = "";
+  dropPoint = null;
+
+}
+
+const container = document.querySelector(".paginator-container");
+let autoPaginateTimeout = null;
+
+container.addEventListener("dragover", (event) => {
+  const rect = container.getBoundingClientRect();
+  const edgeThreshold = 50; // px
+
+  // Determine direction
+  let direction = null;
+  if (event.clientX - rect.left < edgeThreshold) direction = "prev";
+  else if (rect.right - event.clientX < edgeThreshold) direction = "next";
+
+  // Only start Timeout if not already running in that direction
+  if (direction) {
+    if (!autoPaginateTimeout) {
+      autoPaginateTimeout = setTimeout(() => {
+        if (window.paginator) window.paginator.paginateTo(direction);
+      }, 200);
+    }
+  } else {
+    // If cursor moves away from edge, stop auto-pagination
+    clearTimeout(autoPaginateTimeout);
+    autoPaginateTimeout = null;
+  }
+});
+
+container.addEventListener("dragleave", () => {
+  clearTimeout(autoPaginateTimeout);
+  autoPaginateTimeout = null;
+});
+
+container.addEventListener("drop", () => {
+  clearTimeout(autoPaginateTimeout);
+  autoPaginateTimeout = null;
+});
+
+
 
 function renderBlock(block) {
   if (!block || !block.type) return "";

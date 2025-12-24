@@ -6,10 +6,11 @@ export default class SectionNavigator {
 
   _calculateSectionOffset(sectionId) {
     let section = this.refs[sectionId];
+    console.log(sectionId)
     let container = this.refs.details;
-    const parentBox  = container.getBoundingClientRect();
-    const childBox = section.getBoundingClientRect();
-    const distance = childBox.x - parentBox.x;
+    const parentBox  = container?.getBoundingClientRect();
+    const childBox = section?.getBoundingClientRect();
+    const distance = childBox?.x - parentBox?.x;
     return distance;
   }
   getSectionPage(sectionId, mode) {

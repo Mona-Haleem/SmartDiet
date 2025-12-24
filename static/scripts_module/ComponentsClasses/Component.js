@@ -14,10 +14,9 @@ export default class Component {
     console.log("component instance id", this.instanceId);
     this.$el.dataset.instanceId = this.instanceId;
     Component.instances[this.instanceId] = this;
-    
   }
 
-  async swapContent(data) {
+  async swapContent(data, targetEle) {
     try {
       const html = data;
       const tpl = document.createElement("template");
@@ -25,21 +24,22 @@ export default class Component {
       const newEl = tpl.content.firstElementChild;
 
       if (!newEl) throw new Error("No valid root element in template");
-      const parent = this.$el.parentNode;
+      targetEle = targetEle ? targetEle : this.$el;
+      const parent = targetEle.parentNode;
 
       if (newEl) {
         newEl.dataset.instanceId = this.instanceId;
       }
 
       if (parent) {
-        parent.replaceChild(newEl, this.$el);
+        parent.replaceChild(newEl, targetEle);
       }
 
-    
-      Alpine.initTree(this.$el);
+      Alpine.initTree(targetEle);
+      await Alpine.nextTick();
 
       this.refreshRefs();
-      this.delete();
+      //this.delete();
       return true;
     } catch (err) {
       console.error("Swap failed:", err);
@@ -94,21 +94,20 @@ export default class Component {
     }
 
     if (this._eventListeners) {
-    this._eventListeners.forEach(({ element, event, handler }) => {
-      element.removeEventListener(event, handler);
-    });
-    this._eventListeners = [];
+      this._eventListeners.forEach(({ element, event, handler }) => {
+        element.removeEventListener(event, handler);
+      });
+      this._eventListeners = [];
 
-    this.$el.remove();
-  }
-
+      this.$el.remove();
+    }
   }
 
   addEventListener(element, event, handler) {
-  if (!this._eventListeners) this._eventListeners = [];
-  element.addEventListener(event, handler);
-  this._eventListeners.push({ element, event, handler });
-}
+    if (!this._eventListeners) this._eventListeners = [];
+    element.addEventListener(event, handler);
+    this._eventListeners.push({ element, event, handler });
+  }
 
   updateData(newData) {
     for (const key in newData) {
@@ -118,17 +117,20 @@ export default class Component {
     }
   }
   refreshRefs() {
+    console.log(Alpine.$refs);
     const alpineData = Alpine.$data(this.$el);
-    if (alpineData && alpineData.$refs) {
-      this.$refs = alpineData.$refs;
+    if (alpineData) {
+      this.$data = alpineData;
+      this.$refs = alpineData.$refs || Alpine.$refs || {};
     }
   }
 
   static getInstanceID(component) {
     const className = this.name || "Component";
-    return component.$el?.dataset?.instanceId || `${className.toLowerCase()}_${Math.random()
-      .toString(36)
-      .substring(2, 9)}`;
+    return (
+      component.$el?.dataset?.instanceId ||
+      `${className.toLowerCase()}_${Math.random().toString(36).substring(2, 9)}`
+    );
   }
 
   static findInstance(ele) {

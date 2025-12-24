@@ -5,7 +5,7 @@ from django.conf import settings
 
 #from django.urls import reverse
 from core.helpers.validators import validate_image
-from healthHub.models import UserCreation ,Recipe , Plan
+from healthHub.models import UserCreation ,Recipe , Plan ,PlanDetail
 from healthHub.models import serializers as serializer
 from healthHub.helpers.paginator import paginator
 from healthHub.helpers.construct_query import construct_query
@@ -214,3 +214,68 @@ def mediaManager(request,type,id):
             return JsonResponse({'message': 'Media deleted successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Media URL not found in element'}, status=404)
+
+class sectionsManager(View):
+    def get(self,request,id):
+        return JsonResponse({"method": "GET"})
+   
+    def post(self, request,id):
+        return JsonResponse({"method": "POST"})
+
+    def patch(self,request,id):
+        print(id)
+        data = json.loads(request.body)
+        ele = PlanDetail.objects.get(id=id)
+        key, value = list(data.items())[0]
+            
+        print(key)
+        if key == 'detail':
+            ele.detail = value
+            ele.save()
+            if len(value) == 1:
+                detail = value[0]
+            else:
+                detail = {
+                    "type": "div",
+                    "content": value,
+                    "effects": []
+                }
+
+            return render(request, "components/details/detailContent.html", {
+                "detail":detail
+            })
+        elif key == 'section':
+            if PlanDetail.objects.filter(
+                parent_section=ele.parent_section,
+                section=value
+            ).exists():
+                return JsonResponse(
+                    {"error": "This section name already exists."},
+                    status=400
+                )
+            ele.section = value
+        elif key == 'order':
+            parent_id = data.get("parentId")
+            parent_section = PlanDetail.objects.get(id=parent_id) if parent_id else None
+            ele.parent_section = parent_section
+            ele.order = value
+        else:
+            return JsonResponse(
+                {"error": "Invalid field."},
+                status=400
+            )
+        ele.save()
+        return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
+
+    def put(self, request, id):
+        return JsonResponse({"method": "PUT"})
+
+    def delete(self, request, id):
+        try:
+            section = PlanDetail.objects.get(id=id)
+            plan = section.plan
+            section.delete()
+        except PlanDetail.DoesNotExist:
+            return JsonResponse({"error": "Section not found"}, status=404)
+        details = plan.get_details()
+        return JsonResponse({"details":details} , status=200)
