@@ -1,15 +1,24 @@
-<div class="info-card" >
+<div class="info-card">
   <div class="section-name">
     <p>Personal Info</p>
-    <button type="button" @click="active='personalInfo'"></button>
+    <button
+      type="button"
+      @click="active='personalInfo'"
+      :style="(!full && active === 'personalInfo')
+    ? 'background-color: rgb(var(--highlight-rgb))'
+    : ''"
+    ></button>
   </div>
   <div class="section-content" x-show="full || active=='personalInfo'">
     <p><b>Email:</b><span x-text="user.email">{{user.email}}</span></p>
-    <div class="d-flex  flex-column flex-lg-row justify-content-between">
-      <p style="width: 30%"><b>Age: </b><span x-text="user.age">{{user.age}}</span></p>
+    <div class="d-flex flex-column flex-lg-row justify-content-between">
+      <p style="width: 30%">
+        <b>Age: </b><span x-text="user.age">{{user.age}}</span>
+      </p>
       <div class="d-flex" style="width: 65%">
         <b style="width: 140px">Birth Date:</b>
         <input
+        @change="profile.updateUserData($event.target,'birth_date')"
           type="date"
           name="birth_date"
           value="{{user.birth_date}}"
@@ -22,28 +31,38 @@
     <b>Gender:</b>
     <div class="d-flex gap-5 mb-3 justify-content-around">
       <label>
-        <input type="radio" value="M" x-model="user.gender"> Male
+        <input type="radio" value="M" x-model="user.gender" @change="profile.updateUserData($event.target,'gender')"/> Male
       </label>
       <label>
-        <input type="radio" value="F" x-model="user.gender"> Female
+        <input type="radio" value="F" x-model="user.gender" @change="profile.updateUserData($event.target,'gender')"/> Female
       </label>
       <label>
-        <input type="radio" value="O" x-model="user.gender"> Other
+        <input type="radio" value="O" x-model="user.gender" @change="profile.updateUserData($event.target,'gender')"/> Other
       </label>
     </div>
-    <div class="d-flex flex-column flex-lg-row  justify-content-between">
+    <div class="d-flex flex-column flex-lg-row justify-content-between">
       <div style="width: 45%">
         <b>Weight :</b>
         <span class="d-flex">
-            <input type="number" class="form-control" x-model.number="user.weight">
-            <b>kg</b>
+          <input
+            @change="profile.updateUserData($event.target,'weight')"
+            type="number"
+            class="form-control"
+            x-model.number="user.weight"
+          />
+          <b>kg</b>
         </span>
       </div>
       <div style="width: 45%">
         <b>height: </b>
         <span class="d-flex">
-            <input type="number" class="form-control" x-model.number="user.height"> 
-            <b>cm</b>
+          <input
+          @change="profile.updateUserData($event.target,'height')"
+            type="number"
+            class="form-control"
+            x-model.number="user.height"
+          />
+          <b>cm</b>
         </span>
       </div>
     </div>

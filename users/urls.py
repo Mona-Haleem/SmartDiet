@@ -6,6 +6,8 @@ urlpatterns = [
     path("login/", views.login_user, name="login"),
     path("register/", views.register, name="register"),
     path("logout/",views.logout_user,name="logout"),
-    path("profile/",views.profile,name="profile")
+    path("profile/",views.profile,name="profile"),
+    path("profile/update/",views.profileUpdate,name="profileUpdate"),
+    path("restrictions/<id>",views.restrictionsManger.as_view(),name="restrictions")
 
 ]

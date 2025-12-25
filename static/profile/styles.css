@@ -108,7 +108,7 @@ th {
 @media screen and (max-width: 992px) {
   #right-page .info-card {
     position: relative;
-    width: 80%;
+    width: calc(100% - 135px);
     height: calc(100vh - 330px);
     top: 185px;
     left: 130px;

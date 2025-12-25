@@ -1,13 +1,17 @@
 <div class="info-card" >
   <div class="section-name">
     <p>Lifestyle Info</p>
-    <button type="button" @click="active='lifeStyle'"></button>
+    <button type="button" @click="active='lifeStyle'"
+      :style="(!full && active === 'lifeStyle')
+    ? 'background-color: rgb(var(--highlight-rgb))'
+    : ''"
+></button>
   </div>
   <div class="section-content" x-show="full || active=='lifeStyle'">
     <div class="d-flex flex-column flex-lg-row justify-content-between mb-1">
       <div style="width:45%;">
         <b>Activity Level:</b>
-        <select x-model="user.activity_level" class="form-control">
+        <select x-model="user.activity_level" class="form-control" @change="profile.updateUserData($event.target,'activity_level')">
           {% for key, value in ACTIVITY_LEVEL_CHOICES %}
           <option value="{{ key }}" :selected="user.activity_level === '{{ key }}'">{{ value }}</option>
           {% endfor %}
@@ -16,7 +20,7 @@
       <div style="width:45%;">
         <b>Fluid Intake:</b>
         <span class="d-flex align-items-center">
-            <input type="number" x-model.number="user.fluid_intake" class="form-control">
+            <input type="number" x-model.number="user.fluid_intake" class="form-control" @change="profile.updateUserData($event.target,'fluid_intake')">
              <b>L</b>
         </span>
       </div>
@@ -26,16 +30,16 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between mb-1">
       <div style="width:45%;">
         <b>Quality:</b>
-        <select x-model="user.sleep_quality" class="form-control">
+        <select x-model="user.sleep_quality" class="form-control" @change="profile.updateUserData($event.target,'sleep_quality')">
           {% for key, value in SLEEP_QUALITY_CHOICES %}
-          <option value="{{ key }}" :selected="user.sleep_quality === '{{ key }}'">{{ value }}</option>
+          <option value="{{ key }}" :selected="user.sleep_quality === '{{ key }}'" >{{ value }}</option>
           {% endfor %}
         </select>
       </div>
       <div style="width:45%;">
         <b>Duration:</b>
         <span class="d-flex align-items-center">
-            <input type="number" x-model.number="user.sleep_duration" class="form-control">
+            <input type="number" x-model.number="user.sleep_duration" class="form-control" @change="profile.updateUserData($event.target,'sleep_duration')">
             <b>H</b>
 
         </span>

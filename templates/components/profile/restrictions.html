@@ -10,8 +10,15 @@
       like preferences or restrictions.
     </p>
 
-    <div class="content form-control p-1" style="width: 100%; overflow-x: auto; background-color: transparent;">
-      <table class="table table-borderless table-sm mb-0" style="background-color: transparent;">
+    <div
+      class="content form-control p-1"
+      style="width: 100%; overflow-x: auto; background-color: transparent"
+    >
+      <table
+        x-ref="restrictionsTable"
+        class="table table-borderless table-sm mb-0"
+        style="background-color: transparent"
+      >
         <thead>
           <tr>
             <th style="width: 30%">Name</th>
@@ -24,7 +31,10 @@
           <!-- Type header row -->
           <tr class="bg-secondary text-white">
             <td colspan="3">
-              <div class="d-flex justify-content-between align-items-center w-100 px-2" @click="activeType='{{type_label}}'">
+              <div
+                class="d-flex justify-content-between align-items-center w-100 px-2"
+                @click="activeType='{{type_label}}'"
+              >
                 <span class="fw-bold">{{ type_label }}</span>
                 <button
                   type="button"
@@ -42,19 +52,50 @@
             x-for="(r, index) in user.restrictions.filter(res => res.type === '{{ type_key }}')"
             :key="r.id"
           >
-            <tr style="background-color: transparent; border-bottom:1px solid rgba(0,0,0,0.1);" x-show="!collapse || activeType == '{{type_label}}'"  >
+            <tr
+              style="
+                background-color: transparent;
+                border-bottom: 1px solid rgba(0, 0, 1, 0.1);
+              "
+              x-show="!collapse || activeType == '{{type_label}}'"
+            >
               <td>
-                <input
-                  type="text"
-                  class="form-control form-control-sm bg-transparent border-0"
-                  x-model="r.name"
-                  placeholder="Enter name"
-                />
+                <template x-if="r.type === 'medical'">
+                  <select
+                    class="form-control form-control-sm bg-transparent border-0"
+                    x-init="$nextTick(() => profile?.registerRef(r.id, 'name', $el))"
+                    @destroy="profile?.unregisterRef(r.id, 'name')"
+                    x-model="r.medicalId"
+                    @change="profile.updateRestrictions(r.id,r.type)"
+                  >
+                    <option value="">Select medical restriction</option>
+                    {% for m in medicalRestrictions %}
+                    <option value="{{m.id}}" title="{{m.description_en}}">
+                      {{m.name_en}}
+                    </option>
+                    {% endfor %}
+                  </select>
+                </template>
+                <!-- NON-MEDICAL: FREE TEXT -->
+                <template x-if="r.type !== 'medical'">
+                  <input
+                    type="text"
+                    @blur="profile.updateRestrictions(r.id,r.type)"
+                    class="form-control form-control-sm bg-transparent border-0"
+                    x-init="$nextTick(() => profile?.registerRef(r.id, 'name', $el))"
+                    @destroy="profile?.unregisterRef(r.id, 'name')"
+                    x-model="r.name"
+                    placeholder="Enter name"
+                  />
+                </template>
               </td>
               <td>
                 <input
                   type="text"
                   class="form-control form-control-sm bg-transparent border-0"
+                  x-init="$nextTick(() => profile?.registerRef(r.id, 'remark', $el))"
+                  @destroy="profile?.unregisterRef(r.id, 'remark')"
+                  @blur="profile.updateRestrictions(r.id,r.type)"
                   x-model="r.remark"
                   placeholder="Enter remark"
                 />
@@ -63,7 +104,7 @@
                 <button
                   type="button"
                   class="btn btn-sm btn-danger"
-                  @click="profile.removeRestriction(index)"
+                  @click="profile.removeRestriction(r.id)"
                 >
                   <i class="fas fa-trash"></i>
                 </button>

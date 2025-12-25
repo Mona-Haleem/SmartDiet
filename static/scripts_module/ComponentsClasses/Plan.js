@@ -2,7 +2,6 @@ import { queryService, cache } from "../../common/script.js";
 import DietEle from "./DietEle.js";
 import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
 import MediaManager from "./detailsPage/mediaManager.js";
-import Section from "./SectionsEditor.js";
 import SectioEditor from "./SectionsEditor.js";
 import DetailsEditor from "./detailsEditor.js";
 export default class Plan extends DietEle {
