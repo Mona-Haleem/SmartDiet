@@ -1,0 +1,32 @@
+<h4>{{type|capfirst}} Plan</h4>
+<div class="current_plan p-0 px-1" style="height: 15vh">
+  {% if plan %}
+  <img src="{{plan.image}}" height="100%" />
+  <label for="{{type}}_select" id="diet_title"
+    >{{prefix}}{{plan.title}}</label
+  >
+  {% else %}
+  <p>No Plan Assigned click to change</p>
+  {% endif%}
+  <select id="diet_select" onchange="setCurrPlan(this.value,'diet_title')">
+    <template x-for="p in allPlans">
+      <template x-if="p.category == '{{type}}' || p.category == 'full'">
+        <option
+          :style="{
+             backgroundColor:
+             p.category === 'diet'
+             ? 'rgba(var(--accent-color-rgb), 0.3)'
+             : p.category === 'exercise'
+             ? 'rgba(var(--primary-color-rgb), 0.3)'
+             : 'rgba(var(--cover-color), 0.3)'
+            }"
+          value='[p.id,p.duration,"p.name"]'
+          x-text="p.name"
+          >
+       
+        </option>
+      </template>
+    </template>
+    <option value="new">Start a New Plan</option>
+  </select>
+</div>

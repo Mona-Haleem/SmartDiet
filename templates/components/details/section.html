@@ -9,11 +9,7 @@
     data-order="{{node.order}}"
     draggable="true"
   >
-    <span
-      style="position: relative"
-      ondragover="event.preventDefault()"
-      ondrop="reorderElements(this.closest('.section').children[2],this.closest('.section'));"
-    >
+    <span  style="position: relative">
     <i
     class="fas fa-plus add-btn"  
     @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'parent'});"
@@ -23,7 +19,6 @@
         class="header display-input"
         contenteditable="true"
         @blur="eleObj.handleSectionAction({{node.id}},'renameSection',{inputEle:$event.target})"
-        @keydown="this.style.border='none'"
         x-text="$data.sections?.['{{node.id}}']?.data?.section"
         >{{node.section}}</span>
         <template x-if="$data.sections?.['{{node.id}}']?.data?.subSections?.length || $data.sections?.['{{node.id}}']?.data?.detail?.length">

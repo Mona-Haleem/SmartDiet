@@ -24,7 +24,8 @@ export default class LayoutCalculator {
     ele.style.width = this.containerWidth + "px";
     //calc
     console.log(ele.clientHeight, this.containerWidth);
-    const requiredPages = Math.max(1,Math.floor(ele.clientHeight / this.containerWidth));
+    console.log("pages needed",ele.clientHeight / this.containerWidth)
+    const requiredPages = Math.max(1,Math.ceil((ele.clientHeight / this.containerWidth) - 0.4));
     
     //updata ele
     this._updateContainerLayout(ele,requiredPages ,mode ,page);  

@@ -17,12 +17,12 @@ export default class SectionNavigator {
     if (sectionId == "page1") return 0;
 
     const distance = this._calculateSectionOffset(sectionId);
-    console.log(distance);
+    // console.log(distance);
     let page =
       mode == 1
         ? Math.round(distance / this.layoutCalculator.containerWidth) + 1
         : Math.round(distance / (this.layoutCalculator.containerWidth / 0.45 * 0.55)) + 1;
-    console.log(page, this.refs[sectionId]);
+    // console.log(page, this.refs[sectionId]);
     return page;
   }
   //this.$data?.ele?.details
@@ -32,10 +32,10 @@ export default class SectionNavigator {
     let sections = [...sectionsData];
     
     while (sections.length) {
-      console.log("loopingSections", sections.length);
+      // console.log("loopingSections", sections.length);
       const section = sections.shift();
       const x = this.getSectionPage(`section-${section.id}`,mode)
-      console.log(!!section, page , x)
+      // console.log(!!section, page , x)
       if (section && page == x) {
         return {
           activeSection: section.section,

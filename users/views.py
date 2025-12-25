@@ -4,7 +4,7 @@ from django.db import IntegrityError
 from django.http import  JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from core.helpers.ajaxRedirect import ajaxRedirect
-from users.models import User
+from users.models import User ,UserRestriction ,SLEEP_QUALITY_CHOICES ,ACTIVITY_LEVEL_CHOICES ,RESTRICTIONS_TYPE_CHOICES 
 from users.forms.login_form import LoginForm
 from users.forms.register_form import RegisterForm
 from django.contrib.auth.decorators import login_required
@@ -57,7 +57,7 @@ def register(request):
                 "errors": "Email already taken.",
             }, status=400)  
         login(request, user)
-        return ajaxRedirect(reverse("index"), "Logged in successfully")
+        return ajaxRedirect(reverse("profile"), "Logged in successfully")
     elif request.method  == "GET":
         print(request.headers.get("HX-request"))
         if request.headers.get("HX-Request") == "true":
@@ -80,5 +80,13 @@ def logout_user(request):
 def profile(request):
     print("-------gettting users -------------")
     user = User.objects.get(email=request.user.email)
+    restrictions = UserRestriction.objects.all()
+
     print("-----user------\n",user)
-    return render(request,"profile.html",{"user":user.serialize()})
+    return render(request,"profile.html",{
+                                            "user":user.serialize(),
+                                            "restrictions":[r.serialize() for r in restrictions],
+                                            "ACTIVITY_LEVEL_CHOICES":ACTIVITY_LEVEL_CHOICES,
+                                            "SLEEP_QUALITY_CHOICES":SLEEP_QUALITY_CHOICES,
+                                            "RESTRICTIONS_TYPE_CHOICES":RESTRICTIONS_TYPE_CHOICES 
+                                        })

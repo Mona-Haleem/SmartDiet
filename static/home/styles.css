@@ -1,0 +1,14 @@
+
+.current_plan select{
+    width: 20px;
+    border: none;
+    display: none;
+}
+.current_plan:hover select{
+    display: inline;
+}
+.current_plan select:focus{
+    width: 1px;
+    color: #fff;
+    background-color: rgba(var(--cover-rgb),0.2);
+}

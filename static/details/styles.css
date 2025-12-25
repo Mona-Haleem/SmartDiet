@@ -1,6 +1,6 @@
 .detail-page {
   width: 45%;
-  overflow: hidden;
+  overflow: visible;
 }
 /********quick nav header*************/
 #anchor {
@@ -350,6 +350,11 @@ ol {
   left: 0;
   top: 0;
 }
+.section:hover:not(:has(.section:hover)) > .addBtn {
+  opacity: 0.8;
+  height: 25px;
+}
+
 .section span:hover > i {
   display: inline-block;
   position: absolute;

@@ -1,0 +1,80 @@
+<div class="info-card move" x-show="full || active=='restrictions'">
+  <div class="section-name" x-show="full">
+    <p>User Restrictions</p>
+    <button type="button"></button>
+  </div>
+
+  <div class="section-content">
+    <p style="font-size: 14px">
+      This section includes any extra info to take note of while making a plan
+      like preferences or restrictions.
+    </p>
+
+    <div class="content form-control p-1" style="width: 100%; overflow-x: auto; background-color: transparent;">
+      <table class="table table-borderless table-sm mb-0" style="background-color: transparent;">
+        <thead>
+          <tr>
+            <th style="width: 30%">Name</th>
+            <th style="width: 50%">Remark</th>
+            <th style="width: 20%">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for type_key, type_label in RESTRICTIONS_TYPE_CHOICES %}
+          <!-- Type header row -->
+          <tr class="bg-secondary text-white">
+            <td colspan="3">
+              <div class="d-flex justify-content-between align-items-center w-100 px-2" @click="activeType='{{type_label}}'">
+                <span class="fw-bold">{{ type_label }}</span>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-primary"
+                  @click="profile.addRestriction('{{ type_key }}')"
+                >
+                  + Add
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Rows for this type -->
+          <template
+            x-for="(r, index) in user.restrictions.filter(res => res.type === '{{ type_key }}')"
+            :key="r.id"
+          >
+            <tr style="background-color: transparent; border-bottom:1px solid rgba(0,0,0,0.1);" x-show="!collapse || activeType == '{{type_label}}'"  >
+              <td>
+                <input
+                  type="text"
+                  class="form-control form-control-sm bg-transparent border-0"
+                  x-model="r.name"
+                  placeholder="Enter name"
+                />
+              </td>
+              <td>
+                <input
+                  type="text"
+                  class="form-control form-control-sm bg-transparent border-0"
+                  x-model="r.remark"
+                  placeholder="Enter remark"
+                />
+              </td>
+              <td class="d-flex justify-content-center align-items-center">
+                <button
+                  type="button"
+                  class="btn btn-sm btn-danger"
+                  @click="profile.removeRestriction(index)"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          </template>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <hr />
+  </div>
+</div>

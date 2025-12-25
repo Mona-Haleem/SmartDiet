@@ -1,0 +1,46 @@
+<div class="info-card" >
+  <div class="section-name">
+    <p>Lifestyle Info</p>
+    <button type="button" @click="active='lifeStyle'"></button>
+  </div>
+  <div class="section-content" x-show="full || active=='lifeStyle'">
+    <div class="d-flex flex-column flex-lg-row justify-content-between mb-1">
+      <div style="width:45%;">
+        <b>Activity Level:</b>
+        <select x-model="user.activity_level" class="form-control">
+          {% for key, value in ACTIVITY_LEVEL_CHOICES %}
+          <option value="{{ key }}" :selected="user.activity_level === '{{ key }}'">{{ value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="width:45%;">
+        <b>Fluid Intake:</b>
+        <span class="d-flex align-items-center">
+            <input type="number" x-model.number="user.fluid_intake" class="form-control">
+             <b>L</b>
+        </span>
+      </div>
+    </div>
+
+    <b>Sleep Data:</b>
+    <div class="d-flex flex-column flex-lg-row justify-content-between mb-1">
+      <div style="width:45%;">
+        <b>Quality:</b>
+        <select x-model="user.sleep_quality" class="form-control">
+          {% for key, value in SLEEP_QUALITY_CHOICES %}
+          <option value="{{ key }}" :selected="user.sleep_quality === '{{ key }}'">{{ value }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div style="width:45%;">
+        <b>Duration:</b>
+        <span class="d-flex align-items-center">
+            <input type="number" x-model.number="user.sleep_duration" class="form-control">
+            <b>H</b>
+
+        </span>
+      </div>
+    </div>
+    <hr>
+  </div>
+</div>

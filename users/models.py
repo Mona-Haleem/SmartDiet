@@ -63,13 +63,13 @@ class User(AbstractUser):
             "avatar_img":self.avatar_img if self.image_exists() else '',
             "birth_date": self.birth_date.strftime("%Y-%m-%d"),
             "age":self.age,
-            "weight": self.weight,
-            "height": self.height,
+            "weight": float(self.weight) ,
+            "height": float(self.height) ,
             "gender": dict(GENDER_CHOICES).get(self.gender, 'Unknown'),
             "activity_level": dict(ACTIVITY_LEVEL_CHOICES).get(self.activity_level, 'Unknown'),
-            "fluid_intake": self.fluid_intake,
+            "fluid_intake": float(self.fluid_intake),
             "sleep_quality": dict(SLEEP_QUALITY_CHOICES).get(self.sleep_quality, 'Unknown'),
-            "sleep_duration": self.sleep_duration,
+            "sleep_duration": float(self.sleep_duration),
             "restrictions":[r.serialize() for r in self.restrictions.all()]
         }
 
@@ -117,7 +117,7 @@ class UserRestriction(models.Model):
             "id":self.id,
             "name" : self.name,
             "type" :self.type,
-            "remark":self.remark
+            "remark":self.remark if self.remark else ""
         }
     def __str__(self):
         return f'{self.type} : {self.name}'
