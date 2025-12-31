@@ -27,7 +27,8 @@ export default class Component {
       while (tpl.content.firstChild) {
         newEl.appendChild(tpl.content.firstChild);
       }
-      console.log("====================>\n", newEl);
+      // console.log("====================>\n", newEl);
+      // console.log("====================>\n",targetEle);
 
       if (!newEl) throw new Error("No valid root element in template");
       targetEle = targetEle ? targetEle : this.$el;

@@ -21,6 +21,10 @@ export default class DetailsEditor {
     const planComponent = Alpine.$data(
       document.querySelector('[x-data*="ele:"]')
     );
+    console.log(planComponent)
+    console.log(planComponent.sections)
+    console.log(planComponent.sections[sectionId],sectionId)
+
     const sectionData = planComponent.sections[sectionId].data;
 
     // Store original for cancel
@@ -28,7 +32,7 @@ export default class DetailsEditor {
 
     // Switch to editor mode
     planComponent.mode = "editor";
-
+    document.querySelector(".paginator-container").style.position = "static";
     // Wait for Alpine to render, then initialize editor
     this.$nextTick(() => {
       this.editorInstance = Alpine.$data(
@@ -56,9 +60,11 @@ export default class DetailsEditor {
       console.error("No section selected");
       return;
     }
+    if(this.currentSectionId == "directions") return this.saveDirections(updatedDetails);
     eleObj.$data.mode = "details";
     console.log(eleObj.$refs);
-
+    document.querySelector(".paginator-container").style.position = "relative";
+    
     const url = `/diet/collections/plans/sections/${this.currentSectionId}/`;
     console.log(url);
     return await queryService.query(
@@ -99,10 +105,55 @@ export default class DetailsEditor {
     );
   }
 
+  async saveDirections(updatedDetails) {
+    if (!this.currentSectionId) {
+      console.error("No section selected");
+      return;
+    }
+    eleObj.$data.mode = "details";
+    console.log(eleObj.$refs);
+    document.querySelector(".paginator-container").style.position = "relative";
+    
+    await eleObj.updateServerData(
+      ["updateDirections"],
+      {
+        directions:updatedDetails,
+      },
+      (ctx) => {
+        eleObj.$data.ele.directions = updatedDetails;
+
+         const targetRef = eleObj.$refs.recDirections;
+          if (targetRef && eleObj.swapContent) {
+            const eleToRemove = Array.from(targetRef.children).slice(2)
+            if(eleToRemove.length){
+              for(let ele of eleToRemove){
+                console.log(ele)
+                ele.remove()
+              }
+                
+            }
+            console.log(targetRef.children[1])
+            eleObj.swapContent(ctx.data, targetRef.children[1]);
+          }
+
+          // Close editor
+          eleObj.updateData(0);
+          // eleObj.onPaginate(undefined , page);
+          this.cleanup();
+
+          return ctx.data;
+      },
+      ()=>{
+          alert("Error saving changes. Please try again.");
+      }
+    );
+  }
   /**
    * Cancel editing and revert changes
    */
   cancel() {
+    document.querySelector(".paginator-container").style.position = "relative";
+
     const planComponent = Alpine.$data(
       document.querySelector('[x-data*="ele:"]')
     );

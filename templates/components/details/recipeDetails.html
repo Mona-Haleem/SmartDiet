@@ -1,22 +1,64 @@
-<div x-ref="details">
+<div x-ref="details" id="details">
+  <section class="section" id="ingredients" x-data="{editIng:false}">
+    <span class="d-flex align-items-center" style="position: relative">
+      <i x-show="{{ele.isOwner}}" class="fas fa-edit" @click="editIng = true" style="z-index: 10"> </i>
+      <h3 style="position: relative; right: 20px; padding-left: 20px">
+        Ingridents:
+      </h3>
+    </span>
+    <template x-if="editIng">
+      <div class="ingredient-form-wrapper">
+        {% include "components/details/ingridentsForm.html" %}
+        <div class="ingredient-form-actions">
+          <button
+            type="button"
+            class="ingredient-action-btn save-btn"
+            @click="editIng = false; eleObj.saveIng()"
+          >
+            <i class="fas fa-check"></i>
+            <span>Save</span>
+          </button>
+          <button
+            type="button"
+            class="ingredient-action-btn cancel-btn"
+            @click="eleObj.cancelSaveIng(); editIng = false"
+          >
+            <i class="fas fa-times"></i>
+            <span>Cancel</span>
+          </button>
+        </div>
+      </div>
+    </template>
+    <template x-if="!editIng">
+      <ul class="pl-5 py-2">
+        <template x-for="ing in ele.ingredients">
+          <li
+            class="d-block"
+            x-text="'a '+ing.amount+' '+ing.unit+' of '+ing.name"
+            key="ing.name+ing.unit+ing.amount"
+          >
+            a {{ing.amount}} {{ing.unit}} of {{ing.name}}
+          </li>
+        </template>
+      </ul>
+    </template>
+  </section>
 
-  <section class="section" id="ingredients">
-    <h3>Ingridents:</h3>
-    <ul class="pl-5 py-2">
-      {% for ing in ele.ingredients %}
-      <li class="d-block">a {{ing.amount}} {{ing.unit}} of {{ing.ingredient}}</li>
-      {% endfor %}
-    </ul>
-  </section>
-  
-  <section class="section" id="directions">
-    <h3>Directions:</h3>
-    <p >
+  <section class="section" id="directions" x-ref="recDirections">
+    <span class="d-flex align-items-center" style="position: relative">
+      <i
+        x-show="{{ele.isOwner}}"
+        class="fas fa-edit"
+        @click="eleObj.detailsEditor.init('directions')"
+        style="z-index: 10"
+      >
+      </i>
+      <h3 style="position: relative; right: 20px; padding-left: 20px">
+        Directions:
+      </h3>
+    </span>
       {% for detail in ele.directions %} 
-      {% include "components/details/detailContent.html" %}
-      
-      {% endfor %} 
-    </p>
+      {% include  "components/details/detailContent.html" %}
+       {% endfor %}
   </section>
-  
 </div>

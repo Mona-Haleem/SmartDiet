@@ -2,7 +2,7 @@
   class="relative"
 >
   <div
-    contenteditable="true"
+    contenteditable="{{ele.isOwner}}"
     id="ele-name"
     @blur="eleObj.updateName($event.target)"
     x-text="ele.name"

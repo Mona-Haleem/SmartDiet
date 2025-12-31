@@ -3,16 +3,17 @@
 <div id="profile-header">
   <div class="img_container">
     <div id="avatar">
-      <input
-        x-ref="imgUpload"
-        type="file"
-        name="avatar_img"
-        accept="image/*"
-        class="d-none"
-        id="id_avatar_img"
-        @change="profile.updateAvatarImage()"
-      />
-      {% if user.avatar_img %}
+      <template x-if="!home">
+        <input
+          x-ref="imgUpload"
+          type="file"
+          name="avatar_img"
+          accept="image/*"
+          class="d-none"
+          id="id_avatar_img"
+          @change="profile.updateAvatarImage()"
+        />
+      </template>
       <img
         x-ref="avataImg"
         alt="{{user.username}} avatar image"
@@ -20,15 +21,33 @@
         :src="user.avatar_img"
         data-fallback="{% static 'assets/profile.jpg' %}"
         onerror="this.src=this.dataset.fallback;"
-        @dblclick="$refs.imgUpload.click()"
+        @dblclick="!$data.home ? $refs.imgUpload.click():''"
       />
-      {% else %}
-      <img src="{% static 'assets/profile.jpg' %}" @dblclick="$refs.imgUpload.click()"/>
-      {% endif %}
     </div>
   </div>
-  <h1 x-text="user.username" x-show="!editMode" @dblclick="editMode = true;$data.orgValue=$data.user.username; $refs.nameInput.focus()">{{user.username|capfirst }}</h1>
-  <h1 x-show="editMode">    
-      <input x-model="user.username" class="form-control" x-ref="nameInput" @blur="profile.updateUserName()">
+  <h1
+    x-text="user.username"
+    x-show="!editMode"
+    @dblclick="
+    if (!$data.home) {
+      editMode = true;
+      $data.orgValue = $data.user.username;
+      $refs.nameInput.focus();
+    }
+  "
+  >
+    {{user.username|capfirst }}
   </h1>
+  <template x-if="!home">
+    <h1 x-show="editMode">
+      <input
+        x-model="user.username"
+        class="form-control"
+        x-ref="nameInput"
+        @keydown.enter.prevent="$el.blur()"
+        @keydown="$el.classList.remove('invalid')"
+        @blur="profile.updateUserName()"
+      />
+    </h1>
+  </template>
 </div>

@@ -1,10 +1,12 @@
 <section class="ele-info" x-show="activeTab === 'nutrients'">
-  <ul>
+  <ul style="display: grid; grid-template-columns: 1fr 1fr">
     {% for key, value in ele.nutrients.items %}
-    <li>
-      <b>{{ key|capfirst }}:</b>
-      <span x-text="ele.nutrients['{{ key }}']">{{ value }}</span>
-    </li>
+      {% if value > 0 %}
+        <li>
+          <b>{{ key|capfirst }}:</b>
+          <span x-text="ele.nutrients['{{ key }}']">{{ value }}</span>
+        </li>
+      {% endif %}
     {% endfor %}
   </ul>
 </section>

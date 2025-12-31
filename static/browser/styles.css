@@ -1,3 +1,10 @@
+.controls > div {
+  width: 45%;
+  margin-left: 8%;
+}
+.controls {
+  height: 40px;
+}
 .card-list-grid {
   height: 100%;
   width: calc(100% - 4rem);
@@ -13,7 +20,7 @@
   height: calc(100% / 4);
   max-height: 200px;
   width: calc((100% - 2rem) / 6);
-  overflow: hidden;
+  /* overflow: hidden; */
   cursor: pointer;
   box-sizing: border-box;
   transition: transform 0.5s ease-in-out;
@@ -128,9 +135,188 @@
 .folder-container:hover .image-details {
   opacity: 1;
 }
+/************************************************************/
+/* Card Menu Styles */
+.card-menu-container {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+}
+
+.card-menu-btn {
+  background: rgb(var(--dark-lines-rgb),0.1);
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: rgb(var(--bright-lines-rgb));
+  font-size: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.diet .card-menu-btn{
+  color: rgb(var(--accent-color-rgb));
+}
+
+.exercise .card-menu-btn{
+  color: rgb(var(--primary-color-rgb));
+}
+
+.full .card-menu-btn{
+  color: rgb(var(--cover-rgb));
+}
+.recipe .card-menu-btn{
+  color: rgb(var(--secondary-color-rgb));
+}
+.card-menu-btn:hover,
+.card-menu-btn.active {
+  background: rgba(var(--dark-lines-rgb), 0.85);
+  transform: scale(1.1);
+}
+
+.card-menu-btn:active {
+  transform: scale(0.95);
+}
+
+.card-menu-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.card-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+}
+
+.card-menu-item:hover {
+  background-color: #f5f5f5;
+}
+
+.card-menu-item:active {
+  background-color: #e8e8e8;
+}
+
+.card-menu-item i {
+  width: 18px;
+  font-size: 16px;
+  color: #666;
+}
+
+.card-menu-item.delete {
+  color: #dc3545;
+  border-top: 1px solid #eee;
+}
+
+.card-menu-item.delete i {
+  color: #dc3545;
+}
+
+.card-menu-item.delete:hover {
+  background-color: #fff5f5;
+}
+
+/* Ensure menu appears above other elements */
+.image-container {
+  position: relative;
+}
+
+/* Hide menu when card is being dragged */
+.image-container:active .card-menu-container {
+  display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-menu-dropdown {
+    min-width: 180px;
+  }
+
+  .card-menu-item {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .card-menu-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+}
+
+/* Font Awesome icon overrides for better display */
+.card-menu-item .fa-heart {
+  color: #dc3545;
+}
+
+.card-menu-item .fa-heart-o {
+  color: #dc3545d5;
+}
+
+.card-menu-item .fa-user-plus,
+.card-menu-item .fa-user-times {
+  color: #666;
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .card-menu-dropdown {
+    background: rgb(var(--dark-lines-rgb));
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .card-menu-item {
+    background:rgb(var(--dark-lines-rgb));
+    color: #e0e0e0;
+  }
+
+  .card-menu-item:hover {
+    background-color: #3a3a3a;
+  }
+
+  .card-menu-item:active {
+    background-color: #404040;
+  }
+
+  .card-menu-item.delete:hover {
+    background-color: #3d1f1f;
+  }
+}
 
 /************************************************************/
-
 
 .page {
   position: absolute;
@@ -149,9 +335,91 @@
   padding: 0.25rem;
   font-weight: bold;
   font-size: 1.25rem;
-  background-color: rgba(var(--secondary-color-rgb),0.7);
+  background-color: rgba(var(--secondary-color-rgb), 0.7);
 }
 /****************************************************/
+
+.filter-container {
+  width: 200px;
+  font-family: Arial, sans-serif;
+  position: relative;
+  min-width: 50px;
+}
+
+.filter-select {
+  height: 100%;
+  display: inline-block;
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.selected-options {
+  font-size: 14px;
+  color: #333;
+}
+
+.filter-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  min-width: 150px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  z-index: 10;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.filter-menu::-webkit-scrollbar {
+  display: none;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.hidden-checkbox {
+  display: none;
+}
+
+.hidden-checkbox:checked + label {
+  background-color: #4caf50;
+  color: white;
+  margin: 0;
+}
+.filter-menu p {
+  margin-bottom: 0;
+  padding: 0.5rem 0;
+}
+.label {
+  width: 100%;
+  padding: 10px;
+}
+#search {
+  margin: 0;
+  height: 100%;
+  padding: 0.25rem;
+}
+.filter-select.open .filter-menu {
+  display: block;
+}
+.selected {
+  background-color: rgba(var(--cover-rgb), 0.4);
+  color: rgba(var(--bright-line-rbg));
+}
 @media screen and (max-width: 1224px) {
   .ele-container {
     width: calc((100% - 2rem) / 4);
@@ -180,15 +448,46 @@
   .ele-container:nth-of-type(4n + 3) {
     margin: 0;
   }
+  .controls div {
+    margin-left: 1%;
+  }
 }
 @media screen and (max-width: 795px) {
   .ele-container {
     width: calc(100% / 2);
+  }
+  .controls {
+    height: 60px;
+  }
+
+  .controls input,
+  .controls > div {
+    height: 35px !important;
+    margin: 10px 0;
+  }
+  .controls .sub-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
   }
 }
 @media screen and (max-width: 600px) {
   .ele-container {
     width: 80%;
     margin: auto !important;
+  }
+  .controls {
+    height: 60px;
+  }
+
+  .controls input,
+  .controls > div {
+    height: 25px !important;
+    margin: 10px 0;
+  }
+  .controls .sub-btn {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
   }
 }

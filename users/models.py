@@ -80,9 +80,11 @@ class User(AbstractUser):
     
     def image_exists(self):
         # Check if the file exists
-        full_path = os.path.join(settings.MEDIA_ROOT, self.avatar_img.name)
-        return os.path.isfile(full_path)
-    
+        if self.avatar_img:
+            full_path = os.path.join(settings.MEDIA_ROOT, self.avatar_img.name)
+            return os.path.isfile(full_path)
+        else:
+            return ""
 class MedicalIssues(models.Model):
     name_ar = models.CharField(max_length=100)
     name_en = models.CharField(max_length=100)

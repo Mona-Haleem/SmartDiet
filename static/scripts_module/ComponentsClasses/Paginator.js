@@ -1,7 +1,7 @@
 export default class Paginator {
-  constructor(data,refs) {
+  constructor(data, refs) {
     this.data = data;
-    this.refs = refs ;
+    this.refs = refs;
     this.pageClass = null;
     window.addEventListener("resize", () => this.OnResize());
   }
@@ -53,16 +53,26 @@ export default class Paginator {
       console.log("active", this.activeSection);
       if (Paginator.resizeMode) return;
       Paginator.resizeMode = true;
-      if (this.activeSection?.activeSection && this.pageClass.$data.mode == "details") {
+      if (
+        this.activeSection?.activeSection &&
+        this.pageClass.$data.mode == "details"
+      ) {
         this.pageClass.updateData(0);
         const page = this.pageClass.sectionNavigator.getSectionPage(
           this.activeSection?.activeId,
           this.pageClass.mode
         );
         this.pageClass.updateData(page);
+      } else if (
+        this.pageClass.$data.ele.type == "recipe" &&
+        this.pageClass.$data.mode == "details" &&
+        this.pageClass.$data.ele.isOwner
+      ) {
+        this.pageClass.updateData(0);
       } else {
         this.pageClass.updateData();
       }
+
       Paginator.resizeMode = false;
     }, 100);
   }

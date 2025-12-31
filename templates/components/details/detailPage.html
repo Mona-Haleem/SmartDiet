@@ -9,17 +9,14 @@
       return eleObj
     })"
 >
-<template x-if="mode =='details'">
   
-<section class="h-100 detail-page" x-ref="page1" >
+<section class="h-100 detail-page" x-ref="page1"  x-show="mode =='details'">
   {% include "components/details/detailHeader.html" %}
   {% include "components/details/mediaViewer.html" %}
   {% include "components/details/infoTabs.html" %}
 </section>
-</template>
-<template x-if="mode =='details'">
 
-<section class="h-100 detail-page" x-ref="page2" >
+<section class="h-100 detail-page" x-ref="page2" x-show="mode =='details'">
   {% if ele.type == 'plan' %} 
   {% include "components/details/planDetails.html" %}
   {% else %} 
@@ -27,11 +24,20 @@
   {% endif %}
   
 </section>
-</template>
-{% include "components/details/expandedMediaViewer.html" %}
-<div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" @dragover="$event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
-    <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
-</div>
-{% include "components/details/detailsEditor.html" %}
 
+{% include "components/details/expandedMediaViewer.html" %}
+
+<template x-if="('{{ele.type}}'=='plan' || mode == 'mediaViewer') && {{ele.isOwner}} ">
+  <div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" @dragover="$event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+      <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
+  </div>
+</template>
+{% include "components/details/detailsEditor.html" %}
+<template x-if="!{{ele.isOwner}}">
+  <button class="clone-btn" 
+      @click="eleObj.cloneEle()"
+      aria-label="clone obj">
+      <i class="fas fa-copy"></i>
+    </button>
+</template>
 </div>

@@ -1,6 +1,7 @@
 export default class LayoutCalculator {
   constructor(containerWidth) {
     this.containerWidth = containerWidth;
+    
   }
   calculateScreenSize(ele){
     const width = window.innerWidth;

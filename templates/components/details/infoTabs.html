@@ -1,53 +1,61 @@
 <section class="px-3">
-
-    <ul class="nav nav-tabs mt-5 " style="flex-wrap: nowrap;">
-        <li class="nav-item">
-            <p
-            class="nav-link"
-            aria-current="page"
-            :class="{ 'active': activeTab === 'info' }"
-            @click="activeTab = 'info'"
-            >
-            <span class="d-none d-sm-inline">{{ele.type|capfirst}}</span> info
-        </p>
+  <ul class="nav nav-tabs mt-5" style="flex-wrap: nowrap">
+    <li class="nav-item">
+      <p
+        class="nav-link"
+        aria-current="page"
+        :class="{ 'active': activeTab === 'info' }"
+        @click="activeTab = 'info'"
+      >
+        <span class="d-none d-sm-inline">{{ele.type|capfirst}}</span> info
+      </p>
     </li>
     <li class="nav-item">
-        <p
+      <p
         class="nav-link"
         :class="{ 'active': activeTab === 'notes' }"
         @click="activeTab = 'notes'"
-        >
+      >
         Notes
-    </p>
-</li>
-{% if ele.type == 'plan' %}
-<li class="nav-item">
-    <p
-    class="nav-link"
-    :class="{ 'active': activeTab === 'metrics' }"
-    @click="activeTab = 'metrics'"
-    >
-    Goals
-</p>
-</li>
-{% endif %}
-{% if ele.category != 'exercise' %}
-<li class="nav-item">
-    <p
-    class="nav-link"
-    :class="{ 'active': activeTab === 'nutrients' }"
-    @click="activeTab = 'nutrients'"
-    >
-    Nurtients
-</p>
-</li>
-{% endif %}
-</ul>
-{% include "components/details/eleInfo.html" %} 
-{% include "components/details/eleNotes.html" %} 
-{% include "components/details/eleGoals.html" %}
-{% if ele.category != 'exercise' %} 
-{% include "components/details/nurtients.html" %} 
-{% endif %}
+      </p>
+    </li>
+    {% if ele.type == 'plan' %}
+    <li class="nav-item">
+      <p
+        class="nav-link"
+        :class="{ 'active': activeTab === 'metrics' }"
+        @click="activeTab = 'metrics'"
+      >
+        Goals
+      </p>
+    </li>
+    {% endif %} {% if ele.category != 'exercise' and ele.nutrients %}
+    <li class="nav-item">
+      <p
+        class="nav-link"
+        :class="{ 'active': activeTab === 'nutrients' }"
+        @click="activeTab = 'nutrients'"
+      >
+        Nurtients
+      </p>
+    </li>
+    {% endif %} {% if ele.metrics %}
+    <li class="nav-item">
+      <p
+        class="nav-link"
+        :class="{ 'active': activeTab === 'metrics' }"
+        @click="activeTab = 'metrics'"
+      >
+        Metrics
+      </p>
+    </li>
+    {% endif %}
+  </ul>
+  {% include "components/details/eleInfo.html" %} 
+  {% include "components/details/eleNotes.html" %}
+  {% include "components/details/eleGoals.html" %} 
+  {% if ele.category != 'exercise' %} 
+  {% include "components/details/nurtients.html" %}
+  {% endif %}
 
 </section>

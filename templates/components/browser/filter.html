@@ -1,55 +1,138 @@
 <form
   id="filters-form"
-  class="controls justify-content-between mt-4 mx-4 m-1"
+  class="controls d-md-flex justify-content-between mt-4 mx-4 m-1"
   onsubmit="return false"
-  style="height: 40px; display: flex"
-  x-show="false"
+  style="z-index: 100"
+  x-data="{
+    searchInput:'',
+    order:'',
+    filters:[],
+    favFilter:0,
+    shareFilter:0,
+    type:'',
+    openFilters:false,
+  }"
+  x-init="setParams($data)"
 >
   <input
     id="search"
     name="search"
+    x-model="searchInput"
+    @input="updateFilters($data)"
     autocomplete="off"
     class="form-control"
     style="width: 45%"
+    placeholder="search in you collection"
   />
-  <div class="d-flex justify-content-between">
-    <select id="order" name="order" class="form-control" style="width: 24%">
-      <option value="">order</option>
-      <option value="-last_modification">edited &darr;</option>
-      <option value="-creation_date">New &darr;</option>
-      <option value="last_modification">edited &uarr;</option>
-      <option value="creation_date">New &uarr;</option>
-      <option value="title">title</option>
-      <!---->
-      <option value="user__username">creator</option>
+  <div class="d-flex justify-content-between w-100">
+    <select
+      id="type"
+      name="type"
+      x-model="type"
+      @change="updateFilters($data);!type?filters=[]:filters=filters"
+      class="form-control"
+      style="width: 24%"
+    >
+      <option value="">all</option>
+      <option value="plan">Plans</option>
+      <option value="recipe">Recipes</option>
     </select>
-    <div class="filter-container" style="width: 24%">
-      <div
-        class="filter-select"
-        id="select-container"
-        tabindex="5"
-        onclick="this.classList.toggle('open')"
-        onblur="this.classList.remove('open')"
+
+    <select
+      id="order"
+      name="order"
+      x-model="order"
+      @change="updateFilters($data)"
+      class="form-control"
+      style="width: 24%"
+    >
+      <option value="">order</option>
+      <option value="-edited">edited &darr;</option>
+      <option value="-created">New &darr;</option>
+      <option value="edited">edited &uarr;</option>
+      <option value="created">New &uarr;</option>
+      <option value="name">title</option>
+      <option
+        value="creator"
+        x-show="window.location.href.includes('discover')"
       >
-        <span class="selected-options">filter</span>
-        <div class="filter-menu" id="filter">
+        creator
+      </option>
+    </select>
+    <div
+      class="filter-container"
+      style="width: 24%"
+      @click="openFilters = !openFilters"
+      @click.away="openFilters = false"
+    >
+      <div class="filter-select" id="select-container" tabindex="5">
+        <span class="selected-options" x-show="!openFilters">
+          <i class="fas fa-filter d-inline"></i>
+          <span >filter</span>
+        </span>
+        <div class="filter-menu" id="filter" x-show="openFilters">
+          <p
+            :class="{ 'selected': filters.length == 0}"
+            @click="filters = [];
+          updateFilters($data);
+          "
+          >
+            all
+          </p>
+          <p
+            :class="{  'selected': favFilter}"
+            x-show="!window.location.href.includes('discover')"
+            @click="filters = [];
+            favFilter = favFilter?0:1;
+          updateFilters($data);
+          "
+          >
+            <i class="fas fa-heart"></i>
+            favourite
+          </p>
+          <p
+            :class="{  'selected':shareFilter}"
+            x-show="!window.location.href.includes('discover')"
+            @click="filters = []
+            shareFilter=shareFilter?0:1;
+          updateFilters($data);
+          "
+          >
+            <i class="fas fa-share"></i>
+            shared
+          </p>
           {% for category in categories%}
-          <p>{{category}}</p>
+          <p
+            :class="{ 'selected': filters.includes('{{category}}') || filters.length == 0} "
+            @click="!filters.includes('{{category}}')? 
+          filters.push('{{category}}'): 
+          filters = filters.filter(e=>e =='{{category}}');
+          updateFilters($data);
+          "
+            x-show="
+          !type ||
+          (type=='plan'&& ['diet','exercise','full'].includes('{{category}}'))||
+          (type=='recipe'&& !['diet','exercise','full'].includes('{{category}}'))"
+          >
+            {{category}}
+          </p>
           {% endfor %}
         </div>
       </div>
     </div>
-    <button id="collections" class="sub-btn" title="Collections" type="button">
-      <i class="fas fa-folder"></i>
-    </button>
-    <!----><button class="sub-btn" title="Discover">
-      <i class="fas fa-search"></i>
-    </button>
-    <button id="add" class="sub-btn" title="Create">
-      <i class="fas fa-plus"></i>
-    </button>
-    <!----><button class="sub-btn" title="Create with Ai">
-      <i class="fas fa-atom"></i>
-    </button>
+    <div class="d-flex">
+      <!-- <button id="collections" class="sub-btn" title="Collections" type="button">
+        <i class="fas fa-folder"></i>
+      </button> -->
+      <!-- <button class="sub-btn" title="Discover">
+        <i class="fas fa-search"></i>
+      </button> -->
+      <button id="add" class="sub-btn" title="Create" @click="showAddForm=true">
+        <i class="fas fa-plus"></i>
+      </button>
+      <!-- <button class="sub-btn" title="Create with Ai">
+        <i class="fas fa-atom"></i>
+      </button> -->
+    </div>
   </div>
 </form>

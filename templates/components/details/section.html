@@ -7,17 +7,19 @@
     x-ref="section-{{node.id}}"
     id="section-{{node.id}}"
     data-order="{{node.order}}"
-    draggable="true"
+    @destoy="console.log('i died')"
+    draggable="{{ele.isOwner}}"
   >
     <span  style="position: relative">
-    <i
-    class="fas fa-plus add-btn"  
-    @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'parent'});"
-    ></i>
-    <i class="fas fa-edit editBtn" @click="eleObj.detailsEditor.init({{node.id}})"></i>
+        <i
+        x-show="{{ele.isOwner}}"
+        class="fas fa-plus add-btn"  
+        @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'parent'});"
+        ></i>
+        <i class="fas fa-edit editBtn" x-show="{{ele.isOwner}}" @click="eleObj.detailsEditor.init({{node.id}})"></i>
     <span
         class="header display-input"
-        contenteditable="true"
+        contenteditable="{{ele.isOwner}}"
         @blur="eleObj.handleSectionAction({{node.id}},'renameSection',{inputEle:$event.target})"
         x-text="$data.sections?.['{{node.id}}']?.data?.section"
         >{{node.section}}</span>
@@ -25,13 +27,14 @@
           <span>:</span>
         </template>
       </span>
-    <span class="detail" ondblclick="startEditSection(this)">
+    <span class="detail">
       {% for detail in node.detail %}
        {% include "components/details/detailContent.html"%}
       {% endfor %}
     </span>
     <span class="subSec"> {{ children }} </span>
     <div
+      x-show="{{ele.isOwner}}"
       class="addBtn sec-btn"
       @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'siblings'});"
       @drop="eleObj.handleSectionAction(undefined,'reorderSection',{targetId:{{node.id}},targetRelation:'siblings'});"

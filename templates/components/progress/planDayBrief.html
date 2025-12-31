@@ -1,0 +1,105 @@
+<div class="plan-brief-wrapper">
+  <h4 class="brief-title">
+    <i class="fas fa-calendar-day"></i>
+    <span
+      x-text="$data.selectedDate.isToday?'Today':$data.selectedDate+ `'s Plan`"
+    >
+    </span>
+    <template x-if="!!!home">
+    <select
+      id="plan_select"
+      class="plan-selector"
+      x-model="$data.planId"
+      @change="$event.target.value=='new'?showAddForm=true:dayProgress.setCurrPlan($event.target.value, $data.selectedPlanType)"
+    >
+      <option value="" disabled selected>Choose a plan...</option>
+      <template x-for="p in allPlans" :key="p.id">
+        <template
+          x-if="p.category == $data.selectedPlanType || p.category == 'full'"
+        >
+          <option
+            :value="p.id"
+            :style="{
+              backgroundColor:
+                p.category === 'diet'
+                  ? 'rgba(var(--accent-color-rgb), 0.3)'
+                  : p.category === 'exercise'
+                  ? 'rgba(var(--primary-color-rgb), 0.3)'
+                  : 'rgba(var(--cover-color), 0.3)'
+            }"
+            x-text="p.name"
+          ></option>
+        </template>
+      </template>
+
+      <option
+        value="new"
+        style="background-color: rgba(var(--bright-lines-rgb), 0.3)"
+      >
+        Create New Plan
+      </option>
+    </select>
+    </template>
+  </h4>
+
+  <div class="plan-info">
+    <div class="plan-meta">
+      <span class="plan-name" x-text="$data.planName">Loading...</span>
+      <span class="plan-day" x-text="'Day ' + $data.currentDay"></span>
+    </div>
+
+    <div class="plan-goal" x-show="$data.planGoal">
+      <strong>Goal:</strong>
+      <p x-text="$data.planGoal"></p>
+    </div>
+  </div>
+
+  <!-- <div class="sections-list">
+    <h5 class="sections-title">Sections</h5>
+    <template x-if="$data.planSections && $data.planSections.length">
+      <ul class="section-items">
+        <template x-for="section in ($data.planSections ||[])" :key="section.id">
+          <li class="section-item" @click="dayProgress.expandSection(section)">
+            <div class="section-header">
+              <i class="fas fa-chevron-right section-icon" 
+                 :class="{ 'expanded': section.expanded }"></i>
+              <span class="section-name" x-text="section.section"></span>
+            </div>
+            <div class="section-details" x-show="section.expanded" >
+              <template x-if="Array.isArray(section.detail) && section.detail.length">
+                <ul class="detail-list">
+                  <template x-for="item in section.detail" :key="item">
+                    <li x-text="item"></li>
+                  </template>
+                </ul>
+              </template>
+              <template x-if="typeof section.detail === 'string'">
+                <p x-text="section.detail"></p>
+              </template>
+              
+              <template x-if="section.subSections && section.subSections.length">
+                <div class="sub-sections">
+                  <template x-for="sub in section.subSections" :key="sub.id">
+                    <div class="sub-section">
+                      <strong x-text="sub.section"></strong>
+                      <template x-if="Array.isArray(sub.detail)">
+                        <ul class="detail-list">
+                          <template x-for="item in sub.detail" :key="item">
+                            <li x-text="item"></li>
+                          </template>
+                        </ul>
+                      </template>
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+          </li>
+        </template>
+      </ul>
+    </template>
+    <template x-if="!$data.planSections || !$data.planSections.length">
+      <p class="no-sections">No sections available for today.</p>
+    </template>
+  </div> -->
+</div>

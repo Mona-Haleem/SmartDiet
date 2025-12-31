@@ -1,50 +1,151 @@
-<!-- FILE 4: templates/components/details/detailsEditor.html -->
-<!-- PURPOSE: Editor UI template (no styles, no scripts) -->
-<!-- CREATE THIS NEW FILE -->
-
-<template x-if="mode === 'editor'">
-  <div class="editor-overlay">
-    <div class="editor-container" x-data="createSectionDetailsEditor()">
+<template x-if="{{ele.isOwner}} && mode === 'editor'">
+  <div class="details-editor-overlay" @click.self="cancelEdit()">
+    <div class="details-editor-container" x-data="createSectionDetailsEditor()">
       <!-- Header -->
-      <div class="editor-header">
-        <h1 class="editor-title" x-text="section"></h1>
-        <button class="close-btn" @click="closeEditor()">✕</button>
+      <div class="details-editor-header">
+        <h2 x-text="section"></h2>
+        <div class="detail-editor-actions d-flex align-items-center">
+          <button
+            type="button"
+            class="btn btn-primary mr-2"
+            @click="saveEdit()"
+          >
+            <i class="fas fa-check"></i>
+            <span>Save Changes</span>
+          </button>
+          <button
+            type="button"
+            class="editor-close-btn"
+            @click="closeEditor()"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
       </div>
 
       <!-- Toolbar -->
-      <div class="toolbar">
-        <button @click="addParagraph()">
+      <div
+        class="details-editor-toolbar"
+        x-data="{showRef:false,activeRef:'link',refs:{{refs}}}"
+      >
+        <button type="button" @click="addParagraph()" title="Add Paragraph">
           <i class="fas fa-paragraph"></i>
+          <span>Paragraph</span>
         </button>
-        <button @click="addList('ul')">
+        <button type="button" @click="addList('ul')" title="Add Bulleted List">
           <i class="fas fa-list-ul"></i>
+          <span>Bullet List</span>
         </button>
-        <button @click="addList('ol')">
+        <button type="button" @click="addList('ol')" title="Add Numbered List">
           <i class="fas fa-list-ol"></i>
+          <span>Numbered List</span>
         </button>
+        <!-- Recipe Reference -->
+        <div class="add-refs-action">
+          <button type="button" title="Add Recipe Reference">
+            <i class="fas fa-utensils"></i>
+            <span>Recipe</span>
+          </button>
+          <div class="ref-dropdown-menu">
+            <template
+              x-for="[cat, values] in Object.entries(refs.recipe)"
+              :key="cat"
+            >
+              <div>
+                <span class="ref-dropdown-item" x-text="cat"></span>
+                <div class="ref-dropdown-submenu">
+                  <template x-for="r in values" :key="r.id">
+                    <span
+                      x-text="r.name"
+                      @click="addRef('recipe', {id: r.id,name:r.name, href: '/diet/collections/recipes/' + r.id + '/' + r.name + '/'})"
+                    ></span>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- Detail Reference -->
+        <div class="add-refs-action">
+          <button type="button" title="Link to Plan Details">
+            <i class="fas fa-link"></i>
+            <span>Link Details</span>
+          </button>
+          <div class="ref-dropdown-menu">
+            <template x-for="p in refs.detail" :key="p.plan_id">
+              <div>
+                <span class="ref-dropdown-item" x-text="p.plan_name"></span>
+                <div class="ref-dropdown-submenu">
+                  <template x-for="d in p.details" :key="d.id">
+                    <span
+                      x-text="d.section"
+                      @click="addRef('detail', {id: d.id,name:d.section, planId: p.plan_id, href: '/diet/collections/plans/' + p.plan_id + '/' + p.plan_name + '/#section-' + d.id})"
+                    ></span>
+                  </template>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <!-- External Link -->
+        <div class="add-refs-action">
+          <button type="button" title="Add External Link">
+            <i class="fas fa-external-link-alt"></i>
+            <span>External Link</span>
+          </button>
+          <div class="ref-dropdown-menu" style="padding: 0.75rem">
+            <input
+              type="url"
+              class="ref-link-input"
+              placeholder="Enter URL..."
+              @keydown.enter="addRef('link', {href: $event.target.value}); $event.target.value = ''"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- Format Bar (shows when text is selected) -->
-         <div
-        class="format-bar"
+      <div
+        class="details-format-bar"
         x-show="showFormatBar"
         x-transition
         :style="`left: ${formatBarPosition.x}px; top: ${formatBarPosition.y}px;`"
       >
-        <!-- Added @mousedown.prevent to keep focus in the editable area so selection isn't lost -->
-        <button @mousedown.prevent @click="applyFormat('bold')" title="Bold">
+        <button
+          type="button"
+          @mousedown.prevent
+          @click="applyFormat('bold')"
+          title="Bold"
+        >
           <strong>B</strong>
         </button>
-        <button @mousedown.prevent @click="applyFormat('italic')" title="Italic">
+        <button
+          type="button"
+          @mousedown.prevent
+          @click="applyFormat('italic')"
+          title="Italic"
+        >
           <em>I</em>
         </button>
-        <button @mousedown.prevent @click="applyFormat('underline')" title="Underline">
+        <button
+          type="button"
+          @mousedown.prevent
+          @click="applyFormat('underline')"
+          title="Underline"
+        >
           <u>U</u>
         </button>
-        <button @mousedown.prevent @click="applyFormat('line-through')" title="Strikethrough">
+        <button
+          type="button"
+          @mousedown.prevent
+          @click="applyFormat('line-through')"
+          title="Strikethrough"
+        >
           <s>S</s>
         </button>
-
         <select
           @mousedown.prevent
           @change="applyFormat($event.target.value); $event.target.value = ''"
@@ -56,22 +157,23 @@
           <option value="text-xl">XL</option>
           <option value="text-2xl">2XL</option>
         </select>
-
         <input
           type="color"
           @mousedown.prevent
           @input="applyFormat('color', $event.target.value)"
           title="Text Color"
         />
+        <!--a link button  will convert the content to a ref of type a with external link or recipe or detail-->
       </div>
 
-      <!-- Details List -->
-      <div class="details-list">
+      <!-- Content Area -->
+      <div class="details-editor-content">
         <template x-for="(detail, index) in details" :key="index">
-          <div class="detail-item" :data-detail-index="index">
-            <!-- Controls (move up/down, delete) -->
-            <div class="detail-controls">
+          <div class="detail-block" :data-detail-index="index">
+            <!-- Block Controls -->
+            <div class="detail-block-controls">
               <button
+                type="button"
                 @click="moveUp(index)"
                 :disabled="index === 0"
                 title="Move Up"
@@ -79,103 +181,124 @@
                 <i class="fas fa-arrow-up"></i>
               </button>
               <button
+                type="button"
                 @click="moveDown(index)"
                 :disabled="index === details.length - 1"
                 title="Move Down"
               >
                 <i class="fas fa-arrow-down"></i>
               </button>
-              <button @click="deleteDetail(index)" title="Delete">
+              <button
+                type="button"
+                @click="deleteDetail(index)"
+                class="delete-btn"
+                title="Delete Block"
+              >
                 <i class="fas fa-trash"></i>
               </button>
             </div>
 
-            <!-- Paragraph -->
-            <template x-if="detail.type === 'p'">
+            <!-- Paragraph Block -->
+            <template x-if="detail.type === 'p' || detail.type === 'ref'">
               <div
-                class="editable-content"
+                class="detail-paragraph editable-content"
                 contenteditable="true"
                 @blur="updateContent(index, null, $event)"
                 x-html="renderContent(detail)"
+                data-placeholder="Start typing..."
               ></div>
             </template>
 
-            <!-- Ordered List -->
+            <!-- Ordered List Block -->
             <template x-if="detail.type === 'ol'">
-              <div>
-                <ol>
-                  <template
-                    x-for="(item, itemIndex) in detail.content"
-                    :key="itemIndex"
-                  >
-                    <li class="list-item">
-                      <div
-                        class="editable-content"
-                        contenteditable="true"
-                        @blur="updateContent(index, itemIndex, $event)"
-                        x-html="renderContent(item)"
-                      ></div>
-                      <div class="list-item-controls">
-                        <button
-                          @click="deleteListItem(index, itemIndex)"
-                          title="Delete"
-                        >
-                          <i class="fas fa-times"></i>
-                        </button>
-                      </div>
-                    </li>
-                  </template>
-                </ol>
-                <button class="add-list-item-btn" @click="addListItem(index)">
+              <ol class="detail-list">
+                <template
+                  x-for="(item, itemIndex) in detail.content"
+                  :key="itemIndex"
+                >
+                  <li class="detail-list-item" :data-item-index="itemIndex">
+                    <div
+                      class="detail-list-content editable-content"
+                      contenteditable="true"
+                      @blur="updateContent(index, itemIndex, $event)"
+                      x-html="renderContent(item)"
+                      data-placeholder="List item..."
+                    ></div>
+                    <button
+                      type="button"
+                      class="list-item-delete"
+                      @click="deleteListItem(index, itemIndex)"
+                      title="Delete"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </li>
+                </template>
+                <button
+                  type="button"
+                  class="add-list-item-btn"
+                  @click="addListItem(index)"
+                >
                   <i class="fas fa-plus"></i> Add Item
                 </button>
-              </div>
+              </ol>
             </template>
 
-            <!-- Unordered List -->
+            <!-- Unordered List Block -->
             <template x-if="detail.type === 'ul'">
-              <div>
-                <ul>
-                  <template
-                    x-for="(item, itemIndex) in detail.content"
-                    :key="itemIndex"
-                  >
-                    <li class="list-item" :data-item-index="itemIndex">
-                      <div
-                        class="editable-content"
-                        contenteditable="true"
-                        @blur="updateContent(index, itemIndex, $event)"
-                        x-html="renderContent(item)"
-                      ></div>
-                      <div class="list-item-controls">
-                        <button
-                          @click="deleteListItem(index, itemIndex)"
-                          title="Delete"
-                        >
-                          <i class="fas fa-times"></i>
-                        </button>
-                      </div>
-                    </li>
-                  </template>
-                </ul>
-                <button class="add-list-item-btn" @click="addListItem(index)">
+              <ul class="detail-list">
+                <template
+                  x-for="(item, itemIndex) in detail.content"
+                  :key="itemIndex"
+                >
+                  <li class="detail-list-item" :data-item-index="itemIndex">
+                    <div
+                      class="detail-list-content editable-content"
+                      contenteditable="true"
+                      @blur="updateContent(index, itemIndex, $event)"
+                      x-html="renderContent(item)"
+                      data-placeholder="List item..."
+                    ></div>
+                    <button
+                      type="button"
+                      class="list-item-delete"
+                      @click="deleteListItem(index, itemIndex)"
+                      title="Delete"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </li>
+                </template>
+                <button
+                  type="button"
+                  class="add-list-item-btn"
+                  @click="addListItem(index)"
+                >
                   <i class="fas fa-plus"></i> Add Item
                 </button>
-              </div>
+              </ul>
             </template>
+
+            <!-- ref -->
+            <!--
+            should look like a paragraph with auto complete suggestions that can't choose out form
+            must pick a ref to use from ref.type list
+            default text content would be theselected ref.name or .section
+            can edit the text to my liking without losing the ref
+            -->
           </div>
         </template>
+
+        <!-- Empty State -->
+        <div class="details-empty-state" x-show="details.length === 0">
+          <i class="fas fa-file-alt"></i>
+          <p>
+            No content yet. Click the buttons above to add paragraphs or lists.
+          </p>
+        </div>
       </div>
 
-      <!-- Save/Cancel Buttons -->
-      <div class="action-buttons">
-        <button class="btn-cancel" @click="cancelEdit()">
-          <i class="fas fa-times"></i> Cancel
-        </button>
-        <button class="btn-save" @click="saveEdit()">
-          <i class="fas fa-save"></i> Save Changes
-        </button>
-      </div>
+      <!-- Footer Actions -->
     </div>
   </div>
 </template>

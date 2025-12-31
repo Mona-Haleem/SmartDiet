@@ -10,6 +10,7 @@ export default class DietEle extends Component {
   constructor(ele, refs, data, paginatorUpdateFn) {
     super(ele, refs, data);
     this.layoutCalculator = new LayoutCalculator(this.$el.clientWidth);
+
     if (this.$data.ele.type == "plan")
       this.sectionNavigator = new SectionNavigator(
         this.$refs,
@@ -30,31 +31,32 @@ export default class DietEle extends Component {
       this.mode = 1;
       this.layoutCalculator.containerWidth = this.$el.clientWidth;
       if (page !== 0) {
-        this.$refs.page1.style.display = "none";
+        this.$refs.page1.classList.add("transition");
         this.$refs.page2.style.visibility = "visible";
       } else {
         this.$refs.page2.style.visibility = "hidden";
-        this.$refs.page1.style.display = "";
+        this.$refs.page1.classList.remove("transition");
       }
       this.$refs.page2.style.width = "100%";
     } else {
       this.layoutCalculator.containerWidth = this.$el.clientWidth * 0.45;
       this.mode = 2;
       if (Math.floor(page / 2) === 0) {
-        this.$refs.page1.style.display = "";
         this.$refs.page2.style.width = "45%";
+        this.$refs.page1.classList.remove("transition");
       } else {
-        this.$refs.page1.style.display = "none";
+        this.$refs.page1.classList.add("transition");
+
         this.$refs.page2.style.width = "100%";
       }
       this.$refs.page2.style.visibility = "visible";
     }
   }
   async updateData(page) {
-    if(this.$data.mode === "fullImages") return;
-    if(this.$data.mode === "mediaViewer"){
-      this.onPaginate(undefined, 1)
-      return
+    if (this.$data.mode === "fullImages") return;
+    if (this.$data.mode === "mediaViewer") {
+      this.onPaginate(undefined, 1);
+      return;
     }
     this.updatePgaesDisplay(page);
     this.requiredPages = this.layoutCalculator.calculatePages(
@@ -113,7 +115,12 @@ export default class DietEle extends Component {
         page,
       };
     } else if (this.$data.mode === "fullImages") {
-      console.log("full image page", page,this.$data.ele.media.length,Math.max(1, Math.min(page, this.$data.ele.media.length)));
+      console.log(
+        "full image page",
+        page,
+        this.$data.ele.media.length,
+        Math.max(1, Math.min(page, this.$data.ele.media.length))
+      );
       page = Math.max(1, Math.min(page, this.$data.ele.media.length));
       this.$data.displayedMedia = [this.$data.ele.media[page - 1]];
       console.log(page, this.$data.displayedMedia);
@@ -135,7 +142,9 @@ export default class DietEle extends Component {
       this.mode
     );
     console.log(page, scrollDistance);
-    this.scrollAnimator.scrollTo(scrollDistance,this.$refs.details);
+    const duration = page == 0 || page == this.mode ? 330 : 300;
+    console.log(duration, page, this.mode);
+    this.scrollAnimator.scrollTo(scrollDistance, this.$refs.details, duration);
     this.updatePgaesDisplay(page);
     let activeSection;
     if (this.$data.ele.type === "plan")
@@ -164,84 +173,7 @@ export default class DietEle extends Component {
       page,
     };
   }
-  // getPageScrollPosition(page) {
-  //   console.log("log page fro drbug", page);
-  //   if (page === 0 || (this.mode == 2 && Math.floor(page / 2) == 0)) return 0;
-  //   else if (this.mode == 1) return (page - 1) * this.$el.clientWidth;
-  //   else return (Math.floor(page / 2) - 0.45) * this.$el.clientWidth;
-  // }
-  // async smoothScroll(targetValue) {
-  //   if (this.scrollTimer) {
-  //     clearInterval(this.scrollTimer);
-  //     this.scrollTimer = null;
-  //   }
-  //   return new Promise((resolve) => {
-  //     const startingValue = parseInt(this.$refs.details.style.right) || 0;
-  //     const distance = targetValue - startingValue;
-  //     this.scrollTimer = setInterval(() => {
-  //       if (distance == 0) {
-  //         clearInterval(this.scrollTimer);
-  //         this.scrollTimer = null;
-  //         resolve();
-  //       }
-  //       const current = parseInt(this.$refs.details.style.right) || 0;
-  //       const step = (targetValue - startingValue) / 10;
-  //       this.$refs.details.style.right = current + step + "px";
-
-  //       if (
-  //         (step > 0 && current >= targetValue) ||
-  //         (step < 0 && current <= targetValue)
-  //       ) {
-  //         this.$refs.details.style.right = targetValue + "px";
-  //         clearInterval(this.scrollTimer);
-  //         resolve();
-  //       }
-  //     }, 10);
-  //   });
-  // }
-
-  // getSectionPage(section) {
-  //   if (section == "page1") return 0;
-
-  //   let distance = 0;
-  //   let node = this.$refs[section];
-  //   while (node && node?.id !== "details") {
-  //     distance += node.offsetLeft;
-  //     // console.log(node.id, node.offsetLeft, distance);
-  //     node = node.parentElement;
-  //     // console.log(node);
-
-  //     if (
-  //       node &&
-  //       !(node?.className?.includes("section") || node?.id === "details")
-  //     )
-  //       node = node.parentElement;
-  //   }
-
-  //   let page =
-  //     this.mode == 1
-  //       ? Math.round(distance / this.$el.clientWidth) + 1
-  //       : Math.round(distance / (this.$el.clientWidth * 0.55)) + 1;
-  //   console.log(page, this.$refs[section]);
-  //   return page;
-  // }
-
-  // getActiveSection(page) {
-  //   if (page === 0) return { activeSection: "Info Card", activeId: "page1" };
-  //   let sections = [...this.$data?.ele?.details];
-  //   while (sections) {
-  //     const section = sections.shift();
-  //     if (section && page == this.getSectionPage(`section-${section.id}`)) {
-  //       return {
-  //         activeSection: section.section,
-  //         activeId: `section-${section.id}`,
-  //       };
-  //     }
-  //     if (section?.subSections) sections.push(...section.subSections);
-  //   }
-  //   console.log(sections);
-  // }
-
+  
   static handelPopStateEvent(instanceId) {}
 
   getSectionName(sectionId) {

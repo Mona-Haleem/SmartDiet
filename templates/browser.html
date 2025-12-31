@@ -11,10 +11,12 @@
 
 {% block body%}
   <input type="hidden" id="csrf_token" value="{{ csrf_token }}">
-    <div class="browser-container d-flex flex-column w-100 h-100">
+    <div class="browser-container d-flex flex-column w-100 h-100" x-data="{showAddForm:false}">
    
         {% include "components/browser/filter.html" %} 
       
         {% include "components/paginator.html" %} 
+        {% include "components/browser/creationForm.html" %} 
+
     </div>
 {% endblock %}

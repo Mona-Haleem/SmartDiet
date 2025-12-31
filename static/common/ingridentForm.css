@@ -1,0 +1,241 @@
+/* Ingredient Input Component Styles */
+
+.ingredient-input-component {
+  width: 100%;
+}
+
+.ingredient-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.ingredients-input-container {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: transparent;
+  transition: border-color 0.2s;
+}
+
+.ingredients-input-container:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ingredients-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.ingredients-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ingredients-list::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.ingredients-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.ingredients-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+.ingredient-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s;
+}
+
+.ingredient-item:last-child {
+  border-bottom: none;
+}
+
+.ingredient-item:hover {
+  background-color: #f9fafb;
+}
+
+.ingredient-amount {
+  font-weight: 600;
+  color: #3b82f6;
+  min-width: 45px;
+  text-align: right;
+}
+
+.ingredient-unit {
+  color: #6b7280;
+  min-width: 70px;
+  font-style: italic;
+}
+
+.ingredient-name {
+  flex: 1;
+  color: #111827;
+}
+
+.ingredient-remove {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.ingredient-remove:hover {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+
+.ingredient-input-row {
+  display: grid;
+  grid-template-columns: 90px 130px 1fr;
+  gap: 8px;
+  padding: 12px;
+  background: transparent;
+  overflow: visible;
+}
+
+.ingredient-amount-input,
+.ingredient-unit-input,
+.ingredient-name-input {
+  padding: 8px 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #111827;
+  background: #fff;
+  border: none;
+  border-radius: 4px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  flex:1
+}
+.ingredient-name-input{
+  flex: 2;
+}
+.ingredient-unit-input{
+  max-width: 100px;
+}
+.ingredient-amount-input:focus,
+.ingredient-unit-input:focus,
+.ingredient-name-input:focus {
+  outline: none;
+  border-color: rgb(var(--primary-color-rgb));
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.ingredient-amount-input::placeholder,
+.ingredient-unit-input::placeholder,
+.ingredient-name-input::placeholder {
+  color: #9ca3af;
+}
+
+.ingredient-unit-wrapper {
+  position: relative;
+}
+
+.unit-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.unit-suggestions::-webkit-scrollbar {
+  width: 6px;
+}
+
+.unit-suggestions::-webkit-scrollbar-track {
+  background: #f9fafb;
+}
+
+.unit-suggestions::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.unit-suggestions > div {
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.unit-suggestions > div:hover ,.unit-suggestions .selectedUnit{
+  background-color: #f3f4f6;
+}
+
+.unit-suggestions > div:first-child {
+  border-radius: 6px 6px 0 0;
+}
+
+.unit-suggestions > div:last-child {
+  border-radius: 0 0 6px 6px;
+}
+
+/* Empty state hint */
+.ingredients-list:empty::before {
+  content: 'No ingredients added yet. Start typing below to add ingredients.';
+  display: block;
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .ingredient-input-row {
+    grid-template-columns: 70px 100px 1fr;
+    gap: 6px;
+    padding: 10px;
+  }
+
+  .ingredient-amount-input,
+  .ingredient-unit-input,
+  .ingredient-name-input {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+
+  .ingredient-item {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .ingredient-amount {
+    min-width: 35px;
+  }
+
+  .ingredient-unit {
+    min-width: 50px;
+  }
+}

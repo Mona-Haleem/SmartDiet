@@ -1,5 +1,5 @@
 <section
-  contenteditable="true"
+  contenteditable="{{ele.isOwner}}"
   class="ele-info editableDiv"
   @blur="eleObj.updateNotes($event.target)"
   x-text="ele.notes"

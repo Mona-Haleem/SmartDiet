@@ -5,11 +5,14 @@ from django.conf import settings
 
 #from django.urls import reverse
 from core.helpers.validators import validate_image
+from healthHub.helpers.creationManage import CreationHelper
 from healthHub.models import UserCreation ,Recipe , Plan ,PlanDetail
+from healthHub.models.plan import PlanType
 from healthHub.models import serializers as serializer
 from healthHub.helpers.paginator import paginator
 from healthHub.helpers.construct_query import construct_query
-from healthHub.helpers.helpers import format_plan_details
+from healthHub.helpers.helpers import format_plan_details ,getLinksData
+from healthHub.helpers.nurtientCalculator import *
 from django.views.decorators.http import require_GET
 from django.views import View
 from django.db.models import F
@@ -23,8 +26,7 @@ import os
 # Create your views here.
 
 @require_GET
-def index(request,mode):
-    
+def index(request,mode,userId=None):
     pageSize = request.GET.get('size', 24 )
     page = request.GET.get('page', 1)
     try:
@@ -45,9 +47,10 @@ def index(request,mode):
 
     filters , order , exclude = construct_query(request, mode)
     print(page, pageSize ,filters , order)
-
+    if(userId):
+        filters["creator__id"] = userId
     query = UserCreation.objects.filter(**filters).exclude(**exclude).order_by(order) 
-    print(len(query))
+    print("total items",len(query))
 
    
 
@@ -67,15 +70,33 @@ def index(request,mode):
 
     if is_fullpage_request:
         user_filter = {'creator':request.user} if mode == 'user' else {'shared':True}
-        allowable_categories = list(
-                        UserCreation.objects.filter(**user_filter).values_list('category',flat=True).distinct()
+        db_categories = list(
+            UserCreation.objects
+            .filter(**user_filter)
+            .exclude(category__in=[PlanType.choices])
+            .values_list('category', flat=True)
+            .distinct()
+        )
+
+        all_categories = {choice.value for choice in PlanType}
+
+        allowable_categories = list(set(db_categories) | all_categories)
+        allPlans = list(
+            Plan.objects.filter(base__creator=request.user)
+                        .exclude(base__category='full')
+                        .annotate(
+                            name=F('base__name'),
+                            category=F('base__category')
                         )
-      
+                        .values("id", "name", "category")
+        )
         return render(request, 'browser.html',{
             "result":{**result, "items":json.dumps(serializer.user_creation(result["items"]))},
             "categories":allowable_categories,
+            "recipeCategories":db_categories,
             "children_template":"components/browser/cardList.html",
-            "mode":mode
+            "mode":mode,
+            "allPlans":allPlans
             })
     else:
         return JsonResponse({
@@ -126,18 +147,31 @@ class DetailsView(View):
     def get(self,request,id,name):
         try:
             ele = Plan.objects.get(id=id) if self.type == 'plan' else Recipe.objects.get(id=id)
-        except Plan.DoesNotExist:
+        except Plan.DoesNotExist or Recipe.DoesNotExist:
             raise Http404(f"{self.type.capitalize} not found")
         if ele.base.creator != request.user and ele.base.shared == False:
             raise Http404(f"{self.type.capitalize} not found")
         print(ele ,ele.id)
+        refs = getLinksData(request,ele)
         return render(request,'details.html',{""
             "ele":serializer.plan([ele],request)[0] if self.type == 'plan' else serializer.recipe([ele],request)[0],
             "children_template":"components/details/detailPage.html",
+            "refs":refs
         })
    
     def post(self, request,id,name):
-        return JsonResponse({"method": "POST"})
+        """Handle creation of new elements"""
+        if id == 'new' :
+            print("start creation logic")
+            success, data, status = CreationHelper.create_element(request,self.type)
+        else:
+            ele = UserCreation.objects.filter(id=id).first()
+            if not ele or ele.shared == False:
+                return JsonResponse({'error': 'Permission denied'}, status=403)
+            if ele.creator == request.user:
+                return JsonResponse({'error': 'user already own this ele'}, status=403)
+            success, data, status =  CreationHelper.create_Clone(request,self.type,ele)
+        return JsonResponse(data, status=status)
 
     def patch(self,request,id,name):
         data = json.loads(request.body)
@@ -145,12 +179,18 @@ class DetailsView(View):
             ele = Plan.objects.get(id=id)
         else:
             ele = Recipe.objects.get(id=id)
+        if ele.base.creator != request.user:
+            return JsonResponse({'error': 'not allowed'},status=400)
+
         key, value = list(data.items())[0]
         if key == 'name':
             dublicate = UserCreation.objects.filter(creator=request.user,name=value,type=ele.base.type).exclude(id=ele.base.id)
             if dublicate.exists():
                 return JsonResponse({'error': 'Invalid username'},status=400)
-        if key in ['name' ,'notes','media']:
+        if key in ['name' ,'notes','media',"shared","favorite"]:
+            if key in ["shared","favorite"]:
+                value = bool(value)
+                print(ele)
             setattr(ele.base, key, value)
             ele.base.save()
             return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
@@ -159,6 +199,19 @@ class DetailsView(View):
         print(key,value)
         setattr(ele, key, value)
         ele.save()
+        if key == 'directions':
+            detail = {
+                "type": "div",
+                "content": value,
+                "effects": []
+            }
+            print(detail)
+            return render(request, "components/details/detailContent.html", {
+                "detail":detail
+            })
+        if key == 'ingredients':
+            ele.nutrients = update_recipe_nutrition(ele)
+            ele.save()
         return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
  
 
@@ -166,6 +219,14 @@ class DetailsView(View):
         return JsonResponse({"method": "PUT"})
 
     def delete(self, request, id, name):
+        if self.type == "plan":
+            ele = UserCreation.objects.get(plan__id=id)
+        else:
+            ele = UserCreation.objects.get(recipe__id=id)
+        if ele.creator != request.user:
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+        ele.delete()
+
         return JsonResponse({"method": "DELETE"})
 
 
@@ -206,16 +267,20 @@ def mediaManager(request,type,id):
         if(f"/media/{type}s/" in media_url):
             media_url = f"/media/{type}s/" +media_url.split(f"/media/{type}s/")[-1]
         print("Deleting media:", media_url)
+        stillInUse = UserCreation.objects.filter(tags__contains=[media_url]).exclude(id=id).exists()
+
         ele = UserCreation.objects.get(id=id)
         if media_url in ele.media:
             ele.media.remove(media_url)
             ele.save()
-            file_path = os.path.join(settings.MEDIA_ROOT, media_url.replace('/media/', ''))
-            if os.path.exists(file_path):
-                os.remove(file_path)
+            if not stillInUse:
+                file_path = os.path.join(settings.MEDIA_ROOT, media_url.replace('/media/', ''))
+                if os.path.exists(file_path):
+                    os.remove(file_path)
             return JsonResponse({'message': 'Media deleted successfully'}, status=200)
         else:
             return JsonResponse({'error': 'Media URL not found in element'}, status=404)
+
 
 class sectionsManager(View):
     def get(self,request,id):
@@ -256,7 +321,7 @@ class sectionsManager(View):
         details =format_plan_details([new_section])
 
          # Render the HTML fragment
-        html = render(request, "components/details/section.html", {"details": details}).content.decode()
+        html = render(request, "components/details/section.html", {"details": details,"ele":{"isOwner":"true"}}).content.decode()
         print("html =======>" ,details,html,new_section)
         # Return JSON
         response_data = {

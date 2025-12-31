@@ -118,7 +118,8 @@ export default class QueryService {
       context.stage = "error";
       this.cache.setFetching(queryKey, false, { error });
       onError?.(context);
-      throw error;
+      console.log(error)
+      // throw error;
     }
   }
 

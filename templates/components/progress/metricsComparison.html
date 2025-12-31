@@ -1,0 +1,81 @@
+<div class="metrics-comparison-wrapper">
+  <h4 class="comparison-title">
+    <i class="fas fa-balance-scale"></i>
+    Metrics Comparison
+  </h4>
+
+  <div class="comparison-table-container">
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Start</th>
+          <th>Current</th>
+          <th>Change</th>
+          <th>Target</th>
+          <th>Achievement</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-if="$data.metricsData && $data.metricsData.length">
+          <template x-for="metric in $data.metricsData" :key="metric.id">
+            <tr class="comparison-row" 
+                @mouseenter="periodProgress.highlightMetric(metric)"
+                @mouseleave="periodProgress.showOverallProgress()">
+              <td class="metric-name">
+                <div class="name-cell">
+                  <i class="fas" :class="periodProgress.getMetricIcon(metric.type)"></i>
+                  <span x-text="metric.name"></span>
+                </div>
+              </td>
+              <td class="metric-start">
+                <span x-text="metric.startValue"></span>
+              </td>
+              <td class="metric-current">
+                <span x-text="metric.currentValue"></span>
+              </td>
+              <td class="metric-change">
+                <span class="change-badge" 
+                      :class="{
+                        'neutral': metric.change === 0,
+                        'positive': metric.change > 0,
+                        'negative': metric.change < 0,
+                      }">
+                  <i class="fas" :class="{
+                    'fa-minus': metric.change === 0,
+                    'fa-arrow-up': metric.change > 0,
+                    'fa-arrow-down': metric.change < 0,
+                  }"></i>
+                  <span x-text="metric.change"></span>
+                </span>
+              </td>
+              <td class="metric-target">
+                <span x-text="metric.target"></span>
+              </td>
+              <td class="metric-achievement">
+                <div class="achievement-cell">
+                  <div class="achievement-bar" 
+                       :style="'width: ' + (metric.achievement * 100) + '%'"
+                       :class="{
+                         'low': metric.achievement < 0.5,
+                         'medium': metric.achievement >= 0.5 && metric.achievement < 0.8,
+                         'high': metric.achievement >= 0.8
+                       }"></div>
+                  <span class="achievement-text" x-text="Math.round(metric.achievement * 100) + '%'"></span>
+                </div>
+              </td>
+            </tr>
+          </template>
+        </template>
+        <template x-if="!metricsData || !metricsData.length">
+          <tr>
+            <td colspan="6" class="no-data">
+              <i class="fas fa-info-circle"></i>
+              No metrics data available for this period.
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</div>

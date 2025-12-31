@@ -22,15 +22,8 @@ export default class Profile extends Component {
     this.collapseLine = window.innerWidth <= 992 ? 7 : 10;
     this.$data.collapse =
       this.$data.user.restrictions.length > this.collapseLine;
-    const nameInput = this.$refs.nameInput;
     const restrictions = this.$refs.restrictionsTable;
-    nameInput.addEventListener("keydown", function (event) {
-      if (event.key === "Enter") {
-        nameInput.blur();
-      } else if (nameInput.classList.value.includes("invalid")) {
-        nameInput.classList.remove("invalid");
-      }
-    });
+   
 
     restrictions.addEventListener("change", (e) => {});
   }

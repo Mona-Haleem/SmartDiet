@@ -2,7 +2,9 @@ import Paginator from "../scripts_module/ComponentsClasses/Paginator.js";
 import Plan from "../scripts_module/ComponentsClasses/Plan.js";
 import Recipe from "../scripts_module/ComponentsClasses/Recipe.js";
 import { createSectionDetailsEditor } from "../scripts_module/ComponentsClasses/sectionDetailsEditor.js";
+import IngredientInput from "../scripts_module/ComponentsClasses/ingredientsInput.js";
 
+window.IngredientInput = IngredientInput;
 window.Paginator = Paginator;
 window.Plan = Plan;
 window.Recipe = Recipe;
@@ -20,21 +22,39 @@ window.addEventListener("keydown", (event) => {
       }
     }
   }
-  if(window.paginator){
-    if(event.key == "ArrowLeft" && window.paginator.data.prev)
-      window.paginator.paginateTo("prev")
-    if(event.key == "ArrowRight"&& window.paginator.data.next)
-      window.paginator.paginateTo("next")
-
+  if (window.paginator && event.target.tagName == 'INPUT') {
+    if (event.key == "ArrowLeft" && window.paginator.data.prev)
+      window.paginator.paginateTo("prev");
+    if (event.key == "ArrowRight" && window.paginator.data.next)
+      window.paginator.paginateTo("next");
   }
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  const hash = window.location.hash;
+
+  if (hash) {
+    // Remove hash BEFORE browser scrolls
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+
+    // Wait for layout to settle, then scroll manually
+    requestAnimationFrame(() => {
+        if(window.paginator)
+          window.paginator.paginateTo(hash)
+      });
+
+        // Optional: put hash back without jump
+        history.replaceState(null, "", hash);
+    }
+    });
+  
+
 window.dragEle = null;
-const btn = document.querySelector("#deletbtn");
+let btn = document.querySelector("#deletbtn");
 
 window.addEventListener("dragstart", (event) => {
-  const section = event.target.closest(".section");
-  const img = event.target.closest(".viewer-img");
+  const section = event.target?.closest(".section");
+  const img = event.target?.closest(".viewer-img");
   console.log("dragstart", section, event.target);
   if (!section || img) return;
   console.log("dragstarted");
@@ -42,16 +62,15 @@ window.addEventListener("dragstart", (event) => {
 
   dragEle = section || img;
   if (section) section.querySelector("i").style.display = "none";
-
+  if (!btn) btn = document.querySelector("#deletbtn");
   if (btn) btn.style.opacity = "0.8";
-
 });
 
 let dropPoint = null;
 window.addEventListener("dragend", (event) => {
-  if (!dragEle ) return;
+  if (!dragEle) return;
   console.log("dragended");
-  if(dragEle?.classList.contains("section")){
+  if (dragEle?.classList.contains("section")) {
     dragEle.querySelector("i").style.display = "";
     clearDargEffects();
   }
@@ -70,12 +89,11 @@ window.addEventListener("dragover", (event) => {
 
 window.addEventListener("dragleave", clearDargEffects);
 
-function clearDargEffects(){
-if (!dropPoint) return;
+function clearDargEffects() {
+  if (!dropPoint) return;
   dropPoint.style.opacity = "";
   dropPoint.style.height = "";
   dropPoint = null;
-
 }
 
 const container = document.querySelector(".paginator-container");
@@ -94,7 +112,8 @@ container.addEventListener("dragover", (event) => {
   if (direction) {
     if (!autoPaginateTimeout) {
       autoPaginateTimeout = setTimeout(() => {
-        if (window.paginator && window.paginator.data[direction]) window.paginator.paginateTo(direction);
+        if (window.paginator && window.paginator.data[direction])
+          window.paginator.paginateTo(direction);
       }, 200);
     }
   } else {
@@ -113,8 +132,6 @@ container.addEventListener("drop", () => {
   clearTimeout(autoPaginateTimeout);
   autoPaginateTimeout = null;
 });
-
-
 
 function renderBlock(block) {
   if (!block || !block.type) return "";

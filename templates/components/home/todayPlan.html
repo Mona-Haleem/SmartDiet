@@ -1,32 +1,64 @@
-<h4>{{type|capfirst}} Plan</h4>
-<div class="current_plan p-0 px-1" style="height: 15vh">
+{% load static %}
+<h4 style="color: rgb(var(--dark-lines-rgb))">{{type|capfirst}} Plan</h4>
+<div class="current_plan d-flex align-items-center p-0" style="height: 15vh">
   {% if plan %}
-  <img src="{{plan.image}}" height="100%" />
-  <label for="{{type}}_select" id="diet_title"
-    >{{prefix}}{{plan.title}}</label
+  <a href="{% url 'plans' plan.id plan.name %}" x-ref="anchorLink-{{type}}">
+    <img
+      src="{{plan.media.0}}"
+      height="100%"
+      alt="todayPlans['{{type}}'].name"
+      :src="todayPlans['{{type}}'].media[0]"
+      data-fallback="{% static 'assets/logo.png' %}"
+      onerror="this.src=this.dataset.fallback;"
+    />
+  </a>
+  <label
+    for="{{type}}_select"
+    id="diet_title"
+    x-text="todayPlans['{{type}}'].name[0].toUpperCase()+todayPlans['{{type}}'].name.slice(1)"
+    >{{plan.name|capfirst}}</label
   >
   {% else %}
   <p>No Plan Assigned click to change</p>
   {% endif%}
-  <select id="diet_select" onchange="setCurrPlan(this.value,'diet_title')">
-    <template x-for="p in allPlans">
+  <select
+    id="{{type}}_select"
+    class="plan-selector"
+    x-model="selectedPlan"
+    @change="if ($event.target.value === 'new') {
+        selectedPlanType = '{{ type }}';
+        showAddForm = true;
+        $event.target.value = todayPlans['{{type}}'].id 
+        console.log($data.showAddForm);
+    } else {
+        setCurrPlan($event.target.value, '{{ type }}')
+    }
+"
+  >
+    <option value="" disabled selected>Choose a plan...</option>
+    <template x-for="p in allPlans" :key="p.id">
       <template x-if="p.category == '{{type}}' || p.category == 'full'">
         <option
+          :value="p.id"
           :style="{
-             backgroundColor:
-             p.category === 'diet'
-             ? 'rgba(var(--accent-color-rgb), 0.3)'
-             : p.category === 'exercise'
-             ? 'rgba(var(--primary-color-rgb), 0.3)'
-             : 'rgba(var(--cover-color), 0.3)'
+              backgroundColor:
+                p.category === 'diet'
+                  ? 'rgba(var(--accent-color-rgb), 0.3)'
+                  : p.category === 'exercise'
+                  ? 'rgba(var(--primary-color-rgb), 0.3)'
+                  : 'rgba(var(--cover-color), 0.3)'
             }"
-          value='[p.id,p.duration,"p.name"]'
+            :selected="p.id==todayPlans['{{type}}'].id"
           x-text="p.name"
-          >
-       
-        </option>
+        ></option>
       </template>
     </template>
-    <option value="new">Start a New Plan</option>
+
+    <option
+      value="new"
+      style="background-color: rgba(var(--bright-lines-rgb), 0.3)"
+    >
+      Create New Plan
+    </option>
   </select>
 </div>

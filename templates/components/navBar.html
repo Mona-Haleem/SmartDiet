@@ -1,29 +1,29 @@
-<nav class="nav-sections" style="z-index: 115">
-  <button class="nav-item active">
+<nav class="nav-sections" style="z-index: 115" x-data="{location:window.location.pathname}">
+  <button class="nav-item" :class="{'activeNav-item': location == '/diet/'}">
     <a href="{% url 'index' %}">
       <i class="fas fa-home"></i> &nbsp;
       <span class="nav-text">HOME</span>
     </a>
   </button>
-  <button class="nav-item">
+  <button class="nav-item" :class="{'activeNav-item': location.includes('profile')}">
     <a href="{% url 'profile' %}">
       <i class="fas fa-user"></i>&nbsp;
       <span class="nav-text">PROFILE</span>
     </a>
   </button>
   <button class="nav-item">
-    <a href="{% url 'browse'  %}">
+    <a href="{% url 'browse'  %}" :class="{'activeNav-item': '{{mode}}' == 'user'}">
       <i class="fas fa-clipboard-list"></i>&nbsp;
       <span class="nav-text">COLLECTIONS</span>
     </a>
   </button>
   <button class="nav-item">
-    <a href="{% url 'discover'  %}">
+    <a href="{% url 'discover'  %}" :class="{'activeNav-item': '{{mode}}' == 'shared'}">
       <i class="fas fa-utensils"></i> &nbsp;
       <span class="nav-text">DISCOVER</span>
     </a>
   </button>
-  <button class="nav-item">
+  <button class="nav-item" :class="{'activeNav-item': location.includes('progress')}">
     <a href="{% url 'logs' %}">
       <i class="fas fa-book"></i>&nbsp;
       <span class="nav-text">LOGS</span>

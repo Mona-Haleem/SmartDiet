@@ -16,6 +16,21 @@
     {% endfor %} 
    {% endif %}
 </span>
+{% elif detail.type == 'ref' %}
+<span class="{% for eff in detail.effects %}{{ eff }} {% endfor %}" 
+   {% if detail.color %}style="color: {{ detail.color }};"{% endif %}
+  >
+  
+  <a href="{{detail.href}}">
+    {% if detail.content|stringformat:"s" == detail.content %}
+    {{ detail.content}}
+    {% else %} 
+    {% for frag in detail.content %}
+    {% include "components/details/detailContent.html" with detail=frag %}
+    {% endfor %} 
+    {% endif %}
+  </a>
+</span>
 {% elif detail.type == 'ol' %}
 <ol>
   {% for frag in detail.content %}

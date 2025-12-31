@@ -1,0 +1,13 @@
+<div class="progress-page-wrapper">
+  {% include 'components/progress/progressHeader.html' %}
+  
+  <div class="progress-content">
+    <template x-if="currentView === 'day'">
+      {% include 'components/progress/dayProgress.html' %}
+    </template>
+    
+    <template x-if="['week', 'month', 'year'].includes(currentView)">
+      {% include 'components/progress/periodProgress.html' %}
+    </template>
+  </div>
+</div>

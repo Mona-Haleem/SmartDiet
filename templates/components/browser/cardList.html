@@ -3,29 +3,29 @@
 <div class="item_viewer h-100 w-100 p-4">
   <div
     class="w-100 card-list-grid"
-    x-data="{items:{{result.items}},mode:'{{mode}}'}"
+    x-data="{items:{{result.items}},mode:'{{mode}}',activeMenu:null}"
     x-init="$nextTick(()=>{
       console.log('Initializing CardList');
       cardList = new CardList($el,$refs,$data,paginator.updateData.bind(paginator));
       paginator.pageClass = cardList;
       return cardList
+      
     })"
+    @click.away="activeMenu = null"
   >
     <template name="item" x-for="(item , index) in items" :key="item.id">
       <div class="ele-container p-2" :id="item.id" :data-type="item.type">
         <div
           class="image-container h-100 w-100"
           :class="item.type === 'recipe' ? 'recipe' : item.category"
-          :title="`Last Edited:${new Date(item.edited).toLocaleDateString()}`"
-          draggable="true"
-          @drop="drop(event)"
-          @dragstart="drag(event)"
-        >
+          :title="`Last Edited:${item.edited}`"
+          >
           <a :href="item.details_path">
             <img
               :src="item.media"
               :alt="item.name"
-              data-fallback="{% static 'assets/logo.png' %}" onerror="this.src=this.dataset.fallback;"
+              data-fallback="{% static 'assets/logo.png' %}"
+              onerror="this.src=this.dataset.fallback;"
             />
             <div class="gradient-overlay"></div>
             <div class="image-details">
@@ -34,24 +34,129 @@
                 <span x-html="item.shared ? '&#9821;' : '&#9820;'"></span>
                 <span x-text="item.name"></span>
               </h5>
-              <p class="m-0 p-0" x-text="item.creator"></p>
+              <p class="m-0 p-0">
+                <a
+                  :href="'{% url 'discover' %}'+item.creatorId+'/'"
+                  x-text="item.creator"
+                ></a>
+              </p>
               <p class="m-0 p-0">
                 Created:
                 <span
-                  x-text="(new Date(item.created)).toLocaleDateString()"
+                  x-text="item.created"
                 ></span>
               </p>
               <p class="m-0 p-0" x-text="item.notes"></p>
             </div>
           </a>
         </div>
+        <!-- Card Menu Button -->
+       <template x-if="mode=='user'">
+          <div class="card-menu-container " :class="item.type === 'recipe' ? 'recipe' : item.category">
+            <button 
+              class="card-menu-btn"
+              @click.prevent="activeMenu = activeMenu === item.id ? null : item.id"
+              :class="{'active': activeMenu === item.id}"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            
+            <!-- Menu Dropdown -->
+            <div 
+              class="card-menu-dropdown"
+              x-show="activeMenu === item.id"
+              x-transition
+              @click.stop
+            >
+              <button 
+                class="card-menu-item"
+                @click="cardList.updateServerData(item.id, 'favorite', !item.favorite); item.favorite = !item.favorite; activeMenu = null"
+              >
+                <i :class="item.favorite ? 'fas fa-heart' : 'far fa-heart'"></i>
+                <span x-text="item.favorite ? 'Remove from Favorites' : 'Add to Favorites'"></span>
+              </button>
+              
+              <button 
+                class="card-menu-item"
+                @click="cardList.updateServerData(item.id, 'shared', !item.shared); item.shared = !item.shared; activeMenu = null"
+              >
+                <i class="fas" :class="item.shared ? 'fa-user-times' : 'fa-user-plus'"></i>
+                <span x-text="item.shared ? 'Make Private' : 'Make Shared'"></span>
+              </button>
+              
+              <button 
+                class="card-menu-item delete"
+                @click="cardList.deleteEle(item.id); activeMenu = null"
+              >
+                <i class="fas fa-trash"></i>
+                <span>Delete Item</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </template>
-    <div class="no-items" x-show="items.length === 0">
-      <p>No items found.</p>
+
+      </template>
+      </div>
+
+      <!-- Card Menu Button -->
+       <template x-if="mode=='user'">
+          <div class="card-menu-container">
+            <button 
+              class="card-menu-btn"
+              @click.prevent="activeMenu = activeMenu === item.id ? null : item.id"
+              :class="{'active': activeMenu === item.id}"
+            >
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+            
+            <!-- Menu Dropdown -->
+            <div 
+              class="card-menu-dropdown"
+              x-show="activeMenu === item.id"
+              x-transition
+              @click.stop
+            >
+              <button 
+                class="card-menu-item"
+                @click="cardList.updateServerData(item.id, 'favorite', !item.favorite); item.favorite = !item.favorite; activeMenu = null"
+              >
+                <i class="fas" :class="item.favorite ? 'fa-heart' : 'fa-heart-o'"></i>
+                <span x-text="item.favorite ? 'Remove from Favorites' : 'Add to Favorites'"></span>
+              </button>
+              
+              <button 
+                class="card-menu-item"
+                @click="cardList.updateServerData(item.id, 'shared', !item.shared); item.shared = !item.shared; activeMenu = null"
+              >
+                <i class="fas" :class="item.shared ? 'fa-user-times' : 'fa-user-plus'"></i>
+                <span x-text="item.shared ? 'Make Private' : 'Make Shared'"></span>
+              </button>
+              
+              <button 
+                class="card-menu-item delete"
+                @click="cardList.deleteEle(item.id); activeMenu = null"
+              >
+                <i class="fas fa-trash"></i>
+                <span>Delete Item</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </template>
+
+</template>
+<div class="no-items" x-show="items.length === 0">
+  <p>No items found.</p>
     </div>
   </div>
   <div class="page">
-    <input name="pageNumber" @change="paginator.paginateTo($event.target.value)"  x-model="page" /> 
+    <input
+      name="pageNumber"
+      @change="paginator.paginateTo($event.target.value)"
+      x-model="page"
+    />
   </div>
 </div>

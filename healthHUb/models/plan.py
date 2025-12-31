@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models import F
 from healthHub.models.base import UserCreation
-from healthHub.models.managers import format_plan_details
+from healthHub.helpers.helpers import format_plan_details
+from healthHub.models import serializers as serialize
 from datetime import timedelta
+import re
 
 
 class PlanType(models.TextChoices):
@@ -44,6 +46,53 @@ class Plan(models.Model):
             )
         )
         return format_plan_details(plan_details)
+
+    def get_daily_schedule(self, day_number):
+        """
+        Returns the specific schedule for the given day number (1-indexed).
+        Scans section names for patterns like "Day 1", "Days 1-3", "Day 1,3".
+        If a matching section is found, returns only that section's details.
+        Otherwise, returns the full plan details.
+        """
+        details = self.details.all()
+        
+        # If details is a list (standard plan), iterate through sections
+        # If it's a dict (Full plan), you might need to recurse, but assuming standard here:
+        if isinstance(details, dict) and 'diet_plan' in details:
+            # Handle full plan complexity if needed, for now return full
+            return details 
+
+        daily_content = []
+        found_day = False
+
+        for section in details:
+            title = section.section.lower()
+            
+            # Pattern 1: Range "Days 1-3" or "Week 1 Days 1-5"
+            # Looks for digits separated by dash
+            range_match = re.search(r'days?\s*(\d+)\s*-\s*(\d+)', title)
+            if range_match:
+                start, end = map(int, range_match.groups())
+                if start <= day_number <= end:
+                    daily_content.append(section)
+                    found_day = True
+                    continue
+
+            # Pattern 2: Specific list "Day 1, 3, 5" or just "Day 1"
+            # Finds all numbers following "day" or inside the string
+            if 'day' in title:
+                # Extract all numbers from the title
+                days_in_title = [int(n) for n in re.findall(r'\d+', title)]
+                if day_number in days_in_title:
+                    daily_content.append(section)
+                    found_day = True
+                    continue
+
+        if found_day:
+            return serialize.details(daily_content)
+        
+        # If no specific day matched, return the full plan (fallback)
+        return serialize.details(details)
 
     def __str__(self):
         return f"Plan({self.base.name})"

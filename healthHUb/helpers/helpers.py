@@ -1,4 +1,5 @@
 from collections import defaultdict
+from django.db.models import F
 
 def format_plan_details(details):
     """Format hierarchical plan details from flat queryset"""
@@ -19,7 +20,7 @@ def format_plan_details(details):
             return [{
                 "id":detail.id,
                 "section": detail.section,
-                "detail": detail.detail,
+                "detail": remove_Orphaned_refs(detail.detail),
                 "order": detail.order,
                 "subSections": []
             }]
@@ -27,7 +28,7 @@ def format_plan_details(details):
             sections.append({
                 "id":detail.id,
                 "section": detail.section,
-                "detail": detail.detail,
+                "detail": remove_Orphaned_refs(detail.detail),
                 "order": detail.order,
                 "subSections": build(detail.id)
             })
@@ -35,3 +36,80 @@ def format_plan_details(details):
         return sections
 
     return build(None)
+
+def remove_Orphaned_refs(detailsList):
+    from healthHub.models import Recipe,PlanDetail
+    cleanedDetails = []
+    for d in detailsList:
+        print(d)
+        if d["type"] == "ref":
+            if d["refType"] == "recipe":
+                ele = Recipe.objects.filter(id=d["eleId"]).first()
+            elif d["refType"] == "detail":
+                ele = PlanDetail.objects.filter(id=d["eleId"]).first()
+            if not ele:
+                d = {
+                    "type":"p",
+                    "content":d.content,
+                    "color":d.color,
+                    "effect":d.effect
+                }
+            elif d["type"] == "ul" or d["type"] == "ol":
+                cleanedList = remove_Orphaned_refs(d["content"])
+                for i in cleanedList:
+                    cleanedDetails.append(i) 
+        cleanedDetails.append(d)
+    return cleanedDetails
+
+def getLinksData(request,ele):
+    from healthHub.models import Recipe,PlanDetail
+    qs = (
+        Recipe.objects
+        .filter(base__creator=request.user)
+        .values(
+            'base__category',
+            'id',
+            name=F('base__name'),
+        )
+    )
+
+    recipeRefs = defaultdict(list)
+    for r in qs:
+        recipeRefs[r['base__category']].append({
+            'id': r['id'],
+            'name': r['name'],
+        })
+    categoryFilter={}
+    if ele.base.type == 'plan':
+        categoryFilter = {"plan__base__category":ele.base.category}    
+    
+    qs = (
+        PlanDetail.objects
+        .filter(plan__base__creator=request.user, **categoryFilter)
+        .values(
+            'plan__id',
+            'plan__base__name',
+            'id',
+            'section',
+        )
+    )
+
+    detailRefs = defaultdict(lambda: {
+        'plan_id': None,
+        'plan_name': None,
+        'details': []
+    })
+
+    for row in qs:
+        plan_id = row['plan__id']
+        detailRefs[plan_id]['plan_id'] = plan_id
+        detailRefs[plan_id]['plan_name'] = row['plan__base__name']
+        detailRefs[plan_id]['details'].append({
+            'id': row['id'],
+            'section': row['section'],
+        })
+
+    detailRefs = list(detailRefs.values())
+    return { "recipe":dict(recipeRefs.items()), "detail":detailRefs }
+
+

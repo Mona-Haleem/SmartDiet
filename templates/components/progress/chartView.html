@@ -1,0 +1,26 @@
+<div class="chart-wrapper">
+  <div class="chart-header">
+    <h4 class="chart-title">Progress Over Time</h4>
+    <div class="chart-legend">
+      <span class="legend-item">
+        <span class="legend-color overall"></span>
+        <span x-text="$data.chartName"></span>
+      </span>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas x-ref="chartCanvas" 
+            id="progressChart"
+            :height="$data.chartHeight"></canvas>
+  </div>
+
+  <!-- <div class="chart-footer">
+    <button class="chart-btn" 
+            :class="{ 'active': !$data.selectedMetric }"
+            @click="periodProgress.showOverallProgress()">
+      <i class="fas fa-chart-line"></i>
+      Overall
+    </button>
+  </div> -->
+</div>

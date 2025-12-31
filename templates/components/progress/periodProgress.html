@@ -1,0 +1,25 @@
+<div class="period-progress-container" 
+     x-data="periodProgress"
+     x-init="$nextTick(() => periodProgress = new PeriodProgress($el, $refs, $data))">
+  
+  <!-- Chart Section -->
+  <div class="chart-section">
+    {% include 'components/progress/chartView.html' %}
+  </div>
+
+  <!-- Metrics Comparison Table -->
+  <div class="comparison-section">
+    {% include 'components/progress/metricsComparison.html' %}
+  </div>
+
+  <!-- AI Summary Section -->
+  <div class="summary-section">
+    <h4 class="summary-title">
+      <i class="fas fa-robot"></i>
+      Progress Summary
+    </h4>
+    <div class="summary-content">
+      <p x-text="$data.summary"></p>
+    </div>
+  </div>
+</div>

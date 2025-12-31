@@ -1,4 +1,5 @@
 export function formatDate(dateString) {
+  console.log(dateString)
   const now = new Date();
 
   const date = new Date(dateString);

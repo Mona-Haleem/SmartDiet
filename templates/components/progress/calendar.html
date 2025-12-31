@@ -1,0 +1,73 @@
+<div
+  class="calendar-wrapper"
+  x-data="calendar"
+  x-init="$nextTick(() => calendar = new Calendar($el, $refs, $data,'{{startDate}}'))"
+>
+  <div class="calendar-header">
+    <button class="nav-btn" @click="calendar.previousMonth()" x-ref="prevBtn">
+      <i class="fas fa-chevron-left"></i>
+    </button>
+    <h3 class="month-year" x-text="$data.calendarHeader" x-ref="monthYear"></h3>
+    <button class="nav-btn" @click="calendar.nextMonth()" x-ref="nextBtn">
+      <i class="fas fa-chevron-right"></i>
+    </button>
+  </div>
+
+  <div class="calendar-grid">
+    <div class="weekday-header">
+      <template
+        x-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']"
+      >
+        <div class="weekday" x-text="day"></div>
+      </template>
+    </div>
+
+    <div class="calendar-days">
+      <template x-for="week in $data.weeks" :key="week.id">
+        <div class="week-row">
+          <template x-for="day in week.days" :key="day.date">
+            <div
+              class="calendar-day"
+              :class="{
+                 'other-month': !day.isCurrentMonth,
+                 'today': day.isToday,
+                 'selected': day.date == $data.selectedDate,
+                 'has-plan': day.hasPlan
+               }"
+              @click="calendar.selectDay(day)"
+            >
+              <div class="day-number" x-text="day.dayNumber"></div>
+              <div class="plan-indicators" x-show="day.hasPlan">
+                <span
+                  class="plan-badge diet text-nowrap"
+                  x-show="day.plans.diet"
+                  x-text="'D: Day ' + day.plans.dietDay" 
+                  :title="'Diet Day ' + day.plans.dietDay + ':' + day.plans.diet?.plan_name"
+                >
+                </span>
+                <span
+                  class="plan-badge exercise text-nowrap"
+                  x-show="day.plans.exercise"
+                  x-text="'E Day ' + day.plans.dietDay"
+
+                  :title="'Exercise Day ' + day.plans.exerciseDay +':' + day.plans.exercise?.plan_name"
+                ></span>
+              </div>
+            </div>
+          </template>
+        </div>
+      </template>
+    </div>
+  </div>
+
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-icon today"></span>
+      <span>Today</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-icon has-plan"></span>
+      <span>Has Plan</span>
+    </div>
+  </div>
+</div>

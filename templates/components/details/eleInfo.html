@@ -19,6 +19,7 @@
     <li style="position: relative">
       <b>Serving:</b>
       <input
+        :disabled="ele.isOwner!=='true'"
         name="servings"
         type="number"
         class="display-input"
@@ -34,6 +35,7 @@
 
       <!-- Hours -->
       <input
+        :disabled="ele.isOwner!=='true'"
         type="number"
         class="display-input"
         x-model="ele.prep_time.h"
@@ -44,6 +46,7 @@
 
       <!-- Minutes -->
       <input
+        :disabled="ele.isOwner!=='true'"
         type="number"
         class="display-input"
         x-model="ele.prep_time.m"
@@ -61,6 +64,7 @@
       <b>Duration:</b>
       <span x-text="ele.formatedDuration">{{ele.duration}}</span>
       <input
+        :disabled="ele.isOwner!=='true'"
         type="number"
         class="hiddenNum"
         @change="eleObj.updateDuration($event.target)"
@@ -68,7 +72,6 @@
         value="ele.duration"
         min="1"
       />
-
     </li>
 
     {% endif %}

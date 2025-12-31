@@ -1,0 +1,59 @@
+{% extends "layout.html" %} {% load static %} {% block script %}
+<link rel="stylesheet" href="{% static 'progress/styles.css' %}" />
+<script defer type="module" src="{% static 'progress/script.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %} {% block body %}
+<input type="hidden" id="csrf_token" value="{{ csrf_token }}" />
+<div
+  class="book-container"
+  x-data="{
+      home:false,
+      allPlans:{{allPlans}},
+       currentView: 'month',
+       selectedDate: new Date().toISOString().split('T')[0],
+       selectedPlanType: 'diet',
+       selectedPeriod: 'month',
+       showLeftPage: true,
+       chartName:'Overall Progress',
+       isMobile: window.innerWidth < 992,
+       showAddForm:false,
+       existingMetrics:[],
+     }"
+  x-init="
+       window.addEventListener('resize', () => {
+         isMobile = window.innerWidth < 992;
+       });
+     "
+>
+  <!-- Left Page: Calendar -->
+  <div
+    class="book-page left-page"
+    :class="{ 'hidden': isMobile && !showLeftPage }"
+  >
+    {% include 'components/progress/calendar.html' %}
+  </div>
+
+  <!-- Right Page: Progress Tracking -->
+  <div
+    class="book-page right-page"
+    :class="{ 'hidden': isMobile && showLeftPage }"
+  >
+    {% include 'components/progress/progressPage.html' %}
+  </div>
+
+  <!-- Mobile Toggle Button -->
+  <button
+    class="page-toggle-btn"
+    x-show="isMobile"
+    @click="showLeftPage = !showLeftPage"
+    :aria-label="showLeftPage ? 'Show Progress' : 'Show Calendar'"
+  >
+    <i
+      class="fas"
+      :class="showLeftPage ?  'fa-chart-line':'fa-calendar-alt'"
+    ></i>
+  </button>
+  {% include "components/browser/creationForm.html" %} 
+</div>
+
+{% endblock %}

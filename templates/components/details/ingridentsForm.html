@@ -1,0 +1,88 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'common/ingridentForm.css' %}">
+
+<div x-data="{
+  ingredients: [],
+  current: {
+    amount: 1,
+    unit: '',
+    name: ''
+  },
+  activeUnit:-1,
+  showUnitSuggestions: false,
+  filteredUnits: []
+}" 
+x-init="ingredientInput = new IngredientInput($data, $refs,$data.ele?.ingredients)"
+class="ingredient-input-component">
+
+  <label class="ingredient-label">{{ label }}</label>
+  
+  <div class="ingredients-input-container">
+    <!-- Existing ingredients list -->
+    <div class="ingredients-list" x-show="ingredients.length > 0" x-ref="ingredientList">
+      <template x-for="(ing, index) in ingredients" :key="index">
+        <div class="ingredient-item">
+          <span class="ingredient-amount" x-text="ing.amount"></span>
+          <span class="ingredient-unit" x-text="ing.unit"></span>
+          <span class="ingredient-name" x-text="ing.name"></span>
+          <button type="button" 
+                  class="ingredient-remove" 
+                  @click="ingredientInput.removeIngredient(index)"
+                  aria-label="Remove">×</button>
+        </div>
+      </template>
+    </div>
+
+    <!-- Input row -->
+    <div class="ingredient-input-row" x-ref="ingridentInputRow" @click.away="ingredientInput.addIngredient()">
+      <input type="number" 
+             x-ref="ingredientAmount"
+             x-model.number="current.amount"
+             @keydown.enter.prevent="ingredientInput.addIngredient()"
+             min="0"
+             step="0.25"
+             placeholder="1"
+             class="ingredient-amount-input">
+      
+      <div class="ingredient-unit-wrapper">
+        <input type="text" 
+               x-ref="ingredientUnit"
+               x-model="current.unit"
+               @input="activeUnit=-1;ingredientInput.filterUnits()"
+               @focus="showUnitSuggestions = true; ingredientInput.filterUnits()"
+               @blur="setTimeout(() => showUnitSuggestions = false, 200)"
+               @keydown.enter.prevent="
+               filteredUnits.length ?
+                ingredientInput.selectUnit(filteredUnits[activeUnit]):
+                ingredientInput.addIngredient()"
+              @keydown.arrow-down.prevent="ingredientInput.moveDown()"
+              @keydown.arrow-up.prevent="ingredientInput.moveUp()"
+               placeholder="unit"
+               class="ingredient-unit-input">
+        
+        <div class="unit-suggestions" 
+             x-show="showUnitSuggestions && filteredUnits.length > 0"
+             x-transition>
+          <template x-for="(unit, index) in filteredUnits" :key="unit">
+            <div :class="{'selectedUnit': index == activeUnit}" @mousedown.prevent="ingredientInput.selectUnit(unit)">
+              <span x-text="unit"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+      
+      <input type="text" 
+             x-ref="ingredientName"
+             x-model="current.name"
+             @keydown.enter.prevent="ingredientInput.addIngredient()"
+             placeholder="ingredient name (press Enter to add)"
+             class="ingredient-name-input">
+    </div>
+  </div>
+  
+  <!-- Hidden input for form submission -->
+  <input type="hidden" 
+         name="{{ name|default:'ingredients' }}" 
+         :value="ingredientInput.serialize()">
+</div>
+

@@ -35,3 +35,8 @@ nav .nav-item i {
 .detail-page{
   width: 100%;
 }
+
+.sub-btn{
+  width: 30px;  
+  height: 30px;
+}

@@ -1,0 +1,360 @@
+<div class="metrics-editor-wrapper">
+  <div class="metrics-header">
+    <h4 class="metrics-title">
+      <i class="fas fa-chart-line"></i>
+      Track Metrics
+    </h4>
+    <div class="metrics-actions">
+      <button
+        class="action-btn"
+        @click="dayProgress.showInactiveMetrics()"
+        title="Show Inactive Metrics"
+      >
+        <i class="fas fa-archive"></i> <span> Inactive </span>
+      </button>
+      <button
+        class="action-btn"
+        @click="dayProgress.addMetric('toPlan')"
+        title="Add Plan Metric"
+      >
+        P <i class="fas fa-plus"></i> <span>Plan</span>
+      </button>
+      <button
+        class="action-btn"
+        @click="dayProgress.addMetric('customGoal')"
+        title="Add Custom Goal"
+      >
+        G <i class="fas fa-plus"></i> <span>Goal</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="metrics-table-container">
+    <table class="metrics-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th>Current</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <template x-if="$data.metrics && $data.metrics.length">
+          <template x-for="metric in $data.metrics" :key="metric.id">
+            <tr
+              class="metric-row"
+              :class="{ 'inactive': !metric.isActive }"
+              @click="dayProgress.selectMetric(metric)"
+            >
+              <td class="metric-name">
+                <div class="name-cell">
+                  <i
+                    class="fas"
+                    :class="dayProgress.getMetricIcon(metric.type)"
+                  ></i>
+                  <span x-text="metric.name"></span>
+                </div>
+              </td>
+              <td class="metric-current">
+                <!-- Continuous or daily -->
+                <template
+                  x-if="metric.type === 'continues' || metric.type === 'daily'"
+                >
+                  <input
+                    type="number"
+                    class="metric-input"
+                    :value="dayProgress.formatValue(metric.value, metric.type)"
+                    @change="dayProgress.updateMetricValue(metric, $event.target.value)"
+                    @click.stop
+                    x-ref="'metricInput_' + metric.id"
+                  />
+                </template>
+
+                <!-- Boolean -->
+                <template x-if="metric.type === 'boolean'">
+                  <div class="boolean-toggle w-100 d-flex p-0">
+                    <button
+                      type="button"
+                      class="btn btn-sm col d-flex justify-content-center"
+                      :class="metric.value ? 'btn-success' : 'btn-outline-secondary'"
+                      @click.stop="dayProgress.updateMetricValue(metric, true)"
+                    >
+                      Yes
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm col p-0 justify-content-center"
+                      :class="!metric.value ? 'btn-danger' : 'btn-outline-secondary'"
+                      @click.stop="dayProgress.updateMetricValue(metric, false)"
+                    >
+                      No
+                    </button>
+                  </div>
+                </template>
+
+                <!-- Scale (select) -->
+                <template x-if="metric.type === 'scale'">
+                  <select
+                    x-init="console.log(JSON.stringify(metric.options),metric.options[0])"
+                    class="form-control form-control-sm"
+                    x-model="metric.value"
+                    @change="dayProgress.updateMetricValue(metric, metric.value)"
+                    @click.stop
+                  >
+                    <template
+                      x-for="[value, label] in metric.options"
+                      :key="value"
+                    >
+                      <option :value="value" x-text="label"></option>
+                    </template>
+                  </select>
+                </template>
+
+                <!-- Category -->
+                <template x-if="metric.type === 'category'">
+                  <select
+                    class="form-control form-control-sm"
+                    x-model="metric.value"
+                    @change="dayProgress.updateMetricValue(metric, metric.value)"
+                    @click.stop
+                  >
+                    <template x-for="option in metric.options" :key="option">
+                      <option :value="option" x-text="option"></option>
+                    </template>
+                  </select>
+                </template>
+              </td>
+              <td class="metric-actions" @click.stop>
+                <button
+                  class="icon-btn"
+                  @click="dayProgress.editMetric(metric)"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  class="icon-btn"
+                  @click="dayProgress.toggleMetricActive(metric)"
+                  :title="metric.isActive ? 'Deactivate' : 'Activate'"
+                >
+                  <i
+                    class="fas"
+                    :class="metric.isActive ? 'fa-toggle-on' : 'fa-toggle-off'"
+                  ></i>
+                </button>
+                <!-- <button
+                  class="icon-btn"
+                  @click="dayProgress.deleteMetric(metric)"
+                  title="Delete"
+                >
+                  <i class="fas fa-trash"></i>
+                </button> -->
+              </td>
+            </tr>
+          </template>
+        </template>
+        <template x-if="!$data.metrics || !$data.metrics.length">
+          <tr>
+            <td colspan="4" class="no-metrics">
+              <i class="fas fa-info-circle"></i>
+              No metrics tracked yet. Add a metric to get started.
+            </td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Metric Editor Modal -->
+  <div
+    class="modal-overlay"
+    x-show="$data.showMetricModal"
+    @click.self="dayProgress.closeMetricModal()"
+    x-transition
+  >
+  
+  <div class="modal-content metric-modal">
+    <div class="modal-header">
+      <h5 x-text="$data.editingMetric ? 'Edit Metric' : 'Add Metric'"></h5>
+      <button class="close-btn" @click="dayProgress.closeMetricModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+        <div class="form-group" x-show="$data.editingMetric == null">
+          <label>Use Existing Metric</label>
+          <select
+            class="form-control"
+            x-model="$data.metricForm.selectedExisting"
+            @change="dayProgress.onExistingMetricSelected()"
+          >
+            <option value="">-- Create New Metric --</option>
+            <template x-for="existing in $data.existingMetrics" :key="existing.id">
+              <option
+                :value="existing.id"
+                x-text="existing.name + ' (' + existing.type + ')'"
+              ></option>
+            </template>
+          </select>
+        </div>
+        <form @submit.prevent="dayProgress.saveMetric()">
+          <div class="form-group">
+            <label>Metric Name</label>
+            <input
+              type="text"
+              class="form-control"
+              x-model="$data.metricForm.name"
+              placeholder="e.g., Weight, Water Intake"
+              required
+            />
+          </div>
+
+          <div class="form-group" x-show="$data.editingMetric == null">
+            <label>Type</label>
+            <select
+              class="form-control"
+              x-model="$data.metricForm.type"
+              @change="dayProgress.onMetricTypeChange()"
+              required
+            >
+              <option value="continues">
+                Continuous (Weight, Measurements)
+              </option>
+              <option value="daily">Daily (Water, Calories)</option>
+              <option value="boolean">Yes/No</option>
+              <option value="scale">Scale (1-5)</option>
+              <option value="category">Category</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Target Value</label>
+            <input
+              type="text"
+              class="form-control"
+              x-model="$data.metricForm.target"
+              :placeholder="
+        $data.metricForm.type === 'category' 
+          ? 'e.g., Relaxed, Calm (comma-separated)' 
+          : $data.metricForm.type === 'boolean' 
+          ? 'true or false' 
+          : 'e.g., 70, 2000'
+      "
+              :required="!($data.metricForm.type === 'scale' || $data.metricForm.type === 'boolean')"
+            />
+          </div>
+
+          <template x-if="$data.metricForm.type === 'category'">
+            <div class="form-group">
+              <label>Options (comma-separated)</label>
+              <input
+                type="text"
+                class="form-control"
+                x-model="$data.metricForm.options"
+                placeholder="e.g., Relaxed, Stressed, Busy, Calm"
+                @input="$data.metricForm.start = ''"
+              />
+            </div>
+          </template>
+
+          <div class="form-group" x-show="$data.metricForm.type === 'category'">
+            <label>Default Value</label>
+            <select
+              class="form-control"
+              x-model="$data.metricForm.start"
+              :disabled="!($data.metricForm.options || '')"
+            >
+              <option value="">Select a value</option>
+              <template
+                x-for="option in $data.metricForm?.options?.split(',')?.map(s=> s.trim())"
+                :key="option"
+              >
+                <option :value="option" x-text="option"></option>
+              </template>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Goal Description</label>
+            <textarea
+              class="form-control"
+              x-model="$data.metricForm.goal"
+              rows="2"
+              placeholder="Describe what you want to achieve..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-check-label">
+              <input
+                type="checkbox"
+                class="form-check-input"
+                x-model="$data.metricForm.isPositive"
+              />
+              Higher/True is better (uncheck if lower/false is the goal)
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="dayProgress.closeMetricModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save"></i> Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inactive Metrics Modal -->
+  <div
+    class="modal-overlay"
+    x-show="$data.showInactiveModal"
+    @click.self="dayProgress.closeInactiveModal()"
+    x-transition
+  >
+    <div class="modal-content inactive-modal">
+      <div class="modal-header">
+        <h5>Inactive Metrics</h5>
+        <button class="close-btn" @click="dayProgress.closeInactiveModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <template x-if="$data.inactiveMetrics && $data.inactiveMetrics.length">
+          <ul class="inactive-metrics-list">
+            <template x-for="metric in $data.inactiveMetrics" :key="metric.id">
+              <li class="inactive-metric-item">
+                <div class="metric-info">
+                  <strong x-text="metric.name"></strong>
+                  <span class="metric-type" x-text="metric.type"></span>
+                  <span
+                    class="metric-target"
+                    x-text="'Target: ' + metric.target"
+                  ></span>
+                </div>
+                <button
+                  class="btn btn-sm btn-primary"
+                  @click="dayProgress.reactivateMetric(metric.id)"
+                >
+                  <i class="fas fa-redo"></i> Reactivate
+                </button>
+              </li>
+            </template>
+          </ul>
+        </template>
+        <template
+          x-if="!$data.inactiveMetrics || !$data.inactiveMetrics.length"
+        >
+          <p class="text-center text-muted">No inactive metrics found.</p>
+        </template>
+      </div>
+    </div>
+  </div>
+</div>

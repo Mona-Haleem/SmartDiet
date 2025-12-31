@@ -14,17 +14,31 @@ export default class Plan extends DietEle {
       this.updateServerData,
       this.extraRefs.anchor
     );
-    this.$data.sections = {};
-    this._populateSectionObjects();
-    this.sectionsEditor = new SectioEditor(this.$data.sections);
+    if (this.$data.ele.type == "plan") {
+      this.$data.sections = {};
+      this._populateSectionObjects();
+      this.sectionsEditor = new SectioEditor(this.$data.sections);
+    }
+    console.log(this.$data.ele);
+    if (this.$data.ele.type == "recipe") {
+      this.orgIngridents = JSON.parse(
+        JSON.stringify(this.$data.ele.ingredients)
+      );
+      this.$data.sections = {
+        directions: {
+          data: {
+            section: "directions",
+            detail: this.$data.ele.directions,
+          },
+        },
+      };
+    }
     this.detailsEditor = new DetailsEditor();
+
     console.log(this.$data.next);
     this.$data.ele.created = formatDate(this.$data.ele.created);
     this.$data.ele.edited = formatDate(this.$data.ele.edited);
     this.$data.ele.formatedDuration = formatDuration(this.$data.ele.duration);
-    console.log(this.$data.ele.formatedDuration);
-console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
-
   }
 
   _populateSectionObjects(data, parentId = null) {
@@ -44,11 +58,11 @@ console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
         //   currentSection.id,
         //   this.$data.sections,
         // ),
-        parentId
+        parentId,
       };
     }
   }
-  
+
   async updateName(targetEle) {
     const newName = targetEle.innerText.trim();
     const orgName = this.$data.ele.name;
@@ -137,6 +151,25 @@ console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
     });
   }
 
+  async saveIng() {
+    let ingredients = this.$data.ele.ingredients;
+    await this.updateServerData(
+      ["updateIngridents"],
+      {
+        ingredients,
+      },
+      () => {
+        this.orgIngridents = JSON.parse(JSON.stringify(ingredients));
+      },
+      () => {
+        ingredients = this.orgIngridents;
+      }
+    );
+  }
+  cancelSaveIng() {
+    console.log(this.orgIngridents);
+    this.$data.ele.ingredients = this.orgIngridents;
+  }
   async updateDuration(targetEle) {
     let duration = Math.max(1, Number(targetEle.value.trim()));
     if (isNaN(duration)) return;
@@ -161,24 +194,55 @@ console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
       await this.mediaManager.deleteMedia(dragEle, this.$data);
       dragEle = null;
       return;
-    }else if(dragEle.id && dragEle.id.startsWith("section-")){
-      const sectionId = dragEle.id.replace("section-","");
-      this.$data.sections[sectionId]
-      this.sectionsEditor.deleteSection(sectionId,dragEle , this.$data);
+    } else if (dragEle.id && dragEle.id.startsWith("section-")) {
+      const sectionId = dragEle.id.replace("section-", "");
+      this.$data.sections[sectionId];
+      this.sectionsEditor.deleteSection(sectionId, dragEle, this.$data);
     }
   }
 
-  async handleSectionAction(sectionId ,action, args={}){
+  async cloneEle() {
+    const url = `/diet/collections/${this.$data.ele.type}s/${this.$data.ele.creation_id}/${this.$data.ele.name}/`;
+    await queryService.query(["createEle"], {
+      queryFn: queryService.createQueryFn(url, "post"),
+      force: true,
+      onSuccess: (ctx) => {
+        if (ctx.data.redirect) {
+          window.location.href = ctx.data.redirect;
+        }
+      },
+      onError: (ctx) => {
+        console.log(ctx.response);
+      },
+    });
+  }
+  async handleSectionAction(sectionId, action, args = {}) {
     const sectionObj = this.$data.sections[sectionId];
-    switch(action){
+    switch (action) {
       case "createSection":
-        this.sectionsEditor.createSection(sectionId,args.targetRelation,this.$refs,this.$el,this.$data.ele.details);
+        this.sectionsEditor.createSection(
+          sectionId,
+          args.targetRelation,
+          this.$refs,
+          this.$el,
+          this.$data.ele.details
+        );
         break;
       case "renameSection":
-        this.sectionsEditor.renameSection(sectionId,args.inputEle,sectionObj.parentId,sectionObj.data);
+        this.sectionsEditor.renameSection(
+          sectionId,
+          args.inputEle,
+          sectionObj.parentId,
+          sectionObj.data
+        );
         break;
       case "reorderSection":
-        this.sectionsEditor.reorderSection(dragEle?.id?.replace("section-",""), args.targetId , args.targetRelation,this.$refs);
+        this.sectionsEditor.reorderSection(
+          dragEle?.id?.replace("section-", ""),
+          args.targetId,
+          args.targetRelation,
+          this.$refs
+        );
         break;
       case "editDetails":
         this.detailsEditor.init(sectionId);
@@ -196,16 +260,15 @@ console.log(Alpine.$data(this.$el),Alpine.$data(this.$el).$refs);
       queryFn: queryService.createQueryFn(url, "patch", JSON.stringify(data)),
       onSuccess: (ctx) => {
         console.log("sucess");
-        sucessFun();
+        sucessFun(ctx);
         return ctx.data;
       },
       onError: (ctx) => {
         errFun();
         console.log(ctx);
       },
+      force: true,
       ttl: 60 * 1000,
     });
   }
-
-  
 }

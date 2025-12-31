@@ -1,0 +1,38 @@
+<div class="progress-header" 
+     x-data="progressHeader"
+     x-init="$nextTick(() => progressHeader = new ProgressHeader($el, $refs, $data))">
+  <template x-if="currentView === 'day'">
+
+    <div class="plan-type-selector" >
+      <button class="plan-btn" 
+      :class="{ 'active': selectedPlanType === 'diet' }"
+      @click="progressHeader.switchPlanType('diet')">
+      <i class="fas fa-utensils"></i>
+      <span>Diet</span>
+    </button>
+    <button class="plan-btn" 
+    :class="{ 'active': selectedPlanType === 'exercise' }"
+    @click="progressHeader.switchPlanType('exercise')">
+    <i class="fas fa-dumbbell"></i>
+    <span>Exercise</span>
+  </button>
+</div>
+</template>
+
+  <div class="period-controls">
+    <select class="period-select" 
+            x-model="selectedPeriod"
+            @change="progressHeader?.changePeriod()"
+            x-show="!!!home">
+      <option value="day">Day</option>
+      <option value="week">Week</option>
+      <option value="month">Month</option>
+      <option value="year">Year</option>
+    </select>
+
+  </div>
+  <div class="avg-score">
+    <span class="score-value" x-text="$data.avgScore">--</span>
+    <span class="score-unit">%</span>
+  </div>
+</div>

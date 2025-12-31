@@ -93,12 +93,15 @@ export default class MediaManager {
     paginator.data.page = imgIndex;
     paginator.paginateTo("next");
   }
-  restViewer(data, paginator) {
+  restViewer(data, paginator,updatafn) {
     if (data.mode === "fullImages") {
       this.expandMediaViewer(data, paginator);
     } else {
       data.mode = "details";
-      paginator.paginateTo("page1");
+      setTimeout(() => {
+        if(updatafn)updatafn(0);
+        paginator.paginateTo("page1")
+      }, 300);
       this.anchorEl.classList.remove("d-none");
     }
   }

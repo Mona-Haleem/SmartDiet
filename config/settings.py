@@ -29,7 +29,8 @@ SECRET_KEY = 'django-insecure-2w)^v07=-$)6s+rqys@olzjl6i9j!#^%e1ipy=q_cs@5ywcedf
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
-
+USDA_API_KEY ='KoigHZEvUzOa7pDx6RJ5uKajclNTb4Nfe2pzFm3E'
+# USDA_API_KEY = os.getenv('USDA_API_KEY')
 
 # Application definition
 

@@ -1,0 +1,34 @@
+<div class="day-progress-container" 
+     x-data="dayProgress"
+     x-init="$nextTick(() => dayProgress = new DayProgress($el, $refs, $data))">
+  
+    <div class="plan-brief-section">
+      {% include 'components/progress/planDayBrief.html' %}
+    </div>
+
+    <div class="metrics-section">
+      {% include 'components/progress/metricsEditor.html' %}
+    </div>
+  
+  <!-- Bottom: Feedback Area -->
+  <div class="feedback-section">
+    <h4 class="feedback-title">
+      <i class="fas fa-comment-dots"></i>
+      Daily Feedback
+    </h4>
+    <textarea class="feedback-textarea" 
+              x-model="$data.feedback"
+              @blur="dayProgress.saveFeedback()"
+              placeholder="How did the plan go today? Any notes or observations..."
+              rows="3"
+              x-ref="feedbackArea"></textarea>
+    <div class="feedback-meta">
+      <span class="save-status" x-show="$data.isSaving">
+        <i class="fas fa-spinner fa-spin"></i> Saving...
+      </span>
+      <span class="save-status success" x-show="$data.savedAt">
+        <i class="fas fa-check"></i> Saved at <span x-text="$data.savedAt"></span>
+      </span>
+    </div>
+  </div>
+</div>

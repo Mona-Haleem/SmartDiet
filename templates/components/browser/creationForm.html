@@ -1,0 +1,316 @@
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'common/creationForm.css' %}">
+
+<template x-if="showAddForm">
+<div id="creationForm" x-data="{
+  isOpen:false,
+  currentType: 'recipe',
+  isSubmitting: false,
+  showSuccess: false,
+  successMessage: '',
+  errors: {},
+  
+  showCategorySuggestions: false,
+  activeSuggestion: -1,
+  categorySuggestions: {{ recipeCategories|default:'["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Beverage"]'|safe }},
+  formData: {
+    diet_plan_id :null,
+    exercise_plan_id :null,
+    isOpen:false,
+    name: '',
+    category: '',
+    notes: '',
+    shared: false,
+    favorite: false,
+    prep_time_hours: 0,
+    prep_time_minutes: 0,
+    serv: 1,
+    ingredients: [],
+    duration_preset: '7',
+    duration_days: 7,
+    goal: '',
+    create_default_sections: true
+  }
+}" x-init="()=>form = new CreationForm($data, $refs)"
+  
+>
+
+  <!-- Overlay -->
+  <div class="creation-form-overlay" 
+       :class="{ 'active': isOpen }"
+       @click="form.close(showAddForm);"></div>
+
+  <!-- Form Container -->
+  <div class="creation-form-container" :class="{ 'active': isOpen }">
+    
+    <!-- Success Message -->
+    <div class="success-toast" x-show="showSuccess" x-transition>
+      <span x-text="successMessage"></span>
+    </div>
+
+    <!-- Header -->
+    <div class="creation-form-header">
+      <h2>Create New <span x-text="currentType === 'recipe' ? 'Recipe' : 'Plan'"></span></h2>
+      <button type="button" @click="form.close()" aria-label="Close">×</button>
+    </div>
+
+    <!-- Type Tabs -->
+    <div class="creation-type-tabs">
+      <button type="button" 
+              :class="{ 'active': currentType === 'recipe' }"
+              @click="form.switchType('recipe')">Recipe</button>
+      <button type="button" 
+              :class="{ 'active': currentType === 'plan' }"
+              @click="form.switchType('plan')">Plan</button>
+    </div>
+
+    <!-- Form -->
+        <form x-ref="form" @submit.prevent="form.submit()">
+      <div class="creation-form-body">
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="required">Name</label>
+              <input type="text" 
+                     name="name" 
+                     x-model="formData.name"
+                     autocomplete="off"
+                     @input="form.clearError('name')"
+                     :class="{ 'is-invalid': errors.name }"
+                     placeholder="Enter a unique name"
+                     required>
+              <span class="error-message" x-show="errors.name" x-text="errors.name"></span>
+            </div>
+
+            <!-- Recipe Category -->
+            <div class="form-group" x-show="currentType === 'recipe'">
+              <label>Category</label>
+              <input type="text" 
+                     name="category" 
+                     autocomplete="off"
+                     x-model="formData.category"
+                     @input="form.clearError('category');showCategorySuggestions = true;activeSuggestion=-1"
+                     @focus="showCategorySuggestions = true"
+                     @blur="setTimeout(() => showCategorySuggestions = false, 200)"
+                      @keydown.arrow-down.prevent="form.moveDown()"
+                      @keydown.arrow-up.prevent="form.moveUp()"
+                      @keydown.enter.prevent="form.selectActive()"
+                     :class="{ 'is-invalid': errors.category }"
+                     placeholder="e.g., Breakfast, Lunch">
+              <span class="error-message" x-show="errors.category" x-text="errors.category"></span>
+              
+              <div class="category-suggestions" 
+                   x-show="showCategorySuggestions"
+                   x-transition>
+                <template x-for="(suggestion, index)  in categorySuggestions" :key="suggestion">
+                     <div
+                          @mousedown.prevent="form.selectCategory(suggestion)"
+                          :class="{ 'active': index === activeSuggestion }"
+                        >
+
+                    <span x-text="suggestion"></span>
+                  </div>
+                </template>
+              </div>
+            </div>
+
+            <!-- Plan Category -->
+            <div class="form-group" x-show="currentType === 'plan'">
+              <label class="required">Plan Type</label>
+              <select name="category" 
+                      x-model="formData.category"
+                      @change="form.clearError('category')"
+                      :class="{ 'is-invalid': errors.category }"
+                      required>
+                <option value="" >Select type...</option>
+                <option value="diet" :selected="$data.selectedPlanType == 'diet'">Diet Plan</option>
+                <option value="exercise" :selected="$data.selectedPlanType == 'exercise'">Exercise Plan</option>
+                <option value="full">Full Plan (Diet + Exercise)</option>
+              </select>
+              <span class="error-message" x-show="errors.category" x-text="errors.category"></span>
+            </div>
+          </div>
+          <!-- linked plans -->
+          <template x-if="currentType=='plan' && formData.category=='full'">
+           <div class="form-row">
+              <!-- Diet Plan -->
+
+              <div class="form-group" x-show="currentType === 'plan'">
+                <label class="required">Diet Plan</label>
+                <select name="diet_plan_id" 
+                        x-model="formData.diet_plan_id"
+                        @change="form.clearError('formData.diet_plan_id')"
+                        :class="{ 'is-invalid': errors.diet_plan_id }"
+                        >
+                          {% for plan in allPlans %}
+                            {% if plan.category == 'diet' %}
+                            <option value="plan.id">{{plan.name}}</option>
+                            {% endif %}
+                          {% endfor %} 
+                </select>
+                <span class="error-message" x-show="errors.diet_plan_id" x-text="errors.diet_plan_id"></span>
+              </div>
+
+              <!-- Exersise Plan -->
+              <div class="form-group" x-show="currentType === 'plan'">
+                <label class="required">Exercise Plan</label>
+                <select name="exercise_plan_id" 
+                        x-model="formData.exercise_plan_id"
+                        @change="form.clearError('formData.exercise_plan_id')"
+                        :class="{ 'is-invalid': errors.exercise_plan_id }"
+                        >
+                          {% for plan in allPlans %}
+                            {% if plan.category == 'exercise' %}
+                            <option value="plan.id">{{plan.name}}</option>
+                            {% endif %}
+                          {% endfor %} 
+                </select>
+                <span class="error-message" x-show="errors.exercise_plan_id" x-text="errors.diet_plan_id"></span>
+              </div>
+          </template>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea name="notes" 
+                      x-model="formData.notes"
+                      rows="3"
+                      placeholder="Add any additional notes (optional)"></textarea>
+          </div>
+
+          <div class="form-row form-checks">
+            <label class="form-check">
+              <input type="checkbox" name="shared" x-model="formData.shared">
+              <span>Share with others</span>
+            </label>
+
+            <label class="form-check">
+              <input type="checkbox" name="favorite" x-model="formData.favorite">
+              <span>Mark as favorite</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Recipe Details -->
+        <template x-if="currentType === 'recipe'">
+          <div class="form-section">
+            <h3>Recipe Details</h3>
+            
+            <div class="form-group">
+              <label>Preparation Time</label>
+              <div class="time-input-group">
+                <div>
+                  <input type="number" 
+                         name="prep_time_hours" 
+                         x-model.number="formData.prep_time_hours"
+                         @input="form.clearError('prep_time_hours')"
+                         :class="{ 'is-invalid': errors.prep_time_hours }"
+                         min="0"
+                         placeholder="Hours">
+                  <span class="error-message" x-show="errors.prep_time_hours" x-text="errors.prep_time_hours"></span>
+                </div>
+                <div>
+                  <input type="number" 
+                         name="prep_time_minutes" 
+                         x-model.number="formData.prep_time_minutes"
+                         @input="form.clearError('prep_time_minutes')"
+                         :class="{ 'is-invalid': errors.prep_time_minutes }"
+                         min="0"
+                         max="59"
+                         placeholder="Minutes">
+                  <span class="error-message" x-show="errors.prep_time_minutes" x-text="errors.prep_time_minutes"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Servings</label>
+              <input type="number" 
+                     name="serv" 
+                     x-model.number="formData.serv"
+                     @input="form.clearError('serv')"
+                     :class="{ 'is-invalid': errors.serv }"
+                     min="1"
+                     placeholder="1">
+              <span class="error-message" x-show="errors.serv" x-text="errors.serv"></span>
+            </div>
+
+            {% include 'components/details/ingridentsForm.html' with name='ingredients' label='Ingredients' %}
+
+          </div>
+        </template>
+
+        <!-- Plan Details -->
+        <template x-if="currentType === 'plan'">
+          <div class="form-section">
+            <h3>Plan Details</h3>
+            
+            <div class="form-group">
+              <label>Duration</label>
+              <select name="duration_preset" 
+                      x-model="formData.duration_preset"
+                      @change="form.updateDuration()">
+                <option value="">Custom</option>
+                <option value="1">1 Day</option>
+                <option value="7">1 Week</option>
+                <option value="14">2 Weeks</option>
+                <option value="30">1 Month</option>
+              </select>
+            </div>
+
+            <div class="form-group" x-show="!formData.duration_preset">
+              <label>Custom Duration (days)</label>
+              <input type="number" 
+                     name="duration_days" 
+                     x-model.number="formData.duration_days"
+                     @input="form.clearError('duration_days')"
+                     :class="{ 'is-invalid': errors.duration_days }"
+                     min="1"
+                     placeholder="Number of days">
+              <span class="error-message" x-show="errors.duration_days" x-text="errors.duration_days"></span>
+            </div>
+
+            <div class="form-group">
+              <label>Goal</label>
+              <textarea name="goal" 
+                        x-model="formData.goal"
+                        rows="3"
+                        placeholder="Describe your goal for this plan (optional)"></textarea>
+            </div>
+
+            <label class="form-check">
+              <input type="checkbox" 
+                     name="create_default_sections" 
+                     x-model="formData.create_default_sections">
+              <span>Create default daily sections</span>
+            </label>
+          </div>
+        </template>
+
+      </div>
+
+      <!-- Footer -->
+      <div class="creation-form-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                @click="form.close()"
+                :disabled="isSubmitting">Cancel</button>
+        <button type="submit" 
+                @click="form.submit()"
+                class="btn btn-primary"
+                :class="{ 'btn-loading': isSubmitting }"
+                :disabled="isSubmitting">
+          <span x-show="!isSubmitting">Create</span>
+          <span x-show="isSubmitting">Creating...</span>
+        </button>
+      </div>
+    </form>
+
+
+  </div>
+</div>
+
+</template>

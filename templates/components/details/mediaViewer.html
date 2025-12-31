@@ -31,8 +31,11 @@
       style="vertical-align: top"
     ></i>
   </div>
-  <div class="img-btns">
-    <input
+  
+  <div class="img-btns" :class="{vistor:!{{ele.isOwner}}}">
+    <template x-if="{{ele.isOwner}}">
+
+      <input
       x-ref="imgUpload"
       type="file"
       name="img_upload"
@@ -40,20 +43,21 @@
       class="d-none"
       id="img_upload"
       @change="eleObj.mediaManager.uploadMedia($event.target,$data)"
-    />
-    <i
+      />
+      <i
       class="fas fa-upload"
       data-action="upload"
       @click="$refs.imgUpload.click()"
-    ></i>
-    <i
+      ></i>
+      <i
       class="fas fa-link"
       data-action="link"
       @click="
       addMediaLink = true;
       $nextTick(() => $refs.mediaLink.focus())
-    "
-    ></i>
+      "
+      ></i>
+    </template>
     <i
       class="fas fa-external-link-alt"
       data-action="expand"
@@ -66,7 +70,7 @@
     placeholder="Add Media Link"
     name="media_link"
     class="form-control"
-    x-show="addMediaLink"
+    x-show="{{ele.isOwner}} && addMediaLink"
     id="media_link"
     style="position: absolute; z-index: 100"
     @blur="eleObj.mediaManager.appendMediaLink($event.target,$data)"

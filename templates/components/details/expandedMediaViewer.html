@@ -5,7 +5,7 @@
       class="viewer-img"
       :class="{ 'expand': mode === 'fullImages' }"
       @click="eleObj.mediaManager.expandImage($data,index , paginator)"
-      draggable
+      draggable="{{ele.isOwner}}"
     >
       <img :src="src" :alt="src" />
     </div>
@@ -17,7 +17,7 @@
 <div
   id="closeMediaViewer"
   x-show="mode!='details'"
-  @click="eleObj.mediaManager.restViewer($data,paginator)"
+  @click="eleObj.mediaManager.restViewer($data,paginator,eleObj.updateData.bind(eleObj))"
 >
   X
 </div>

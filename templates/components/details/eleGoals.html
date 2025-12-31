@@ -1,7 +1,7 @@
 <section class="ele-info" x-show="activeTab === 'metrics'">
   <b>Goal:</b>
   <div
-    contenteditable="true"
+    contenteditable="{{ele.isOwner}}"
     id="ele-goal"
     class="editableDiv"
     @blur="eleObj.updateGoal($event.target)"
@@ -9,4 +9,18 @@
   >
     {{ele.goal}}
   </div>
+  {% if ele.metrics %}
+  <ul>
+    <li>
+      <b>Metric:</b>
+      <b>Target</b>
+    </li>
+    {% for metric in ele.metrics %}
+    <li>
+      <b>{{ metric.name|capfirst }}:</b>
+      <span x-text="ele.metric.target">{{ metric.target }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 </section>
