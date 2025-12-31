@@ -39,25 +39,24 @@ def format_plan_details(details):
 
 def remove_Orphaned_refs(detailsList):
     from healthHub.models import Recipe,PlanDetail
+    if len(detailsList) == 0:
+        return detailsList
     cleanedDetails = []
     for d in detailsList:
         print(d)
         if d["type"] == "ref":
+            ele = None
             if d["refType"] == "recipe":
                 ele = Recipe.objects.filter(id=d["eleId"]).first()
             elif d["refType"] == "detail":
                 ele = PlanDetail.objects.filter(id=d["eleId"]).first()
-            if not ele:
-                d = {
-                    "type":"p",
-                    "content":d.content,
-                    "color":d.color,
-                    "effect":d.effect
-                }
-            elif d["type"] == "ul" or d["type"] == "ol":
-                cleanedList = remove_Orphaned_refs(d["content"])
-                for i in cleanedList:
-                    cleanedDetails.append(i) 
+            if not d["href"] or (d["refType"] != "link" and not ele):
+                    d = {
+                        "type":"p",
+                        "content":d["content"],
+                        "color":d["color"],
+                        "effect":d["effects"]
+                    }
         cleanedDetails.append(d)
     return cleanedDetails
 

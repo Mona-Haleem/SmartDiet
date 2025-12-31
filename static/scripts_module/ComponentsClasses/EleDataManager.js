@@ -4,7 +4,7 @@ import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
 import MediaManager from "./detailsPage/mediaManager.js";
 import SectioEditor from "./SectionsEditor.js";
 import DetailsEditor from "./detailsEditor.js";
-export default class Plan extends DietEle {
+export default class EleDataManager extends DietEle {
   constructor(ele, refs, data, paginatorUpdateFn, extraRefs) {
     super(ele, refs, data, paginatorUpdateFn, extraRefs);
     this.extraRefs = extraRefs;
@@ -158,8 +158,9 @@ export default class Plan extends DietEle {
       {
         ingredients,
       },
-      () => {
+      (ctx) => {
         this.orgIngridents = JSON.parse(JSON.stringify(ingredients));
+        this.$data.ele.nurtient = ctx.data.nutrients
       },
       () => {
         ingredients = this.orgIngridents;

@@ -53,24 +53,38 @@ export default class MediaManager {
         JSON.stringify({ mediaUrl: imgSrc })
       ),
       onSuccess: (ctx) => {
-        data.ele.media.filter((media) => media != imgSrc);
+        console.log(imgSrc, imgEle, data.ele.media);
+        data.ele.media.filter(
+          (media) =>
+            media != imgSrc &&
+            !(media.startsWith("/media") && imgSrc.includes(media))
+        );
         const lastDisplayedImg =
           data.displayedMedia[data.displayedMedia.length - 1];
         const imageLength = data.ele.media.length;
         const lastDisplayedIndex = data.ele.media.indexOf(lastDisplayedImg);
         if (lastDisplayedIndex != imageLength - 1) {
           data.displayedMedia = [
-            ...data.displayedMedia.filter((media) => media != imgSrc),
+            ...data.displayedMedia.filter(
+              (media) =>
+                media != imgSrc &&
+                !(media.startsWith("/media") && imgSrc.includes(media))
+            ),
             data.ele.media[lastDisplayedIndex + 1],
           ];
         } else {
           data.displayedMedia = data.displayedMedia.filter(
-            (media) => media != imgSrc
+            (media) =>
+              media != imgSrc &&
+              !(media.startsWith("/media") && imgSrc.includes(media))
           );
         }
         data.mediaIndex = 0;
+        console.log(data, imgSrc);
+
         return ctx.data;
       },
+      force: true,
       onError: (ctx) => {
         console.log(ctx);
       },
@@ -93,14 +107,14 @@ export default class MediaManager {
     paginator.data.page = imgIndex;
     paginator.paginateTo("next");
   }
-  restViewer(data, paginator,updatafn) {
+  restViewer(data, paginator, updatafn) {
     if (data.mode === "fullImages") {
       this.expandMediaViewer(data, paginator);
     } else {
       data.mode = "details";
       setTimeout(() => {
-        if(updatafn)updatafn(0);
-        paginator.paginateTo("page1")
+        if (updatafn) updatafn(0);
+        paginator.paginateTo("page1");
       }, 300);
       this.anchorEl.classList.remove("d-none");
     }

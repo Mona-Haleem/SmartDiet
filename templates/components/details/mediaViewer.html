@@ -32,10 +32,10 @@
     ></i>
   </div>
   
-  <div class="img-btns" :class="{vistor:!{{ele.isOwner}}}">
-    <template x-if="{{ele.isOwner}}">
+  <div class="img-btns" :class="{vistor:{{ele.isOwner}} !== true}">
 
       <input
+      x-show="{{ele.isOwner}} == true"
       x-ref="imgUpload"
       type="file"
       name="img_upload"
@@ -45,19 +45,20 @@
       @change="eleObj.mediaManager.uploadMedia($event.target,$data)"
       />
       <i
+      x-show="{{ele.isOwner}} == true"
       class="fas fa-upload"
       data-action="upload"
       @click="$refs.imgUpload.click()"
       ></i>
       <i
       class="fas fa-link"
+      x-show="{{ele.isOwner}} == true"
       data-action="link"
       @click="
       addMediaLink = true;
       $nextTick(() => $refs.mediaLink.focus())
       "
       ></i>
-    </template>
     <i
       class="fas fa-external-link-alt"
       data-action="expand"

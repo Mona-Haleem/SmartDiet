@@ -61,6 +61,7 @@ class CreationHelper:
             creation_data = {
                 **base_form.cleaned_data,
                 **specific_form.cleaned_data,
+                "media":[]
             }
             
 
@@ -68,8 +69,8 @@ class CreationHelper:
                 creator=request.user,
                 **creation_data,
             )
-
-            if type == ElementType.RECIPE:
+            print(type)
+            if type == 'recipe':
                 redirect_url = reverse(
                     'recipes',
                     kwargs={'id': user_creation.recipe.id, 'name': user_creation.name}
@@ -83,7 +84,7 @@ class CreationHelper:
             return True, {
                 'success': True,
                 'redirect': redirect_url,
-                'id':user_creation.plan.id,
+                'id':user_creation.get_concrete().id,
                 'name':user_creation.name,
                 'category' :user_creation.category,
                 'message': f'{type.capitalize()} created successfully!',
@@ -92,7 +93,7 @@ class CreationHelper:
 
         except Exception as e:
             print("creation failed")
-            return False, {'errors': {'__all__': [str(e)]}}, 500
+        return False, {'errors': {'__all__': [str(e)]}}, 500
 
     def create_Clone(request,type,ele):
         

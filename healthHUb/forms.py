@@ -47,7 +47,7 @@ class BaseCreationForm(forms.ModelForm):
         # Check uniqueness per user
         if self.user:
             while UserCreation.objects.filter(creator=self.user, name=name).exists():
-                name = f"{name.strip()} ({counter})"
+                name = f"{name.strip().split()[0]} ({counter})"
                 counter += 1
 
         
@@ -139,16 +139,14 @@ class RecipeForm(forms.Form):
                 float(ing.get("amount", 0)),
             )
 
-            if key.trim() != "" and key.trim() not in seen:
-                seen.add(key.trim())
+            if key != "" and key not in seen:
+                seen.add(key)
                 unique.append({
                     "name": ing.get("name"),
                     "unit": ing.get("unit"),
                     "amount": ing.get("amount"),
                 })
-        if len(unique) > 0:
-            self.nurtients = get_nutrition_info_usda(unique)
-
+     
         return unique
 
     def clean(self):
@@ -161,6 +159,9 @@ class RecipeForm(forms.Form):
             hours=hours,
             minutes=minutes
         )
+        cleaned['directions'] = [] 
+        if len(cleaned["ingredients"]) > 0:
+            cleaned["nutrients"] = get_nutrition_info_usda(cleaned["ingredients"])
 
         return cleaned
 

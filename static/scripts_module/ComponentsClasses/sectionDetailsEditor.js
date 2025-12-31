@@ -758,7 +758,7 @@ export function createSectionDetailsEditor() {
       if (typeof model.content === "string") {
         model.content = text;
       } else {
-        const currentText = model.content.map(f => f.content).join("");
+        const currentText = model.content?.map(f => f.content).join("");
         if (currentText !== text) {
           model.content = [{ effects: ["Default"], content: text, color: "" ,type:"p"}];
         }
@@ -835,8 +835,9 @@ export function createSectionDetailsEditor() {
       const refData = {
         type:"ref",
         refType,
-        content:values.name,
-        effects:["Default"],
+        content:values.name || "enter link text",
+        effects:["bold","underline"],
+        color:'rgb(var(--cover-rgb))',
         eleId:values.id||"",
         href:values.href
       }

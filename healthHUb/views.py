@@ -12,6 +12,7 @@ from healthHub.models import serializers as serializer
 from healthHub.helpers.paginator import paginator
 from healthHub.helpers.construct_query import construct_query
 from healthHub.helpers.helpers import format_plan_details ,getLinksData
+from healthHub.helpers.nurtientCalculator import get_nutrition_info_usda
 from healthHub.helpers.nurtientCalculator import *
 from django.views.decorators.http import require_GET
 from django.views import View
@@ -210,8 +211,10 @@ class DetailsView(View):
                 "detail":detail
             })
         if key == 'ingredients':
-            ele.nutrients = update_recipe_nutrition(ele)
+            ele.nutrients = get_nutrition_info_usda(ele)
             ele.save()
+            return JsonResponse({"message": "Element updated successfully", "data": {key: value,"nutrients":ele.nutrients}})
+
         return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
  
 
@@ -267,7 +270,7 @@ def mediaManager(request,type,id):
         if(f"/media/{type}s/" in media_url):
             media_url = f"/media/{type}s/" +media_url.split(f"/media/{type}s/")[-1]
         print("Deleting media:", media_url)
-        stillInUse = UserCreation.objects.filter(tags__contains=[media_url]).exclude(id=id).exists()
+        stillInUse = UserCreation.objects.filter(media__icontains=media_url).exclude(id=id).exists()
 
         ele = UserCreation.objects.get(id=id)
         if media_url in ele.media:

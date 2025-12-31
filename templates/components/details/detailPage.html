@@ -4,7 +4,7 @@
   x-data="{ele:{{ele}},mediaIndex:0,addMediaLink:false,mode:'details',activeTab:'info'}"
   x-init="$nextTick(()=>{
       console.log('Initializing CardList');
-      eleObj = new Plan($el,$refs,$data,paginator.updateData.bind(paginator),paginator.refs)
+      eleObj = new EleDataManager($el,$refs,$data,paginator.updateData.bind(paginator),paginator.refs)
       paginator.pageClass = eleObj;
       return eleObj
     })"
@@ -27,11 +27,10 @@
 
 {% include "components/details/expandedMediaViewer.html" %}
 
-<template x-if="('{{ele.type}}'=='plan' || mode == 'mediaViewer') && {{ele.isOwner}} ">
-  <div class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" @dragover="$event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
+
+  <div x-show="('{{ele.type}}'=='plan' || mode == 'mediaViewer') && {{ele.isOwner}} == true " class="sec-btn" id ="deletbtn" @drop="eleObj.deleteEle()" @dragover="$event.preventDefault()" style="position: absolute;top: 0;right: 0;height: 100%;width: 50px;text-align: center;"> 
       <i class="fas fa-trash-alt" style="font-size: 1.5em;color: white;position: relative;top:calc(50% - 1.5em);"></i> 
   </div>
-</template>
 {% include "components/details/detailsEditor.html" %}
 <template x-if="!{{ele.isOwner}}">
   <button class="clone-btn" 

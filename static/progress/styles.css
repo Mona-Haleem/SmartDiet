@@ -953,8 +953,8 @@
 /* Mobile Toggle Button */
 .page-toggle-btn {
   position: absolute;
-  bottom: -9vh;
-  left: 0;
+  bottom: 5vh;
+  left: 5vw;
   width: 40px;
   height: 40px;
   border-radius: 50%;

@@ -107,10 +107,10 @@ def formatMetricPeriodSummery(allRecords, prevPeriodRecords):
 
     if metric_type == 'continues':
         # "startValue": the first record value (of current period)
-        formatted_metric["startValue"] = prevPeriodRecords[-1].value if prevPeriodRecords else start_tracker_val
+        formatted_metric["startValue"] = float(prevPeriodRecords[-1].value) if prevPeriodRecords else float(start_tracker_val)
         
         # "currentValue": the current recored value (of current period)
-        formatted_metric["currentValue"] = allRecords[-1].value
+        formatted_metric["currentValue"] = float(allRecords[-1].value)
         formatted_metric["change"] = round(formatted_metric["currentValue"] - formatted_metric["startValue"],2) * direction
 
     elif metric_type == 'daily':

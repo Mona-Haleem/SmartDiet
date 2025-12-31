@@ -12,7 +12,7 @@ class Recipe(models.Model):
     ingredients = models.JSONField(default=list, blank=True)
     directions = models.JSONField(default=list, blank=True)
     nutrients = models.JSONField(default=dict, blank=True)
-
+    
     def __str__(self):
         return f"Recipe({self.base.name})"
 

@@ -173,13 +173,13 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
             foods = data.get('foods', [])
             
             if not foods:
-                print(f"  ❌ No results found for '{ingredient_name}'")
-                total_nutrition['ingredients_detail'].append({
-                    'name': ingredient_name,
-                    'amount': amount,
-                    'unit': unit,
-                    'error': 'Not found in USDA database'
-                })
+                # print(f"  ❌ No results found for '{ingredient_name}'")
+                # total_nutrition['ingredients_detail'].append({
+                #     'name': ingredient_name,
+                #     'amount': amount,
+                #     'unit': unit,
+                #     'error': 'Not found in USDA database'
+                # })
                 continue
             
             # Use the first (best) match

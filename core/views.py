@@ -42,8 +42,8 @@ def index(request,slug="login"):
         diet_plan = get_current_plan(request.user, "diet")
         exercies_plan = get_current_plan(request.user, "exercise")
         plans = {
-            "diet": serializers.plan(diet_plan,request)[0] if diet_plan else {},
-            "exercise":serializers.plan(exercies_plan,request)[0] if diet_plan else {}
+            "diet": serializers.plan([diet_plan],request)[0] if diet_plan else {},
+            "exercise":serializers.plan([exercies_plan],request)[0] if diet_plan else {}
         }
         print("plans:===========>",
               #plans,
@@ -194,7 +194,7 @@ def avgScore(request):
 
     total_score = 0
     count = 0
-    if logs.count() == 0 and others.count() > 0:
+    if logs and logs.count() == 0 and others and others.count() > 0:
         logs = others
     for log in logs:
         score = log.calculate_Total_score()

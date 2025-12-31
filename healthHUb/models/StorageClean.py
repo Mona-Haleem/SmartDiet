@@ -10,7 +10,7 @@ def delete_usercreation_media(sender, instance, **kwargs):
     """
     for media_path in instance.media:
         # Check if any other UserCreation uses this file
-        exists = UserCreation.objects.filter(media__contains=[media_path]).exclude(pk=instance.pk).exists()
+        exists = UserCreation.objects.filter(media__icontains=[media_path]).exclude(pk=instance.pk).exists()
         if not exists:
             # Safe to delete from storage
             if os.path.exists(media_path):

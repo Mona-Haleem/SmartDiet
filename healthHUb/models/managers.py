@@ -19,7 +19,12 @@ class UserCreationManager(models.Manager):
         print("base creates sucessfully")
         # Automatically create related objects
         if base.type == 'recipe':
-            Recipe.objects.create(base=base,**extra_kwargs)
+            try:
+                print("start")
+                Recipe.objects.create(base=base,**extra_kwargs)
+            except Exception as e:
+                print(e)
+
         elif base.type == 'plan':
             diet_plan_id = extra_kwargs.pop('diet_plan_id', None)
             exercise_plan_id = extra_kwargs.pop('exercise_plan_id', None)
@@ -33,7 +38,7 @@ class UserCreationManager(models.Manager):
                     diet_plan_id=diet_plan_id,
                     exercise_plan_id=exercise_plan_id,
                 )
-
+        print('ele created sucessfully')
 
         return base
 
@@ -63,10 +68,10 @@ def create_default_plan_sections(plan, duration_days, weekNum="", parent=None):
     from healthHub.models import Recipe , Plan , PlanDetail
 
     weeks = duration_days // 7 if duration_days % 7 == 0 else 0 
-    if weeks > 1:
+    if weekNum:
         schedul_prefix = f"Week {weekNum} "
-    elif weeks:
-        schedul_prefix = "week"
+    elif weeks == 1:
+        schedul_prefix = "week "
     elif duration_days == 30:
         schedul_prefix = "Month "
     else:
@@ -79,7 +84,7 @@ def create_default_plan_sections(plan, duration_days, weekNum="", parent=None):
             order= 1,
         )
         for i in range(weeks):
-            create_default_plan_sections(plan,7,weekNum=i+1,parent=schedule)
+            create_default_plan_sections(plan,7,i+1,parent=schedule)
     else:
         schedule = PlanDetail.objects.create(
             plan=plan,

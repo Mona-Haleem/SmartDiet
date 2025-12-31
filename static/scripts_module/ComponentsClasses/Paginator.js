@@ -64,9 +64,9 @@ export default class Paginator {
         );
         this.pageClass.updateData(page);
       } else if (
-        this.pageClass.$data.ele.type == "recipe" &&
+        this.pageClass.$data.ele?.type == "recipe" &&
         this.pageClass.$data.mode == "details" &&
-        this.pageClass.$data.ele.isOwner
+        this.pageClass.$data.ele?.isOwner
       ) {
         this.pageClass.updateData(0);
       } else {
