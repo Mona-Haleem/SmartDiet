@@ -3,7 +3,7 @@ django-bootstrap5
 django-htmx
 django-decorator-include
 djangorestframework
-
+requests
 django-mptt
 #testing
 
