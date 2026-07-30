@@ -17,3 +17,5 @@ python-dotenv
 
 #production test
 whitenoise
+psycopg[binary]
+dj-database-url

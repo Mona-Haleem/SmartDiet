@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
+import dj_database_url
+
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -98,13 +100,21 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DB_NAME = os.environ.get('DB_NAME', 'db.sqlite3')
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / DB_NAME,
+if os.environ.get("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.environ["DATABASE_URL"],
+            conn_max_age=0,
+        )
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / DB_NAME,
+        }
+    }
+
 
 
 # Password validation
