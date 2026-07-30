@@ -21,8 +21,9 @@ from decorator_include import decorator_include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import handler404
-from django.shortcuts import render ,redirect
+from django.shortcuts import render 
 from django.views.static import serve
+from django.views.generic import RedirectView
 
 def custom_404(request, exception):
     return render(request, 'error.html', {
@@ -34,7 +35,7 @@ def custom_404(request, exception):
 handler404 = custom_404
 
 urlpatterns = [
-    path("", lambda request: redirect("diet:index")),
+    path("", RedirectView.as_view(url="/diet/", permanent=False)),
  
     path("diet/", include("core.urls")),
     path(
