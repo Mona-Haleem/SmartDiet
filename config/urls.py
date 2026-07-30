@@ -34,7 +34,7 @@ def custom_404(request, exception):
 handler404 = custom_404
 
 urlpatterns = [
-    path("", lambda request: redirect("diet:home")),
+    path("", lambda request: redirect("diet:index")),
  
     path("diet/", include("core.urls")),
     path(
