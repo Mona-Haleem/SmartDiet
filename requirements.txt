@@ -1,9 +1,10 @@
 #templates 
-#django-bootstrap5
-#django-htmx
+django-bootstrap5
+django-htmx
 django-decorator-include
+djangorestframework
 
-#django-mptt
+django-mptt
 #testing
 
 pytest

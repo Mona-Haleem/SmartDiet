@@ -35,8 +35,8 @@ export default class DayProgress extends Component {
       onSuccess: (ctx) => {
         const data = ctx.data;
         this.$data.planName = data.plan_name || 'No Plan';
-        this.$data.planId = data.planId
-        this.$data.planGoal = data.plan_goal || '';
+        this.$data.planId = data.planId ||this.$data.todayPlans[planType]?.id
+        this.$data.planGoal = data.plan_goal || this.$data.todayPlans[planType]?.goal||'';
         this.$data.currentDay = data.current_day || 1;
         this.$data.planSections = data.plan_sections || [];
         this.$data.metrics = data.metrics || [];
