@@ -6,6 +6,7 @@ from healthHub.models import Plan , Recipe , UserCreation
 from healthHub.models import serializers as serializer
 
 from datetime import timedelta
+import json
 
 class DetailViewsTests(TestCase):
     def setUp(self):
@@ -24,7 +25,7 @@ class DetailViewsTests(TestCase):
                 prep_time=timedelta(minutes=30),
                 serv=2,
                 ingredients=[{"name": "Salt"}],
-                directions="Cook it",
+                directions=[{"type": "p", "content": "Cook it", "effects": []}],
                 nutrients={"calories": 200},        
             )
       
@@ -37,7 +38,7 @@ class DetailViewsTests(TestCase):
                 category="diet",  
                 media=[],
                 notes="some notes",
-                duration=timedelta(hours=1),
+                duration=timedelta(days=7),
                 goal="Lose weight",
                
         )
@@ -61,23 +62,25 @@ class DetailViewsTests(TestCase):
             reverse("recipes", args=[self.recipe.recipe.id, "Test Recipe"])
         )
 
-        data = response.context["data"]
+        data = response.context["ele"]
 
         self.assertIsInstance(data, dict)
         self.assertEqual(data["id"], self.recipe.recipe.id)
         self.assertEqual(data["name"], self.recipe.name)
-        self.assertTrue(data["isOwner"])
-        self.assertEqual(data["media"], ['/static/images/logo.png'])
-        self.assertEqual(data["prep_time"], "0:30:00")
+        self.assertTrue(json.loads(data["isOwner"]))
+        self.assertEqual(data["media"], ['/static/assets/logo.png'])
+        self.assertEqual(data["prep_time"], {"h": 0, "m": 30})
 
     def test_recipe_details_is_owner_false(self):
+        self.recipe.shared = True
+        self.recipe.save()
         self.client.login(username="other", password="Pass456*")
 
         response = self.client.get(
             reverse("recipes", args=[self.recipe.recipe.id, "Test Recipe"])
         )
 
-        self.assertFalse(response.context["data"]["isOwner"])
+        self.assertFalse(json.loads(response.context["ele"]["isOwner"]))
 
     def test_recipe_details_404(self):
         self.client.login(username="owner", password="Pass123*")
@@ -105,23 +108,25 @@ class DetailViewsTests(TestCase):
             reverse("plans", args=[self.plan.plan.id, "Test Plan"])
         )
 
-        data = response.context["data"]
+        data = response.context["ele"]
 
         self.assertIsInstance(data, dict)
         self.assertEqual(data["id"], self.plan.plan.id)
         self.assertEqual(data["name"], self.plan.name)
-        self.assertTrue(data["isOwner"])
-        self.assertEqual(data["media"], ['/static/images/logo.png'])
-        self.assertEqual(data["duration"], "1:00:00")
+        self.assertTrue(json.loads(data["isOwner"]))
+        self.assertEqual(data["media"], ['/static/assets/logo.png'])
+        self.assertEqual(data["duration"], 7)
 
     def test_plan_details_is_owner_false(self):
+        self.plan.shared = True
+        self.plan.save()
         self.client.login(username="other", password="Pass456*")
 
         response = self.client.get(
             reverse("plans", args=[self.plan.plan.id, "Test Plan"])
         )
 
-        self.assertFalse(response.context["data"]["isOwner"])
+        self.assertFalse(json.loads(response.context["ele"]["isOwner"]))
 
     def test_plan_details_404(self):
         self.client.login(username="owner", password="Pass123*")

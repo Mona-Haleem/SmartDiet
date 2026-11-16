@@ -1,0 +1,4 @@
+# Explicit runtime dependencies for reproducible clean test environments.
+-r requirements.txt
+Django==5.2.7
+Pillow>=10.4,<12

@@ -14,7 +14,7 @@ class TestConstructQuery(TestCase):
         request = self.factory.get("/?q=hello&type=plan")
         request.user = self.user
 
-        filters, order = construct_query(request, mode='user')
+        filters, order, exclude = construct_query(request, mode='user')
 
         self.assertEqual(filters, {
             "name__icontains": "hello",
@@ -22,12 +22,13 @@ class TestConstructQuery(TestCase):
             "creator": self.user
         })
         self.assertEqual(order, "-edited")
+        self.assertEqual(exclude, {})
 
     def test_categories_split(self):
         request = self.factory.get("/?categories=a,b,c")
         request.user = self.user
 
-        filters, order = construct_query(request, mode='user')
+        filters, order, exclude = construct_query(request, mode='user')
 
         self.assertEqual(filters["category__in"], ["a", "b", "c"])
 
@@ -35,7 +36,7 @@ class TestConstructQuery(TestCase):
         request = self.factory.get("/?order=created")
         request.user = self.user
 
-        filters, order = construct_query(request, mode='user')
+        filters, order, exclude = construct_query(request, mode='user')
 
         self.assertEqual(order, "created")
 
@@ -43,16 +44,17 @@ class TestConstructQuery(TestCase):
         request = self.factory.get("/")
         request.user = self.user
 
-        filters, order = construct_query(request, mode='shared')
+        filters, order, exclude = construct_query(request, mode='shared')
 
         self.assertIn("shared", filters)
         self.assertTrue(filters["shared"])
+        self.assertEqual(exclude, {"creator": self.user})
 
     def test_ignores_unknown_params(self):
         request = self.factory.get("/?foo=bar&x=123")
         request.user = self.user
 
-        filters, order = construct_query(request, mode='user')
+        filters, order, exclude = construct_query(request, mode='user')
 
         # only creator should be included
         self.assertEqual(filters, {"creator": self.user})

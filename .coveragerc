@@ -1,0 +1,11 @@
+[run]
+branch = True
+source = core,healthHub,users
+omit =
+    */tests/*
+    */migrations/*
+    */fixtures/*
+
+[report]
+show_missing = True
+skip_covered = True

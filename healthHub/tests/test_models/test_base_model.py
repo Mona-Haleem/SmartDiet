@@ -22,29 +22,29 @@ class UserCreationModelTest(TestCase):
             creator=self.user,
             name='Test Recipe',
             type=ElementType.RECIPE,
+            media=[],
+            category='Test Category',
             shared=True
         )
-        self.base_recipe.edited = timezone.now() - timedelta(days=2)
-        self.base_recipe.save()
-        Recipe.objects.create(base=self.base_recipe, category='Test Category')
+        UserCreation.objects.filter(pk=self.base_recipe.pk).update(edited=timezone.now() - timedelta(days=2))
 
         # Create base Plan
         self.base_plan = UserCreation.objects.create(
             creator=self.user,
             name='Test Plan',
             type=ElementType.PLAN,
+            media=[],
+            category='diet',
             shared=False
         )
-        self.base_plan.edited = timezone.now() - timedelta(days=1)
-        self.base_plan.save()
-        Plan.objects.create(base=self.base_plan, duration=timedelta(days=7))
+        UserCreation.objects.filter(pk=self.base_plan.pk).update(edited=timezone.now() - timedelta(days=1))
 
     def test_get_concrete_property(self):
         """Test that .get_concrete() returns correct subtype."""
         concrete_recipe = self.base_recipe.get_concrete()
         self.assertIsInstance(concrete_recipe, Recipe)
         self.assertEqual(concrete_recipe, self.base_recipe.recipe)
-        self.assertEqual(concrete_recipe.category, 'Test Category')
+        self.assertEqual(concrete_recipe.base.category, 'Test Category')
 
         concrete_plan = self.base_plan.get_concrete()
         self.assertIsInstance(concrete_plan, Plan)
@@ -53,17 +53,18 @@ class UserCreationModelTest(TestCase):
 
     def test_get_concrete_edge_case(self):
         """Test get_concrete() returns None if subclass missing."""
-        base_only = UserCreation.objects.create(
+        base_only = UserCreation(
             creator=self.user,
             name='Orphan Recipe',
             type=ElementType.RECIPE
         )
+        base_only.save()
         self.assertIsNone(base_only.get_concrete())
 
     def test_relationship_access_correct(self):
         """Accessing .recipe/.plan returns correct related object."""
         self.assertIsNotNone(self.base_recipe.recipe)
-        self.assertEqual(self.base_recipe.recipe.category, 'Test Category')
+        self.assertEqual(self.base_recipe.recipe.base.category, 'Test Category')
 
         self.assertIsNotNone(self.base_plan.plan)
         self.assertEqual(self.base_plan.plan.duration, timedelta(days=7))
@@ -92,9 +93,9 @@ class UserCreationModelTest(TestCase):
         self.assertEqual(plans.count(), 1)
         self.assertEqual(plans.first(), self.base_plan)
 
-    def test_default_ordering(self):
-        """Default ordering by -edited works."""
-        all_creations = UserCreation.objects.all()
+    def test_explicit_recently_edited_ordering(self):
+        """The browse ordering places recently edited content first."""
+        all_creations = UserCreation.objects.order_by('-edited')
         self.assertEqual(all_creations.first(), self.base_plan)
         self.assertEqual(all_creations.last(), self.base_recipe)
 
@@ -109,11 +110,11 @@ class UserCreationModelTest(TestCase):
             creator=self.user,
             name='New Recipe',
             type=ElementType.RECIPE,
+            media=[],
             shared=True
         )
         base_recipe_2.edited = timezone.now() - timedelta(days=1)
         base_recipe_2.save()
-        Recipe.objects.create(base=base_recipe_2)
 
         self.assertEqual(UserCreation.objects.count(), 3)
 

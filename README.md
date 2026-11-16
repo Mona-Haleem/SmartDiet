@@ -1,5 +1,7 @@
 # SmartDiet - Intelligent Diet & Exercise Planning Application
 
+Testing setup, commands, isolation rules, and current regression status are documented in [docs/TESTING.md](docs/TESTING.md).
+
 ## Overview
 SmartDiet is fundamentally a personal health management and progress tracking system designed to help users create, organize, and discover personalized diet plans, exercise routines, and recipes. Unlike standard tracking apps, SmartDiet features a unique book-inspired user interface that transforms the user experience into a personal and cozy health journal.
 

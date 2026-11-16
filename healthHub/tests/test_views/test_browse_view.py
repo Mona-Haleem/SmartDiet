@@ -82,9 +82,9 @@ class MyTestSetup(TestCase):
         response = self.client.get(reverse('browse'))
         result = response.context[-1]
         data = result["result"]
-        items = data['items']
+        items = json.loads(data['items'])
         for item in items:
-            self.assertEqual(item.creator, self.user1)
+            self.assertEqual(item['creatorId'], self.user1.pk)
 
     def test_shared_mode_discover(self):
         """Discover view returns only shared items"""
@@ -92,33 +92,34 @@ class MyTestSetup(TestCase):
         response = self.client.get(reverse('discover'))
         result = response.context[-1]
         data = result["result"]
-        items = data['items']
+        items = json.loads(data['items'])
         for item in items:
-            self.assertTrue(item.shared)
+            self.assertTrue(item['shared'])
 
     def test_pagination_and_ordering(self):
         """Check pagination works with query params"""
         self.client.login(username='user1', password='Password1*')
-        response = self.client.get(reverse('browse'), {'pageNumber': 1, 'order': 'name'})
+        response = self.client.get(reverse('browse'), {'page': 1, 'order': 'name'})
         self.assertEqual(response.status_code, 200)
         result = response.context[-1]
         data = result["result"]
-        items = data['items'] 
+        items = json.loads(data['items'])
         self.assertTrue(len(items) > 0)
         # Ensure ordering ascending by 'edited'
-        names = [item.name for item in items]
+        names = [item['name'] for item in items]
         self.assertEqual(names, sorted(names))
 
     def test_search_query_param(self):
         """Test filtering by name using 'q'"""
         self.client.login(username='user1', password='Password1*')
-        response = self.client.get(reverse('browse'), {'q': 'Plan'})
+        response = self.client.get(reverse('browse'), {'q': 'recipe 1'})
         result = response.context[-1]
         data = result["result"]
    
-        items = data['items']
+        items = json.loads(data['items'])
+        self.assertGreater(len(items), 0)
         for item in items:
-            self.assertIn('Plan', item.name)
+            self.assertIn('recipe 1', item['name'])
 
     def test_category_filter_param(self):
         """Check filtering by categoryList"""
@@ -127,9 +128,10 @@ class MyTestSetup(TestCase):
         result = response.context[-1]
         data = result["result"]
    
-        items = data['items']
+        items = json.loads(data['items'])
+        self.assertGreater(len(items), 0)
         for item in items:
-            self.assertIn(item.category, ['diet', 'full', 'drinks'])
+            self.assertIn(item['category'], ['diet', 'full', 'drinks'])
 
     def test_type_filter_param(self):
         """Check filtering by type"""
@@ -138,7 +140,8 @@ class MyTestSetup(TestCase):
         result = response.context[-1]
         data = result["result"]
    
-        items = data['items']
+        items = json.loads(data['items'])
+        self.assertGreater(len(items), 0)
         for item in items:
-            self.assertEqual(item.type, 'recipe')
+            self.assertEqual(item['type'], 'recipe')
 

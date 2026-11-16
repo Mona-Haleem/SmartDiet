@@ -7,9 +7,9 @@ export default {
   
   // Module path mapping (adjust to your structure)
   moduleNameMapper: {
-    '^@/(.*)$': './static/$1',
-    '^@helpers/(.*)$': './static/scripts_module/helpers/$1',
-    '^@components/(.*)$': './static/scripts_module/ComponentsClasses/$1'
+    '^@/(.*)$': '<rootDir>/static/$1',
+    '^@helpers/(.*)$': '<rootDir>/static/scripts_module/helpers/$1',
+    '^@components/(.*)$': '<rootDir>/static/scripts_module/ComponentsClasses/$1'
   },
   
   // Transform JS files with babel
@@ -26,6 +26,7 @@ export default {
   // Ignore patterns
   testPathIgnorePatterns: [
     '/node_modules/',
+    '/static/__tests__/e2e/',
     '/venv/',
     '/.pytest_cache/'
   ],
@@ -37,7 +38,8 @@ export default {
     '!static/**/*.test.js',
     '!static/**/*.spec.js',
     '!static/**/*.config.js',
-    '!static/**/node_modules/**'
+    '!static/**/node_modules/**',
+    '!static/scripts_module/unusedScripts/**'
   ],
   
   // Coverage thresholds
@@ -51,7 +53,7 @@ export default {
   },
   
   // Coverage reporters
-  coverageReporters: ['text', 'lcov', 'html'],
+  coverageReporters: ['text', 'lcov', 'html', 'json-summary'],
   
   // Verbose output
   verbose: true,

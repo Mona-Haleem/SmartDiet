@@ -10,6 +10,7 @@ class UserModelTests(TestCase):
             email="test@example.com",
             password="StrongPass!1"
         )
+        self.user.refresh_from_db()
 
     def test_serialize_returns_expected_fields(self):
         data = self.user.serialize()
@@ -21,4 +22,4 @@ class UserModelTests(TestCase):
     def test_str_method_returns_username(self):
         self.assertEqual(str(self.user), "testuser")
 
- 
+

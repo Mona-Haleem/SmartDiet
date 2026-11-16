@@ -303,7 +303,7 @@ describe("QueryService - Integration Tests", () => {
 
   describe("redirect handling", () => {
     it("should handle X-Redirect header", async () => {
-      const handleRedirectSpy = jest.spyOn(queryService, "handleRedirect");
+      const handleRedirectSpy = jest.spyOn(queryService, "handleRedirect").mockImplementation(() => {});
 
       // Mock ApiService.post
       jest.spyOn(apiService, "post").mockResolvedValueOnce({

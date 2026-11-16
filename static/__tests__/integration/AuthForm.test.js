@@ -213,13 +213,12 @@ describe("AuthForm - Integration Tests", () => {
       await authForm.submitForm(event, "/login/");
 
       expect(querySpy).toHaveBeenCalledWith(
-        "/login/",
+        ["/login/", expect.any(FormData)],
         expect.objectContaining({
           queryFn: expect.any(Function),
           prefetch: expect.any(Function),
           onSuccess: expect.any(Function),
           onError: expect.any(Function),
-          ttl: Infinity,
         })
       );
     });

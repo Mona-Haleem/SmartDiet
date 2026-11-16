@@ -27,13 +27,13 @@ class RegisterViewPostTests(TestCase):
             'confirmation': 'NewStrongPassword1!'
         })
         self.assertIn("X-Redirect", response)
-        self.assertEqual(response["X-Redirect"], '/diet/')
+        self.assertEqual(response["X-Redirect"], reverse('profile'))
         self.assertTrue(User.objects.filter(email='newuser@example.com').exists())
         user = User.objects.get(email='newuser@example.com')
         self.assertEqual(user.username, 'newuser') 
         response = self.client.get(self.index_url)
         self.assertTemplateUsed(response, 'index.html')
-        self.assertEqual(response.context['user'].email, 'newuser@example.com')
+        self.assertEqual(response.context['user']['email'], 'newuser@example.com')
     
     def test_register_empty_fields(self):
         """POST /register with empty fields should return 400 with errors"""
