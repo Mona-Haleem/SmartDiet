@@ -10,6 +10,10 @@ import QueryService from "../scripts_module/helpers/fetchData/QueryService.js";
 import EventDelegator from "../scripts_module/helpers/utils/eventDelegations.js";
 import Component from "../scripts_module/ComponentsClasses/Component.js";
 import * as dom from "../scripts_module/helpers/utils/DomUtils.js";
+const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+if (userTimezone) {
+  document.cookie = `smartdiet_timezone=${encodeURIComponent(userTimezone)}; Path=/; SameSite=Lax; Max-Age=31536000`;
+}
 //import AuthForm from "../scripts_module/ComponentsClasses/AuthForm.js";
  
 

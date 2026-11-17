@@ -29,7 +29,9 @@ for (const theme of ['', 'dark']) {
   }
 }
 
-test('@a11y creation dialog contains focus and restores it on Escape', async ({ ownerPage: page }) => {
+for (const theme of ['', 'dark']) {
+test(`@a11y creation dialog contains focus and restores it on Escape in ${theme || 'light'} theme`, async ({ ownerPage: page }, testInfo) => {
+  await page.addInitScript(value => localStorage.setItem('theme', value), theme);
   await page.goto('/diet/collections/browse/');
   const opener = page.locator('#add');
   await opener.click();
@@ -37,11 +39,34 @@ test('@a11y creation dialog contains focus and restores it on Escape', async ({ 
   await expect(dialog).toBeVisible();
   await expect(dialog).toContainText('Basic Information');
   await expect.poll(() => dialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
+  const enabled = dialog.locator('button:visible:enabled, input:visible:enabled, select:visible:enabled, textarea:visible:enabled, a[href]:visible');
+  await enabled.last().focus();
+  await page.keyboard.press('Tab');
+  await expect.poll(() => dialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
+  await enabled.first().focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect.poll(() => dialog.evaluate(element => element.contains(document.activeElement))).toBe(true);
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+  await testInfo.attach('axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
   expect(scan.violations).toEqual([]);
+  if (theme === 'dark' && testInfo.project.name === 'mobile-chromium') {
+    const path = testInfo.outputPath('dialog-preview.png');
+    await page.screenshot({ path }); await testInfo.attach('dialog-preview', { path, contentType: 'image/png' });
+  }
   await page.keyboard.press('Escape');
   await expect(dialog).not.toBeVisible();
   await expect(opener).toBeFocused();
+});
+}
+
+test('@a11y details tabs can be activated with the keyboard', async ({ ownerPage: page, seed }) => {
+  await page.goto(`/diet/collections/recipes/${seed.recipe.id}/${encodeURIComponent(seed.recipe.name)}/`);
+  const notes = page.getByRole('button', { name: 'Notes', exact: true });
+  await notes.focus(); await page.keyboard.press('Enter');
+  await expect(page.locator('section.ele-info[x-show="activeTab === \'notes\'"]')).toBeVisible();
+  await expect(notes).toHaveClass(/active/);
+  const info = page.getByRole('button', { name: /info$/i }); await info.focus(); await page.keyboard.press('Enter');
+  await expect(info).toHaveClass(/active/);
 });
 
 test('@a11y calendar dates can be reached and selected with the keyboard', async ({ ownerPage: page, seed }) => {
@@ -66,4 +91,18 @@ test('@a11y login reflows at 320 CSS pixels with reduced motion', async ({ page 
   expect(box.x).toBeGreaterThanOrEqual(0);
   expect(box.x + box.width).toBeLessThanOrEqual(321);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(321);
+});
+
+test('@a11y profile fields remain reachable at 320 CSS pixels', async ({ ownerPage: page }, testInfo) => {
+  await page.setViewportSize({ width: 320, height: 780 });
+  await page.goto('/diet/users/profile/');
+  for (const [section, field] of [['Show personal information', 'Birth date'], ['Show lifestyle information', 'Daily fluid intake in liters']]) {
+    await page.getByRole('button', { name: section, exact: true }).click();
+    const input = page.getByLabel(field, { exact: true }); await expect(input).toBeVisible();
+    const box = await input.boundingBox(); expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(321);
+  }
+  if (testInfo.project.name === 'mobile-chromium') {
+    const path = testInfo.outputPath('profile-preview.png');
+    await page.screenshot({ path }); await testInfo.attach('profile-preview', { path, contentType: 'image/png' });
+  }
 });

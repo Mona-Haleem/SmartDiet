@@ -1,7 +1,4 @@
-import { queryService, cache } from "../../common/script.js";
-import DietEle from "./DietEle.js";
-import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
-import MediaManager from "./detailsPage/mediaManager.js";
+import { queryService } from "../../common/script.js";
 export default class SectioEditor {
   constructor(sectionDict) {
     this.sectionDict = sectionDict;
@@ -87,7 +84,7 @@ export default class SectioEditor {
           newParent?.data.subSections.push(eleObj.data);
           if (oldParent)
             oldParent.data.subSections = oldParent?.data.subSections.filter(
-              (ele) => (ele.id = sectionId)
+              (ele) => String(ele.id) !== String(sectionId)
             );
           this.sectionDict[sectionId].parentId = parentId;
         }
@@ -98,6 +95,7 @@ export default class SectioEditor {
               .filter(([key, value]) => !value.parentId)
               .map(([key, value]) => value.data);
         const eleData = this.sectionDict[sectionId].data;
+        eleData.order = order;
         for (let i = 0; i < eleSiblings.length; i++) {
           if (
             eleSiblings[i].id !== eleData.id &&
@@ -170,7 +168,6 @@ export default class SectioEditor {
         if (!newEl) throw new Error("No valid root element in template");
         if (targetRelation == "parent") {
           targetEle.appendChild(newEl);
-          this.sectionDict[parentId].data.subSections.push(eleData);
         } else {
           targetEle.insertAdjacentElement("afterend", newEl);
         }
@@ -226,13 +223,17 @@ export default class SectioEditor {
       onSuccess: (ctx) => {
         console.log("sucess", ctx.data);
         eleRef.remove();
-        delete this.sectionDict[id];
-        for (const key in this.sectionDict) {
-          if (this.sectionDict[key].parentId == id) {
-            delete this.sectionDict[key];
+        const removed = [String(id)];
+        for (let i = 0; i < removed.length; i++) {
+          for (const [key, section] of Object.entries(this.sectionDict)) {
+            if (String(section.parentId) === removed[i]) removed.push(key);
           }
         }
-        data.details = ctx.data.detials;
+        for (const key of removed) delete this.sectionDict[key];
+        data.ele.details = ctx.data.details;
+        for (const [key, section] of Object.entries(this.sectionDict)) {
+          section.data = this._getSectionData(data.ele.details, key);
+        }
         let page = eleObj.sectionNavigator.getSectionPage(
           `section-${id}`,
           eleObj.mode

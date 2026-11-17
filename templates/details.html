@@ -7,7 +7,7 @@
 <script defer type="module" src="{% static 'details/script.js' %}"></script>
 {% endblock %} 
 
-{% block title %}{% endblock %} 
+{% block title %}{{ ele.name }} | SmartDiet{% endblock %}
 
 {% block body%}
   <input type="hidden" id="csrf_token" value="{{ csrf_token }}">

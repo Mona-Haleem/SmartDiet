@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 import os
 from django.conf import settings
 from datetime import date#,timedelta
+from django.utils import timezone
 
 GENDER_CHOICES = [
         ('M', 'Male'),
@@ -75,7 +76,7 @@ class User(AbstractUser):
 
     @property
     def age(self):
-        today = date.today()
+        today = timezone.localdate()
         return today.year - self.birth_date.year - ((today.month, today.day) < (self.birth_date.month, self.birth_date.day))
     
     def image_exists(self):

@@ -18,6 +18,7 @@ django.setup()
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
+from django.utils import timezone
 
 from core.models import DailyAchivedMetrics, Metric, TrackedMetrics, UserLog
 from healthHub.models import PlanDetail, UserCreation
@@ -54,10 +55,10 @@ def seed():
         root = PlanDetail.objects.create(plan=plan, section="Day 1", order=1)
         PlanDetail.objects.create(plan=plan, parent_section=root, section="Morning", order=1,
             detail=[{"type": "p", "content": "Complete today's routine", "effects": []}])
-        UserLog.objects.create(user=owner, plan=plan, date=date.today())
+        UserLog.objects.create(user=owner, plan=plan, date=timezone.localdate())
     metric = Metric.objects.create(user=owner, name="Water", type="daily")
     tracker = TrackedMetrics.objects.create(metric=metric, target=2000, start=0, linkedPlan=diet)
-    log = UserLog.objects.get(user=owner, plan=diet, date=date.today())
+    log = UserLog.objects.get(user=owner, plan=diet, date=timezone.localdate())
     DailyAchivedMetrics.objects.create(log=log, metric=tracker, value=1000)
     data = {
         "owner": {"username": owner.username, "email": owner.email, "password": password},
@@ -67,7 +68,7 @@ def seed():
         "diet": {"id": diet.pk, "name": diet.base.name},
         "exercise": {"id": exercise.pk, "name": exercise.base.name},
         "full": {"id": full.pk, "name": full.base.name},
-        "today": date.today().isoformat(),
+        "today": timezone.localdate().isoformat(),
     }
     (expected.parent / "seed.json").write_text(json.dumps(data), encoding="utf-8")
 

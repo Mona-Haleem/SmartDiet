@@ -19,7 +19,7 @@ export default class NavigationManager {
   }
   static onPopState(callback) {
     if (typeof callback !== "function") return;
-    window.addEventListener("popstate", (event) => {
+    const handler = (event) => {
       event.preventDefault();
       console.log(this.$el);
       callback({
@@ -29,7 +29,9 @@ export default class NavigationManager {
         search: window.location.search,
         hash: window.location.hash,
       });
-    });
+    };
+    window.addEventListener("popstate", handler);
+    return () => window.removeEventListener("popstate", handler);
   }
   // init() {
   //   if (this.isListening) return;

@@ -2,3 +2,5 @@
 -r requirements.txt
 Django==5.2.7
 Pillow>=10.4,<12
+# External-service guards import the SDK even when local media storage is used.
+cloudinary==1.45.0

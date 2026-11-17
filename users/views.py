@@ -12,6 +12,8 @@ from users.forms.login_form import LoginForm
 from users.forms.register_form import RegisterForm
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
 
 import json
 # Create your views here.
@@ -85,7 +87,7 @@ def logout_user(request):
 def profile(request):
     print("-------gettting users -------------")
     user = User.objects.get(email=request.user.email)
-    restrictions = UserRestriction.objects.all()
+    restrictions = UserRestriction.objects.filter(user=request.user)
     medicalRestrictions = MedicalIssues.objects.all().order_by("category","name_en")
     print("-----user------\n",user)
     return render(request,"profile.html",{
@@ -112,13 +114,25 @@ def profileUpdate(request):
             image_url = update_profile_image(avatar_img, request)
             return JsonResponse({'image_url': image_url}, status=200)
     elif request.method == 'PATCH':
-        data = json.loads(request.body)
+        try:
+            data = json.loads(request.body)
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+        allowed = {"username", "birth_date", "gender", "weight", "height", "activity_level",
+                   "fluid_intake", "sleep_quality", "sleep_duration"}
+        if not isinstance(data, dict) or not data or set(data) - allowed:
+            return JsonResponse({'error': 'Unsupported profile field'}, status=400)
         if 'username' in data:
+            if len(data) != 1:
+                return JsonResponse({'error': 'Update username separately'}, status=400)
             username = data['username']
             msg, status = update_username(username,request.user)
             return JsonResponse(msg ,status = status)         
         else :
-            age  = update_profile_data(request)
+            try:
+                age = update_profile_data(request)
+            except (ValidationError, ValueError, TypeError) as error:
+                return JsonResponse({'error': str(error)}, status=400)
             if age :
                 return JsonResponse({'age': age}, status=200)
             
@@ -168,7 +182,7 @@ class restrictionsManger(View):
         else:
             issue = None
             name = data.get("name")
-        restriction = UserRestriction.objects.get(id=id)
+        restriction = get_object_or_404(UserRestriction, id=id, user=request.user)
         restriction.name = name
         restriction.remark = remark
         restriction.ref = issue
@@ -179,7 +193,7 @@ class restrictionsManger(View):
 
     def delete(self, request, id):
         try:
-            info  = UserRestriction.objects.get(id=id)
+            info = get_object_or_404(UserRestriction, id=id, user=request.user)
             info.delete()
         except UserRestriction.DoesNotExist:
             return JsonResponse({"error": "Section not found"}, status=404)

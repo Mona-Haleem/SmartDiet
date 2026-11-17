@@ -1,53 +1,57 @@
 <section class="px-3">
   <ul class="nav nav-tabs mt-5" style="flex-wrap: nowrap">
     <li class="nav-item">
-      <p
+      <button type="button"
         class="nav-link"
-        aria-current="page"
+        :aria-pressed="activeTab === 'info'"
         :class="{ 'active': activeTab === 'info' }"
         @click="activeTab = 'info'"
       >
         <span class="d-none d-sm-inline">{{ele.type|capfirst}}</span> info
-      </p>
+      </button>
     </li>
     <li class="nav-item">
-      <p
+      <button type="button"
         class="nav-link"
         :class="{ 'active': activeTab === 'notes' }"
+        :aria-pressed="activeTab === 'notes'"
         @click="activeTab = 'notes'"
       >
         Notes
-      </p>
+      </button>
     </li>
     {% if ele.type == 'plan' %}
     <li class="nav-item">
-      <p
+      <button type="button"
         class="nav-link"
         :class="{ 'active': activeTab === 'metrics' }"
+        :aria-pressed="activeTab === 'metrics'"
         @click="activeTab = 'metrics'"
       >
         Goals
-      </p>
+      </button>
     </li>
     {% endif %} {% if ele.category != 'exercise' and ele.nutrients %}
     <li class="nav-item">
-      <p
+      <button type="button"
         class="nav-link"
         :class="{ 'active': activeTab === 'nutrients' }"
+        :aria-pressed="activeTab === 'nutrients'"
         @click="activeTab = 'nutrients'"
       >
         Nurtients
-      </p>
+      </button>
     </li>
     {% endif %} {% if ele.metrics %}
     <li class="nav-item">
-      <p
+      <button type="button"
         class="nav-link"
         :class="{ 'active': activeTab === 'metrics' }"
+        :aria-pressed="activeTab === 'metrics'"
         @click="activeTab = 'metrics'"
       >
         Metrics
-      </p>
+      </button>
     </li>
     {% endif %}
   </ul>

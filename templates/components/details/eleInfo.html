@@ -21,6 +21,7 @@
       <input
         :disabled="ele.isOwner!=='true'"
         name="servings"
+        aria-label="Servings"
         type="number"
         class="display-input"
         x-model="ele.serv"
@@ -39,6 +40,7 @@
         type="number"
         class="display-input"
         x-model="ele.prep_time.h"
+        aria-label="Preparation time in hours"
         value="{{ ele.prep_time.h }}"
         @change="eleObj.updatePrepTime($event.target, true)"
       />
@@ -50,6 +52,7 @@
         type="number"
         class="display-input"
         x-model="ele.prep_time.m"
+        aria-label="Preparation time in minutes"
         value="{{ ele.prep_time.m }}"
         @change="eleObj.updatePrepTime($event.target, false)"
         style="left: 123px"
@@ -67,6 +70,7 @@
         :disabled="ele.isOwner!=='true'"
         type="number"
         class="hiddenNum"
+        aria-label="Plan duration in days"
         @change="eleObj.updateDuration($event.target)"
         x-model="ele.duration"
         value="ele.duration"

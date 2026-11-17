@@ -30,6 +30,7 @@ export default class PeriodProgress extends Component {
           const data = ctx.data;
           // this.$data.metricsData = data.metrics || [];
           this.chartData = data.chart_data || [];
+          this.$data.chartRows = this.chartData;
 
           // Calculate achievement for each metric
           this.$data.metricsData =

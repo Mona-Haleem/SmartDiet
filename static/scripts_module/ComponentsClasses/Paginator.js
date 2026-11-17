@@ -8,9 +8,8 @@ export default class Paginator {
 
   async paginateTo(direction) {
     let result;
-    if (this.pageClass?.mode && this.pageClass.mode == 2)
-      this.data.page =
-        direction == "next" ? ++this.data.page : --this.data.page;
+    if (!this.pageClass) return;
+    if ((direction === "next" && !this.data.next) || (direction === "prev" && !this.data.prev)) return;
 
     if (direction === "next" && this.data.next) {
       this.data.page += 1;
@@ -20,13 +19,15 @@ export default class Paginator {
       result = await this.pageClass?.onPaginate("prev", this.data.page);
     } else {
       result = await this.pageClass?.onPaginate(direction, direction);
-      this.data.page = result.page ?? direction;
+      this.data.page = result?.page ?? direction;
     }
     console.log(result);
+    if (!result) return;
     const { next, prev } = result;
     this.data.next = next;
     this.data.prev = prev;
     if (result.activeSection) {
+      this.activeSection ??= {};
       this.activeSection.activeSection = result.activeSection.activeSection;
       this.activeSection.activeId = result.activeSection.activeId;
     }
@@ -40,6 +41,7 @@ export default class Paginator {
     this.data.prev = paginatorData.prev ?? this.data.prev;
     this.data.page = paginatorData.page ?? this.data.page;
     if (paginatorData.activeSection) {
+      this.activeSection ??= {};
       this.activeSection.activeSection =
         paginatorData.activeSection.activeSection;
       this.activeSection.activeId = paginatorData.activeSection.activeId;

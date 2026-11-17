@@ -30,11 +30,11 @@ class Plan(models.Model):
         if self.base.category == PlanType.FULL:
             linked = getattr(self, "linked_plan", None)
             if not linked:
-                return {}
-            return {
-                "diet_plan": linked.diet_plan.get_details() if linked.diet_plan else [],
-                "exercise_plan": linked.exercise_plan.get_details() if linked.exercise_plan else [],
-            }
+                return []
+            return [
+                *(linked.diet_plan.get_details() if linked.diet_plan else []),
+                *(linked.exercise_plan.get_details() if linked.exercise_plan else []),
+            ]
         
         plan_details = (
             PlanDetail.objects
@@ -80,9 +80,9 @@ class Plan(models.Model):
 
             # Pattern 2: Specific list "Day 1, 3, 5" or just "Day 1"
             # Finds all numbers following "day" or inside the string
-            if 'day' in title:
-                # Extract all numbers from the title
-                days_in_title = [int(n) for n in re.findall(r'\d+', title)]
+            day_match = re.search(r'\bdays?\s*(\d+(?:\s*,\s*\d+)*)', title)
+            if day_match and not range_match:
+                days_in_title = [int(n) for n in re.findall(r'\d+', day_match.group(1))]
                 if day_number in days_in_title:
                     daily_content.append(section)
                     found_day = True

@@ -6,7 +6,8 @@ export default class Calendar extends Component {
     super(el, refs, data);
     this.currentDate = new Date();
     this.selectedDate = new Date();
-    this.userStartDate = new Date(startDate);
+    this.selectedDate.setHours(0, 0, 0, 0);
+    this.userStartDate = startDate ? new Date(`${startDate}T00:00:00`) : null;
     this.plansData = {};
     this.$data.weeks = [];
     this._init();
@@ -107,9 +108,9 @@ export default class Calendar extends Component {
   selectDay(day) {
     // if (!day.isCurrentMonth) return;
     console.log("selected day", day);
-    this.selectedDate = new Date(day.date);
+    this.selectedDate = new Date(`${day.date}T00:00:00`);
     this.$data.selectedDate = day.date;
-    // this.generateCalendar();
+    this.generateCalendar();
     // Switch to day view and right page on mobile
     this.$data.currentView = "day";
     this.$data.selectedPeriod = "day";
@@ -126,6 +127,7 @@ export default class Calendar extends Component {
   previousMonth() {
     if (!this.canGoPrevious()) return;
 
+    this.currentDate.setDate(1);
     this.currentDate.setMonth(this.currentDate.getMonth() - 1);
     this.fetchPlansData();
     this.updateNavigationButtons();
@@ -134,6 +136,7 @@ export default class Calendar extends Component {
   nextMonth() {
     if (!this.canGoNext()) return;
 
+    this.currentDate.setDate(1);
     this.currentDate.setMonth(this.currentDate.getMonth() + 1);
     this.fetchPlansData();
     this.updateNavigationButtons();

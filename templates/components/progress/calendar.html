@@ -4,11 +4,11 @@
   x-init="$nextTick(() => calendar = new Calendar($el, $refs, $data,'{{startDate}}'))"
 >
   <div class="calendar-header">
-    <button class="nav-btn" @click="calendar.previousMonth()" x-ref="prevBtn">
+    <button class="nav-btn" aria-label="Previous month" @click="calendar.previousMonth()" x-ref="prevBtn">
       <i class="fas fa-chevron-left"></i>
     </button>
     <h3 class="month-year" x-text="$data.calendarHeader" x-ref="monthYear"></h3>
-    <button class="nav-btn" @click="calendar.nextMonth()" x-ref="nextBtn">
+    <button class="nav-btn" aria-label="Next month" @click="calendar.nextMonth()" x-ref="nextBtn">
       <i class="fas fa-chevron-right"></i>
     </button>
   </div>
@@ -26,8 +26,11 @@
       <template x-for="week in $data.weeks" :key="week.id">
         <div class="week-row">
           <template x-for="day in week.days" :key="day.date">
-            <div
+            <button type="button"
               class="calendar-day"
+              :aria-label="day.date + (day.hasPlan ? ', plan assigned' : '')"
+              :aria-current="day.isToday ? 'date' : null"
+              :aria-pressed="day.date === $data.selectedDate"
               :class="{
                  'other-month': !day.isCurrentMonth,
                  'today': day.isToday,
@@ -48,12 +51,12 @@
                 <span
                   class="plan-badge exercise text-nowrap"
                   x-show="day.plans.exercise"
-                  x-text="'E Day ' + day.plans.dietDay"
+                  x-text="'E Day ' + day.plans.exerciseDay"
 
                   :title="'Exercise Day ' + day.plans.exerciseDay +':' + day.plans.exercise?.plan_name"
                 ></span>
               </div>
-            </div>
+            </button>
           </template>
         </div>
       </template>

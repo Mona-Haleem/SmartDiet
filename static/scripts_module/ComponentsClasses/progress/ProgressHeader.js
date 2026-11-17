@@ -38,17 +38,12 @@ export default class ProgressHeader extends Component {
     if (period === 'day' && window.dayProgress) {
       window.dayProgress.loadDayData(this.$data.selectedDate);
     } else if (window.periodProgress) {
-      window.periodProgress.loadPeriodData();
+      await window.periodProgress.loadPeriodData();
+      window.periodProgress.getSummary();
     }
     
     // Fetch new avg score
     this.fetchAvgScore();
-    if(period !== 'day'){
-      await periodProgress.loadPeriodData();
-      periodProgress.getSummary();
-    }else{
-
-    }
   }
 
   async fetchAvgScore() {
@@ -61,7 +56,7 @@ export default class ProgressHeader extends Component {
       queryFn: queryService.createQueryFn(url, 'get'),
       onSuccess: (ctx) => {
           const score = ctx.data.avgScore
-            this.$data.avgScore = score ? Math.round(score) : '--';
+            this.$data.avgScore = Number.isFinite(score) ? Math.round(score) : '--';
       },
       ttl: 2 * 60 * 1000,
       force:selectedPeriod == 'day'

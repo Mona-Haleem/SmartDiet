@@ -3,7 +3,7 @@ def validate_image(img):
     error =''
     if img.content_type not in valid_img_types:
         error = 'Unsupported file type.'
-        return False , 
+        return False, error
     # Validate file size 
     max_size = 5 * 1024**2
     if img.size > max_size:
@@ -12,4 +12,4 @@ def validate_image(img):
     if error:
         return False , error
     else:
-        return True,None   
+        return True, None

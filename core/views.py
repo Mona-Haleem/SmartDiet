@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.template import loader
 from users.models import User
 from users.forms import login_form , register_form
@@ -17,7 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import make_aware
 from django.db.models import Prefetch
 from core.helpers.helpers import get_period_range
-from django.db.models import Avg, Q, F
+from django.db.models import Avg, Q, F, Min
 from django.utils import timezone
 import json
 from collections import defaultdict
@@ -43,7 +43,7 @@ def index(request,slug="login"):
         exercies_plan = get_current_plan(request.user, "exercise")
         plans = {
             "diet": serializers.plan([diet_plan],request)[0] if diet_plan else {},
-            "exercise":serializers.plan([exercies_plan],request)[0] if diet_plan else {}
+            "exercise":serializers.plan([exercies_plan],request)[0] if exercies_plan else {}
         }
         print("plans:===========>",
               #plans,
@@ -69,7 +69,7 @@ def logs(request):
     if userLogs and userLogs[0]:
         start_date = userLogs[0].date.strftime('%Y-%m-%d')
     else:
-        start_date = date.today()
+        start_date = timezone.localdate().isoformat()
 
     allPlans = list(
         Plan.objects.filter(base__creator=request.user)
@@ -87,24 +87,28 @@ def logs(request):
         "recipeCategories":[""]
     })
 
+@login_required
 def assignedPlans(request):
 
-    year = int(request.GET.get('year', date.today().year))
-    month = int(request.GET.get('month', date.today().month))
+    year = int(request.GET.get('year', timezone.localdate().year))
+    month = int(request.GET.get('month', timezone.localdate().month))
 
     first_day = date(year, month, 1)
     last_day = date(year, month, monthrange(year, month)[1])
 
-    logs = UserLog.objects.filter(
+    logs = list(UserLog.objects.filter(
         user=request.user,
         date__gte=first_day,
         date__lte=last_day
-    ).select_related('plan__base').order_by('date')
-
-
+    ).select_related('plan__base').order_by('date', 'pk'))
+    starts = dict(UserLog.objects.filter(
+        user=request.user, plan_id__in={log.plan_id for log in logs if log.plan_id}
+    ).values('plan_id').annotate(start=Min('date')).values_list('plan_id', 'start'))
     plans_data = {}
 
     for log in logs:
+        if log.plan is None:
+            continue
 
         date_str = log.date.isoformat()
         plan_category = log.plan.base.category
@@ -117,34 +121,13 @@ def assignedPlans(request):
                 'exerciseDay': None
             }
 
-        plan_start = UserLog.objects.filter(
-            user=request.user,
-            plan=log.plan
-        ).order_by('date').first()
-
-        if plan_start:
-            day_number = (log.date - plan_start.date).days + 1
-        else:
-            day_number = 1
-
-
-        if plan_category == 'diet' or plan_category == 'exercise':
-            plans_data[date_str][plan_category] = {
-                "plan_name" :log.plan.base.name ,
-                "plan_id":log.plan.id
-                }
-            plans_data[date_str]['dietDay'] = day_number
-        elif plan_category == 'full':
-            plans_data[date_str]['diet'] = True
-            plans_data[date_str]['dietDay'] = {
-                "plan_name" :log.plan.base.name ,
-                "plan_id":log.plan.id
-                }
-            plans_data[date_str]['exercise'] = True
-            plans_data[date_str]['exerciseDay'] = {
-                "plan_name" :log.plan.base.name ,
-                "plan_id":log.plan.id
-                }
+        day_number = (log.date - starts[log.plan_id]).days + 1
+        categories = ('diet', 'exercise') if plan_category == 'full' else (plan_category,)
+        for category in categories:
+            plans_data[date_str][category] = {
+                "plan_name": log.plan.base.name, "plan_id": log.plan_id,
+            }
+            plans_data[date_str][f'{category}Day'] = day_number
 
 
     return JsonResponse({'plans': plans_data})
@@ -155,7 +138,7 @@ def avgScore(request):
 
     plan_type = request.GET.get('type', 'diet')
     period = request.GET.get('period', 'month')
-    date_str = request.GET.get('date', date.today().isoformat())
+    date_str = request.GET.get('date', timezone.localdate().isoformat())
 
 
     selected_date = datetime.fromisoformat(date_str).date()
@@ -222,7 +205,7 @@ def dayaData(request):
         return JsonResponse({"error": "Invalid date format"}, status=400)
 
     dayLogs = UserLog.objects.filter(user=request.user, date=day_date).select_related("plan", "plan__base")
-    log = dayLogs.filter(plan__base__category=plan_type).first()
+    log = dayLogs.filter(plan__base__category__in=[plan_type, 'full']).first()
     other= dayLogs.exclude(plan__base__category=plan_type).first()
 
     planData = {
@@ -232,7 +215,8 @@ def dayaData(request):
         "plan_sections":[],
         
     } 
-    if not log and day_date == date.today():
+    plan = None
+    if not log and day_date == timezone.localdate():
         plan = get_current_plan(request.user,plan_type)
     elif log:
         plan = log.plan
@@ -245,6 +229,8 @@ def dayaData(request):
                 return JsonResponse({"error": "Linked plan missing"}, status=404)
 
             plan = linked.diet_plan if plan_type == 'diet' else linked.exercise_plan
+            if plan is None:
+                return JsonResponse({"error": "Linked plan missing"}, status=404)
 
         start_log = (
             UserLog.objects
@@ -258,6 +244,7 @@ def dayaData(request):
         plan_sections = plan.get_daily_schedule(current_day)
 
         planData = {
+            "planId": plan.pk,
             "plan_name": plan.base.name,
             "plan_goal": plan.goal,
             "current_day": current_day,
@@ -345,7 +332,9 @@ def dayaData(request):
         })
 
 
-    achieved_metrics = DailyAchivedMetrics.objects.filter(log=log)
+    achieved_metrics = DailyAchivedMetrics.objects.filter(log=log).select_related(
+        'metric__metric', 'metric__linkedPlan__base'
+    )
 
     metrics = []
     for entry in achieved_metrics:
@@ -373,6 +362,7 @@ def dayaData(request):
         "unusedMetrics":list(unused_metrics)
     })
 
+@login_required
 def period_progress_view(request):
 
     user = request.user
@@ -399,8 +389,8 @@ def period_progress_view(request):
         prev_end_date = start_date - timedelta(days=1)
         prev_start_date = prev_end_date.replace(day=1)
     elif period =='year':
-        prev_end_date = start_date - timedelta(days=365)
-        prev_start_date = prev_end_date.replace(day=1)
+        prev_end_date = start_date - timedelta(days=1)
+        prev_start_date = prev_end_date.replace(month=1, day=1)
     else:
         # Default fallback for daily or other
         prev_end_date = start_date - timedelta(days=1)
@@ -411,7 +401,9 @@ def period_progress_view(request):
     logs = UserLog.objects.filter(
         user=user,
         date__range=(start_date, end_date)
-    ).order_by("date")
+    ).order_by("date").prefetch_related(Prefetch(
+        'AchivedMetrics', queryset=DailyAchivedMetrics.objects.select_related('metric__metric')
+    ))
     
     # Also fetch previous logs to find metrics recorded in the past
     prev_logs = UserLog.objects.filter(
@@ -492,6 +484,10 @@ from django.views.decorators.http import require_http_methods
 from django.shortcuts import get_object_or_404
 
 from core.helpers.assigned_plans import set_plan, get_current_plan
+
+
+def history_is_editable(day):
+    return 0 <= (timezone.localdate() - day).days <= 30
 
 
 @login_required
@@ -683,6 +679,8 @@ def update_feedback(request):
             return JsonResponse({'error': 'Date is required'}, status=400)
         
         day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+        if not history_is_editable(day_date):
+            return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
         
         # Get or create log
         log = UserLog.objects.filter(
@@ -696,8 +694,7 @@ def update_feedback(request):
                 plan__base__category__in=[plan_type, 'full']
             ).order_by('-date').first()
             
-            if latest_log:
-                plan = latest_log.plan
+            plan = latest_log.plan if latest_log else None
             # Create a log without a plan if none exists
             log = UserLog.objects.create(
                 user=request.user,
@@ -744,7 +741,17 @@ def update_metric_value(request, metric_id):
         if date_str:
             day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
         else:
-            day_date = date.today()
+            day_date = timezone.localdate()
+        if not history_is_editable(day_date):
+            return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
+        if tracked_metric.metric.type == 'scale':
+            try:
+                number = float(value)
+                if not number.is_integer() or not 1 <= number <= 5:
+                    raise ValueError
+                value = int(number)
+            except (TypeError, ValueError, OverflowError):
+                return JsonResponse({'error': 'Scale value must be an integer from 1 to 5'}, status=400)
         
         # Try to find existing log for this date and plan type
         log = UserLog.objects.filter(
@@ -921,7 +928,9 @@ def set_current_plan(request):
         if start_date_str:
             start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
         else:
-            start_date = date.today()
+            start_date = timezone.localdate()
+        if start_date < timezone.localdate():
+            return JsonResponse({'error': 'Plans must start today or later'}, status=400)
         print("replace",replace,start_date)
         # Use helper function to set plan
         set_plan(request.user, plan, start_date, True, replace)

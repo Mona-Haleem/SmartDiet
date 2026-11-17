@@ -6,7 +6,7 @@ export default class Profile extends Component {
     super(el, refs, data);
     this._init();
     this.customRefs = {};
-    window.addEventListener("resize", () => {
+    this.addEventListener(window, "resize", () => {
       if (window.innerWidth <= 992) {
         this.$data.full = false;
         this.collapseLine = 7;
@@ -60,7 +60,7 @@ export default class Profile extends Component {
         this.$data.editMode = false;
       },
       () => {
-        if (!input.classList.includes("invalid")) {
+        if (!input.classList.contains("invalid")) {
           input.classList.add("invalid");
           input.focus();
         } else {
@@ -86,7 +86,7 @@ export default class Profile extends Component {
 
   addRestriction(type) {
     if (this.$data.isAdding) return;
-    this.isAdding = true;
+    this.$data.isAdding = true;
     this.$data.user.restrictions.push({
       id: "temp",
       type: type,
@@ -99,7 +99,7 @@ export default class Profile extends Component {
       this.$data.user.restrictions.length > this.collapseLine;
     this.$data.activeType = type;
     setTimeout(()=>{
-      this.customRefs["temp"]["name"]?.focus();
+      this.customRefs["temp"]?.name?.focus();
 
     },10)
   }

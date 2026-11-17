@@ -30,7 +30,8 @@ export default class QueryService {
       force = false,
     } = options;
 
-    let entry = this.cache.get(queryKey);
+    const cacheable = !queryFn?.method || queryFn.method === "get";
+    let entry = cacheable ? this.cache.get(queryKey) : null;
     
     const controller = new AbortController();
 
@@ -87,13 +88,14 @@ export default class QueryService {
     // 5️⃣ Mark loading
     context.stage = "loading";
     context.isFetching = true;
-    this.cache.setFetching(queryKey, true);
+    if (cacheable) this.cache.setFetching(queryKey, true);
     onLoading?.(context);
 
     // 6️⃣ Execute queryFn with same context
     try {
       context.stage = "fetching";
       const response = await queryFn(context);
+      context.response = response;
       if (!response.ok) {
         const msg =
           typeof response.data === "object" && response.data?.message
@@ -110,13 +112,18 @@ export default class QueryService {
 
       onSuccess?.(context);
       // cache and notify
-      this.cache.set(queryKey,  context.data, { ttl });
+      if (cacheable) this.cache.set(queryKey, context.data, { ttl });
 
       return context.data;
     } catch (error) {
       context.error = error;
       context.stage = "error";
-      this.cache.setFetching(queryKey, false, { error });
+      if (entry && entry.data !== null) {
+        this.cache.setFetching(queryKey, false, { error });
+        this.cache.invalidate(queryKey);
+      } else {
+        this.cache.remove(queryKey);
+      }
       onError?.(context);
       console.log(error)
       // throw error;
@@ -133,10 +140,12 @@ export default class QueryService {
       throw new Error(`Invalid ApiService method: ${method}`);
     }
 
-    return async (context) => {
+    const queryFn = async (context) => {
       console.log("beforr api service");
 
-      const result = await this.apiService[apiMethod](url, context?.body || body,{ signal: context.signal });
+      const result = apiMethod === "delete"
+        ? await this.apiService.delete(url, { signal: context.signal })
+        : await this.apiService[apiMethod](url, context?.body ?? body, { signal: context.signal });
       console.log("after api service");
 
       // You can even modify context here if needed
@@ -145,6 +154,8 @@ export default class QueryService {
       context.ok = result.ok;
       return result;
     };
+    queryFn.method = apiMethod;
+    return queryFn;
   }
 
   handleRedirect(response) {

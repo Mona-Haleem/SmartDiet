@@ -4,7 +4,7 @@ from unittest.mock import Mock
 import pytest
 from django.urls import reverse
 
-from healthHub.models import UserCreation
+from healthHub.models import UserCreation, PlanDetail
 
 pytestmark = [pytest.mark.django_db, pytest.mark.integration]
 
@@ -63,3 +63,20 @@ def test_full_plan_cannot_reference_another_users_private_plan(client, user, pla
     }, content_type="application/json")
     assert not UserCreation.objects.filter(creator=user, name="Foreign link").exists()
     assert response.status_code in {400, 403, 404}
+
+
+@pytest.mark.parametrize("with_children", [False, True])
+def test_full_plan_details_render_as_a_section_tree(client, user, plan_factory, with_children):
+    links = {}
+    if with_children:
+        for category in ("diet", "exercise"):
+            child = plan_factory(creator=user, category=category)
+            PlanDetail.objects.create(plan=child, section=f"{category} schedule", detail=[])
+            links[f"{category}_plan_id"] = child.pk
+    full = plan_factory(creator=user, category="full", **links)
+    client.force_login(user)
+    response = client.get(reverse("plans", args=[full.pk, full.base.name]))
+    assert response.status_code == 200
+    assert isinstance(response.context["ele"]["details"], list)
+    if with_children:
+        assert {node["section"] for node in response.context["ele"]["details"]} == {"diet schedule", "exercise schedule"}

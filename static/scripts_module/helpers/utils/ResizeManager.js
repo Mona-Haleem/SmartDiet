@@ -3,18 +3,20 @@ export class ResizeHandler {
     this.delay = delay;
     this.timeoutId = null;
     this.callback = null;
+    this.listener = this.handleResize.bind(this);
   }
 
   subscribe(callback) {
     this.callback = callback;
-    window.addEventListener("resize", () => this.handleResize());
+    window.addEventListener("resize", this.listener);
   }
 
   unsubscribe() {
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
     }
-    window.removeEventListener("resize", () => this.handleResize());
+    window.removeEventListener("resize", this.listener);
+    this.callback = null;
   }
 
   handleResize() {

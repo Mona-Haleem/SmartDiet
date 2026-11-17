@@ -126,7 +126,7 @@ export default class DietEle extends Component {
       console.log(page, this.$data.displayedMedia);
       return {
         next: this.$data.ele.media.length > page,
-        prev: page > 0,
+        prev: page > 1,
         page,
       };
     }

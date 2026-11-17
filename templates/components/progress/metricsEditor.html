@@ -63,6 +63,7 @@
                   <input
                     type="number"
                     class="metric-input"
+                    :aria-label="metric.name + ' value'"
                     :value="dayProgress.formatValue(metric.value, metric.type)"
                     @change="dayProgress.updateMetricValue(metric, $event.target.value)"
                     @click.stop

@@ -66,6 +66,7 @@
         <link rel="stylesheet" href="desktop.css">
       </noscript>
   -->
+    <link rel="stylesheet" href="{% static 'common/accessibility.css' %}" />
   </head>
 
   <body
@@ -83,21 +84,17 @@
     <footer
       class="d-flex position-absolute {% if request.user.is_authenticated %}opened{% else %}closed{% endif %}"
     >
-      <button class="sub-btn" id="theme-toggle" data-click-toggle-theme>
+      <button class="sub-btn" id="theme-toggle" aria-label="Toggle color theme" data-click-toggle-theme>
         D
       </button>
 
       {% if request.user.is_authenticated %}
-      <a href="{% url 'logout' %}">
-        <button class="sub-btn" id="logout">
+      <a href="{% url 'logout' %}" class="sub-btn" id="logout" aria-label="Log out">
           <i class="fas fa-sign-out-alt"></i>
-        </button>
       </a>
-      <a href="#">
-        <button class="sub-btn" id="help">
+        <button class="sub-btn" id="help" type="button" aria-label="Help">
           <i class="fas fa-question-circle"></i>
         </button>
-      </a>
       {% endif %}
     </footer>
   </body>

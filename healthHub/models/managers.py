@@ -1,7 +1,10 @@
 from django.db import models
 from collections import defaultdict
+from django.db import transaction
+from django.core.exceptions import ValidationError
 
 class UserCreationManager(models.Manager):
+    @transaction.atomic
     def create(self,**kwargs):
         """Create a UserCreation with its corresponding subclass"""
         from healthHub.models import Recipe , Plan , PlanDetail
@@ -11,7 +14,7 @@ class UserCreationManager(models.Manager):
         model_kwargs = {k: v for k, v in kwargs.items() if k in field_names}
         extra_kwargs = {k: v for k, v in kwargs.items() if k not in field_names}
         print(model_kwargs,extra_kwargs ,"start creating")
-        if not model_kwargs["media"]:
+        if not model_kwargs.get("media"):
             model_kwargs["media"] = []
         base = self.model(**model_kwargs)
         base.full_clean()  # optional, ensures validation
@@ -19,11 +22,7 @@ class UserCreationManager(models.Manager):
         print("base creates sucessfully")
         # Automatically create related objects
         if base.type == 'recipe':
-            try:
-                print("start")
-                Recipe.objects.create(base=base,**extra_kwargs)
-            except Exception as e:
-                print(e)
+            Recipe.objects.create(base=base, **extra_kwargs)
 
         elif base.type == 'plan':
             diet_plan_id = extra_kwargs.pop('diet_plan_id', None)
@@ -33,6 +32,11 @@ class UserCreationManager(models.Manager):
             if create_default_sections and base.category !="full":
                 create_default_plan_sections(plan,plan.duration.days)
             if base.category == PlanType.FULL:
+                for child_id, category in ((diet_plan_id, "diet"), (exercise_plan_id, "exercise")):
+                    if child_id and not Plan.objects.filter(
+                        pk=child_id, base__creator=base.creator, base__category=category
+                    ).exists():
+                        raise ValidationError("Linked plans must belong to the creator and match their plan type.")
                 LinkedPlan.objects.create(
                     full_plan=plan,
                     diet_plan_id=diet_plan_id,

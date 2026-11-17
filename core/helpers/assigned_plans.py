@@ -5,6 +5,8 @@ from django.conf import settings
 from django.db import models
 from datetime import date, timedelta
 from core.models import UserLog, DailyAchivedMetrics, TrackedMetrics
+from django.utils import timezone
+from django.db import transaction
 
 
 def get_current_plan(user, type):
@@ -17,13 +19,13 @@ def get_current_plan(user, type):
         user: User instance
         type: 'diet' or 'exercise'
     """
-    today = date.today()
+    today = timezone.localdate()
     
     # Find the most recent log for this specific plan type
     last_log = UserLog.objects.filter(
         user=user, 
-        plan__base__category__in=[type, 'full']
-    ).order_by('-date').first()
+        plan__base__category__in=[type, 'full'], date__lte=today,
+    ).select_related('plan__base').order_by('-date', '-pk').first()
 
     if not last_log:
         return None
@@ -77,11 +79,8 @@ def add_plan_by_type(user, plan, start_date, plan_type):
     ).first()
 
     if existing_log:
-        # Update if it's not today or if we want to replace
-        if start_date != date.today():
-            existing_log.plan = plan
-            existing_log.save()
-            update_metrics(existing_log, force_reinit=True)
+        # Backfill must preserve an already recorded date and its metric values.
+        return
     else:
         # Create new log - this won't conflict with other plan type
         new_log = UserLog(user=user, date=start_date, plan=plan)
@@ -89,6 +88,7 @@ def add_plan_by_type(user, plan, start_date, plan_type):
         update_metrics(new_log)    
 
 
+@transaction.atomic
 def set_plan(user, plan, start_date, fill_duration=False, replace=False):
     """
     Set a plan for a user starting from start_date.
@@ -105,17 +105,14 @@ def set_plan(user, plan, start_date, fill_duration=False, replace=False):
         end_date = start_date + plan.duration
     else:
         end_date = start_date + timedelta(days=1)
-    orgReplace = replace
+    # Serialize assignments for this user on databases supporting row locks.
+    type(user).objects.select_for_update().get(pk=user.pk)
     # Determine the actual plan type we're setting
     plan_type = plan.base.category
     if plan_type == 'full':
         # Full plan creates both diet and exercise logs
         temp_date = start_date
         while temp_date < end_date:
-            if temp_date == start_date:
-                replace = True 
-            else :
-                replace = orgReplace
             add_plan(user, plan, temp_date, replace)
             temp_date += timedelta(days=1)
     else:
@@ -123,11 +120,6 @@ def set_plan(user, plan, start_date, fill_duration=False, replace=False):
 
         temp_date = start_date
         while temp_date < end_date:
-            if temp_date == start_date:
-                replace = True 
-            else :
-                replace = orgReplace
-            print(replace)
             add_plan(user, plan, temp_date, replace)
             temp_date += timedelta(days=1)
 
@@ -144,68 +136,50 @@ def add_plan(user, plan, start_date, replace=False):
         start_date: Date for the log
         replace: If True, replace existing log of same category
     """
-    plan_category = plan.base.category
-    print(start_date,plan)
-    if plan_category == 'full':
-        # Full plan should check if there are BOTH diet and exercise logs
-        # For now, treat as both - this might need more sophisticated handling
-        diet_log = UserLog.objects.filter(
-            user=user,
-            date=start_date,
-            plan__base__category='diet'
-        ).first()
-        
-        exercise_log = UserLog.objects.filter(
-            user=user,
-            date=start_date,
-            plan__base__category='exercise'
-        ).first()
-        
-        # Create or update diet log
-        if diet_log and replace:
-            diet_log.plan = plan
-            diet_log.feedback = ''
-            diet_log.save()
-            update_metrics(diet_log, force_reinit=True)
-        elif not diet_log:
-            new_diet_log = UserLog(user=user, date=start_date, plan=plan)
-            new_diet_log.save()
-            update_metrics(new_diet_log)
-        
-        # Create or update exercise log  
-        if exercise_log and replace:
-            exercise_log.plan = plan
-            exercise_log.feedback = ''
-            exercise_log.save()
-            update_metrics(exercise_log, force_reinit=True)
-        elif not exercise_log:
-            new_exercise_log = UserLog(user=user, date=start_date, plan=plan)
-            new_exercise_log.save()
-            update_metrics(new_exercise_log)
+    category = plan.base.category
+    logs = UserLog.objects.filter(user=user, date=start_date).select_related('plan__base')
+    same = logs.filter(plan=plan).first()
+    if same:
+        update_metrics(same)
+        return
+    if category == 'full':
+        if logs.exists() and not replace:
+            return
+        if replace:
+            logs.delete()
+        # One full-plan record supplies both views, without duplicating scores.
+        log = UserLog.objects.create(user=user, date=start_date, plan=plan)
+        update_metrics(log)
     else:
-        # Diet or exercise only - check for existing log of THIS type only
-        existing_log = UserLog.objects.filter(
-            user=user,
-            date=start_date,
-            plan__base__category=plan_category
-        ).first()
-        
-        if existing_log:
-            print("found existing log",existing_log,replace)
-            if replace or start_date == date.today() :
-                existing_log.plan = plan
-                existing_log.feedback = ''
-                existing_log.save()
-                print("plan replaced")
-                update_metrics(existing_log, force_reinit=True)
+        full_log = logs.filter(plan__base__category='full').first()
+        if full_log:
+            if not replace:
+                return
+            linked = getattr(full_log.plan, 'linked_plan', None)
+            other_type = 'exercise' if category == 'diet' else 'diet'
+            other_plan = getattr(linked, f'{other_type}_plan', None) if linked else None
+            if other_plan:
+                full_log.plan = other_plan
+                full_log.save(update_fields=['plan'])
+                full_log.AchivedMetrics.exclude(
+                    models.Q(metric__linkedPlan=other_plan) | models.Q(metric__linkedPlan__isnull=True)
+                ).delete()
+                update_metrics(full_log)
+            else:
+                full_log.delete()
+        existing = logs.filter(plan__base__category=category).first()
+        if existing:
+            if not replace:
+                return
+            existing.plan = plan
+            existing.feedback = ''
+            existing.save(update_fields=['plan', 'feedback'])
+            update_metrics(existing, force_reinit=True)
         else:
-            # Safe to create - won't conflict with other plan type
-            new_log = UserLog(user=user, date=start_date, plan=plan)
-            new_log.save()
-            print("creating new log",new_log)
-            update_metrics(new_log)
-        if start_date == date.today():
-            update_active_metrics(user)
+            log = UserLog.objects.create(user=user, date=start_date, plan=plan)
+            update_metrics(log)
+    if start_date == timezone.localdate():
+        update_active_metrics(user)
 
 
 def update_metrics(log, force_reinit=False):
@@ -225,7 +199,7 @@ def update_metrics(log, force_reinit=False):
     plan_category = log.plan.base.category if log.plan else None
     
     # Find all active tracked metrics for this user
-    all_metrics = TrackedMetrics.objects.filter(
+    all_metrics = TrackedMetrics.objects.select_related('metric').filter(
         metric__user=log.user, 
         isActive=True
     )
@@ -234,10 +208,12 @@ def update_metrics(log, force_reinit=False):
     # Include metrics linked to this plan OR metrics with no plan link (global)
     # OR metrics linked to plans of the same category
     if plan_category:
+        linked_ids = [log.plan_id]
+        linked = getattr(log.plan, 'linked_plan', None) if plan_category == 'full' else None
+        if linked:
+            linked_ids.extend(filter(None, [linked.diet_plan_id, linked.exercise_plan_id]))
         all_metrics = all_metrics.filter(
-            models.Q(linkedPlan=log.plan) |
-            models.Q(linkedPlan__isnull=True) |
-            models.Q(linkedPlan__base__category=plan_category)
+            models.Q(linkedPlan_id__in=linked_ids) | models.Q(linkedPlan__isnull=True)
         )
 
     for tm in all_metrics:
@@ -337,10 +313,10 @@ def sync_user_metrics(user, date_from=None, date_to=None):
     """
     if date_from is None:
         first_log = UserLog.objects.filter(user=user).order_by('date').first()
-        date_from = first_log.date if first_log else date.today()
+        date_from = first_log.date if first_log else timezone.localdate()
     
     if date_to is None:
-        date_to = date.today()
+        date_to = timezone.localdate()
     
     # Get all logs in range
     logs = UserLog.objects.filter(
@@ -391,6 +367,11 @@ def update_active_metrics(user):
     current_diet_plan = get_current_plan(user, 'diet')
     current_exercise_plan = get_current_plan(user, 'exercise')
     current_plans = set(filter(None, [current_diet_plan, current_exercise_plan]))
+    for plan in list(current_plans):
+        if plan.base.category == 'full':
+            linked = getattr(plan, 'linked_plan', None)
+            if linked:
+                current_plans.update(filter(None, [linked.diet_plan, linked.exercise_plan]))
 
     # All tracked metrics for this user
     tracked_metrics = TrackedMetrics.objects.filter(metric__user=user)

@@ -108,7 +108,7 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
         print(f"❌ ERROR: {error_msg}")
         return {'error': error_msg, 'success': False}
     
-    print(f"✓ API key found: {api_key[:10]}...")
+    logger.debug("USDA credentials configured")
     print(f"\n[STEP 2] Received {len(ingredients)} ingredients to process")
     
     # Initialize totals
@@ -149,6 +149,7 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
     
     base_url = "https://api.nal.usda.gov/fdc/v1/foods/search"
     
+    failures = []
     # Process each ingredient separately
     for idx, ingredient in enumerate(ingredients):
         ingredient_name = ingredient['name']
@@ -173,6 +174,7 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
             foods = data.get('foods', [])
             
             if not foods:
+                failures.append(f"No nutrition match for {ingredient_name}")
                 # print(f"  ❌ No results found for '{ingredient_name}'")
                 # total_nutrition['ingredients_detail'].append({
                 #     'name': ingredient_name,
@@ -210,6 +212,7 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
             # total_nutrition['ingredients_detail'].append(ingredient_nutrition)
             
         except requests.exceptions.RequestException as e:
+            failures.append(f"Nutrition lookup failed for {ingredient_name}")
             print(f"  ❌ API error for '{ingredient_name}': {str(e)}")
             # total_nutrition['ingredients_detail'].append({
             #     'name': ingredient_name,
@@ -230,6 +233,8 @@ def get_nutrition_info_usda(ingredients: List[Dict[str, str]]) -> Dict:
     print(f"Fat:           {total_nutrition['fat']} g")
     print('='*60 + "\n")
     
+    if failures:
+        total_nutrition.update(success=False, incomplete=True, warnings=failures)
     return total_nutrition
 
 """

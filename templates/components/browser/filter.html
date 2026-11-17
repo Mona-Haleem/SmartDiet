@@ -27,6 +27,7 @@
   <div class="d-flex justify-content-between w-100">
     <select
       id="type"
+      aria-label="Content type"
       name="type"
       x-model="type"
       @change="updateFilters($data);!type?filters=[]:filters=filters"
@@ -40,6 +41,7 @@
 
     <select
       id="order"
+      aria-label="Sort order"
       name="order"
       x-model="order"
       @change="updateFilters($data)"

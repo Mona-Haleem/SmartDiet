@@ -36,6 +36,7 @@ class="ingredient-input-component">
     <!-- Input row -->
     <div class="ingredient-input-row" x-ref="ingridentInputRow" @click.away="ingredientInput.addIngredient()">
       <input type="number" 
+             aria-label="Ingredient amount"
              x-ref="ingredientAmount"
              x-model.number="current.amount"
              @keydown.enter.prevent="ingredientInput.addIngredient()"
@@ -46,6 +47,7 @@ class="ingredient-input-component">
       
       <div class="ingredient-unit-wrapper">
         <input type="text" 
+               aria-label="Ingredient unit"
                x-ref="ingredientUnit"
                x-model="current.unit"
                @input="activeUnit=-1;ingredientInput.filterUnits()"

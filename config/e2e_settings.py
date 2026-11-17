@@ -3,6 +3,7 @@
 from .test_settings import *  # noqa: F403
 
 DEBUG = True
+TIME_ZONE = "Africa/Cairo"
 STATIC_URL = "/static/"
 DATABASES = {
     "default": {

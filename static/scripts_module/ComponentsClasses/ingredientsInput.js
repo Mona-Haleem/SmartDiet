@@ -123,14 +123,14 @@ export default class IngredientInput {
   }
 
   moveDown() {
-    if (!this.data.filteredUnits) return;
+    if (!this.data.filteredUnits?.length) return;
     this.data.activeUnit =
       (this.data.activeUnit + 1) % this.data.filteredUnits.length;
     console.log(this.data.activeUnit);
   }
 
   moveUp() {
-    if (!this.data.filteredUnits) return;
+    if (!this.data.filteredUnits?.length) return;
     this.data.activeUnit =
       (this.data.activeUnit - 1 + this.data.filteredUnits.length) %
       this.data.filteredUnits.length;

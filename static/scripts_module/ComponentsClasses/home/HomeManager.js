@@ -30,7 +30,7 @@ export default class HomeManager extends Component {
           "post",
           JSON.stringify({
             plan_id: planId,
-            start_date: new Date().toISOString().split("T")[0],
+            start_date: new Date().toLocaleDateString("en-CA"),
             replace,
           })
         ),

@@ -32,7 +32,9 @@
     goal: '',
     create_default_sections: true
   }
-}" x-init="()=>form = new CreationForm($data, $refs)"
+}" x-init="form = new CreationForm($data, $refs)"
+  @keydown.escape.window.prevent="form.close()"
+  @keydown.tab="form.trapFocus($event)"
   
 >
 
@@ -42,7 +44,8 @@
        @click="form.close(showAddForm);"></div>
 
   <!-- Form Container -->
-  <div class="creation-form-container" :class="{ 'active': isOpen }">
+  <div class="creation-form-container" :class="{ 'active': isOpen }" x-ref="dialog"
+       role="dialog" aria-modal="true" aria-labelledby="creation-form-title">
     
     <!-- Success Message -->
     <div class="success-toast" x-show="showSuccess" x-transition>
@@ -51,7 +54,7 @@
 
     <!-- Header -->
     <div class="creation-form-header">
-      <h2>Create New <span x-text="currentType === 'recipe' ? 'Recipe' : 'Plan'"></span></h2>
+      <h2 id="creation-form-title">Create New <span x-text="currentType === 'recipe' ? 'Recipe' : 'Plan'"></span></h2>
       <button type="button" @click="form.close()" aria-label="Close">×</button>
     </div>
 
@@ -78,6 +81,7 @@
               <label class="required">Name</label>
               <input type="text" 
                      name="name" 
+                     aria-label="Name"
                      x-model="formData.name"
                      autocomplete="off"
                      @input="form.clearError('name')"
@@ -92,6 +96,7 @@
               <label>Category</label>
               <input type="text" 
                      name="category" 
+                     aria-label="Recipe category"
                      autocomplete="off"
                      x-model="formData.category"
                      @input="form.clearError('category');showCategorySuggestions = true;activeSuggestion=-1"
@@ -123,6 +128,8 @@
             <div class="form-group" x-show="currentType === 'plan'">
               <label class="required">Plan Type</label>
               <select name="category" 
+                      aria-label="Plan type"
+                      :disabled="currentType !== 'plan'"
                       x-model="formData.category"
                       @change="form.clearError('category')"
                       :class="{ 'is-invalid': errors.category }"
@@ -143,13 +150,14 @@
               <div class="form-group" x-show="currentType === 'plan'">
                 <label class="required">Diet Plan</label>
                 <select name="diet_plan_id" 
+                        aria-label="Diet plan"
                         x-model="formData.diet_plan_id"
                         @change="form.clearError('formData.diet_plan_id')"
                         :class="{ 'is-invalid': errors.diet_plan_id }"
                         >
                           {% for plan in allPlans %}
                             {% if plan.category == 'diet' %}
-                            <option value="plan.id">{{plan.name}}</option>
+                            <option value="{{plan.id}}">{{plan.name}}</option>
                             {% endif %}
                           {% endfor %} 
                 </select>
@@ -160,22 +168,25 @@
               <div class="form-group" x-show="currentType === 'plan'">
                 <label class="required">Exercise Plan</label>
                 <select name="exercise_plan_id" 
+                        aria-label="Exercise plan"
                         x-model="formData.exercise_plan_id"
                         @change="form.clearError('formData.exercise_plan_id')"
                         :class="{ 'is-invalid': errors.exercise_plan_id }"
                         >
                           {% for plan in allPlans %}
                             {% if plan.category == 'exercise' %}
-                            <option value="plan.id">{{plan.name}}</option>
+                            <option value="{{plan.id}}">{{plan.name}}</option>
                             {% endif %}
                           {% endfor %} 
                 </select>
-                <span class="error-message" x-show="errors.exercise_plan_id" x-text="errors.diet_plan_id"></span>
+                <span class="error-message" x-show="errors.exercise_plan_id" x-text="errors.exercise_plan_id"></span>
               </div>
+            </div>
           </template>
           <div class="form-group">
             <label>Notes</label>
             <textarea name="notes" 
+                      aria-label="Notes"
                       x-model="formData.notes"
                       rows="3"
                       placeholder="Add any additional notes (optional)"></textarea>
@@ -205,6 +216,7 @@
                 <div>
                   <input type="number" 
                          name="prep_time_hours" 
+                         aria-label="Preparation hours"
                          x-model.number="formData.prep_time_hours"
                          @input="form.clearError('prep_time_hours')"
                          :class="{ 'is-invalid': errors.prep_time_hours }"
@@ -215,6 +227,7 @@
                 <div>
                   <input type="number" 
                          name="prep_time_minutes" 
+                         aria-label="Preparation minutes"
                          x-model.number="formData.prep_time_minutes"
                          @input="form.clearError('prep_time_minutes')"
                          :class="{ 'is-invalid': errors.prep_time_minutes }"
@@ -230,6 +243,7 @@
               <label>Servings</label>
               <input type="number" 
                      name="serv" 
+                     aria-label="Servings"
                      x-model.number="formData.serv"
                      @input="form.clearError('serv')"
                      :class="{ 'is-invalid': errors.serv }"
@@ -251,6 +265,7 @@
             <div class="form-group">
               <label>Duration</label>
               <select name="duration_preset" 
+                      aria-label="Duration preset"
                       x-model="formData.duration_preset"
                       @change="form.updateDuration()">
                 <option value="">Custom</option>
@@ -265,6 +280,7 @@
               <label>Custom Duration (days)</label>
               <input type="number" 
                      name="duration_days" 
+                     aria-label="Duration in days"
                      x-model.number="formData.duration_days"
                      @input="form.clearError('duration_days')"
                      :class="{ 'is-invalid': errors.duration_days }"
@@ -276,6 +292,7 @@
             <div class="form-group">
               <label>Goal</label>
               <textarea name="goal" 
+                        aria-label="Plan goal"
                         x-model="formData.goal"
                         rows="3"
                         placeholder="Describe your goal for this plan (optional)"></textarea>
@@ -299,7 +316,6 @@
                 @click="form.close()"
                 :disabled="isSubmitting">Cancel</button>
         <button type="submit" 
-                @click="form.submit()"
                 class="btn btn-primary"
                 :class="{ 'btn-loading': isSubmitting }"
                 :disabled="isSubmitting">

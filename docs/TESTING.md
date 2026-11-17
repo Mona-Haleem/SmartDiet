@@ -1,6 +1,6 @@
 # Running SmartDiet tests
 
-The suite checks intended behavior, including the approved user-local day, 30-day historical edit limit, full-range scale scoring, and credit for avoiding undesirable categories. Existing application defects remain visible as failing tests. There are no expected-failure markers or disabled accessibility rules to turn these failures green.
+The suite checks intended behavior, including the approved user-local day, 30-day historical edit limit, full-range scale scoring, and credit for avoiding undesirable categories. Assertions and accessibility rules remain enabled; the fixes are verified against the same regression baseline. See TEST_RESULTS.md for the latest counts and remaining validation limits.
 
 Install the Python test environment and JavaScript dependencies:
 
@@ -15,16 +15,16 @@ Run from the project root:
 | Command | Coverage |
 | --- | --- |
 | `python -m pytest` | Existing and new Python units, integration regressions, and SQL budgets |
-| `python -m pytest -m unit` | Score arithmetic, date boundaries, unit conversions, upload result contracts |
+| `python -m pytest -m unit` | Score arithmetic, date/timezone boundaries, unit conversions, upload result contracts |
 | `python -m pytest -m security` | Ownership/privacy, protected fields, anonymous requests, and real CSRF checks |
 | `python -m pytest tests/integration` | Real routes, ORM, scheduling/history, content, nutrition, and atomicity |
-| `npm run test:performance` | SQL pagination and query-count budgets |
+| `npm run test:performance` | SQL pagination, monthly progress, and calendar query-count budgets |
 | `npm test -- --runInBand` | JavaScript units and service integration tests |
 | `npm run test:coverage` | JavaScript coverage with the existing 60% global gate |
 | `npm run test:python:coverage` | Python branch/line coverage, excluding tests/migrations/fixtures |
 | `npm run test:e2e` | Desktop Chromium browser journeys and accessibility |
 | `npm run test:e2e:mobile` | Mobile Chromium browser journeys and accessibility |
-| `npm run test:a11y` | Desktop axe scans, dialog/calendar keyboard checks, and 320px reflow |
+| `npm run test:a11y` | Desktop axe scans, dialog/calendar/details keyboard checks, and 320px reflow |
 | `npm run test:e2e:all` | Chromium/mobile/Firefox/WebKit; install all browsers first |
 | `npx playwright test --list --project=chromium` | Discover browser cases without replacing the latest reports |
 | `npm run test:all` | Python, JavaScript, and desktop browser suites, stopping on the first failing suite |
@@ -45,7 +45,7 @@ npx playwright show-report coverage/playwright-report
 
 The repository already tracked an old generated Playwright HTML report and node_modules metadata before this change. Treat those as generated files; source changes belong in the test files, configs, package manifests, and documentation.
 
-The new GitHub Actions workflow runs Python, JavaScript, and browser jobs independently and uploads artifacts even when assertions fail. It will report the current regressions until the corresponding application fixes are made. The coverage threshold was not lowered.
+The GitHub Actions workflow runs Python, JavaScript, and browser jobs independently and uploads artifacts even when assertions fail. Assertion failures and the unchanged JavaScript coverage gate fail their respective jobs. SQL query counts are included as properties in the Python JUnit report.
 
 The query tests enforce database pagination and bounded query counts, not machine-dependent response-time assertions. Production load, PostgreSQL concurrency, real-user Web Vitals, and manual screen-reader assessment remain separate follow-up work. Automated axe checks do not establish complete WCAG conformance.
 

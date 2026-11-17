@@ -2,6 +2,7 @@ from django.db import models
 from users.models import User
 from healthHub.models import Plan
 from django.core.validators import MinValueValidator, MaxValueValidator
+from math import isfinite
 
 METRIC_CHOICES = [
     ('continues', 'Persistent state (weight, measurements)'),
@@ -33,24 +34,10 @@ class UserLog(models.Model):
         Calculate the total score for the day based on the average progress 
         of all tracked metrics.
         """
-        metrics = self.AchivedMetrics.all()
-        if not metrics.exists():
+        metrics = list(self.AchivedMetrics.all())
+        if not metrics:
             return 0
-        
-        total_progress = 0
-        count = 0
-        
-        for metric_entry in metrics:
-            # Get progress (0.0 to 1.0)
-            progress = metric_entry.calculate_score()
-            total_progress += progress
-            count += 1
-            
-        if count == 0:
-            return 0
-            
-        # Convert average 0-1 progress to 0-100 score
-        final_score = int((total_progress / count) * 100)
+        final_score = int(sum(entry.calculate_score() for entry in metrics) / len(metrics) * 100)
         return min(100, max(0, final_score))
 
 class Metric(models.Model):
@@ -84,64 +71,36 @@ class DailyAchivedMetrics(models.Model):
     def __str__(self):
         return f'{self.log.plan}: {self.log.date} => {self.metric} :: {self.value} '
     def calculate_score(self):
+        kind = self.metric.metric.type
+        positive = self.metric.isPostive
+        if self.value is None or self.value == "no entry":
+            return 0.0
+        if kind == "boolean":
+            recorded = str(self.value).lower() in {"true", "1", "yes"}
+            return float(recorded == positive)
+        if kind == "category":
+            targets = self.metric.target if isinstance(self.metric.target, list) else [self.metric.target]
+            options = self.metric.metric.options
+            if options and self.value not in options:
+                return 0.0
+            return float((self.value in targets) == positive)
         try:
-            val = float(self.value) if self.value is not None else 0.0
-            start = float(self.metric.start) if self.metric.start is not None else 0.0
-            target = float(self.metric.target) if self.metric.target is not None else 1.0
+            val = float(self.value)
+            start = float(self.metric.start or 0)
+            target = float(self.metric.target) if self.metric.target is not None else 1
         except (ValueError, TypeError):
-            # Handle non-numeric cases (like categories) separately if needed
-            val = 0
-            start = 0
-            target = 1
-
-        if self.metric.metric.type == 'continues':
-            # Progress towards a target (e.g., Weight: start 80, current 79, target 70)
-            # Avoid division by zero
-            if target == start:
-                return 1.0 if val == target else 0.0
-            
-            # Simple linear interpolation
-            progress = (val - start) / (target - start)
-            # Cap progress between 0 and 1? Or allow overflow? 
-            # Usually strict goals are 0-1
-            return progress
-
-        elif self.metric.metric.type == 'daily':
-            # e.g., Water: Drink 2000ml. Value 1500.
-            if target == 0: return 0
-            if self.metric.isPostive:
-                value = min(1.0, val / target)
-            else:
-                value = min(1 ,(1 - ((val - target) / target)))
-            return value
-
-        elif self.metric.metric.type == 'boolean':
-            # Target might be 'positive' (meaning "Yes" is good) or 'negative'
-            is_true = str(self.value).lower() in ['true', '1', 'yes']
-            
-            if self.metric.isPostive:
-                return 1.0 if is_true else 0.0
-            else:
-                return 0.0 if is_true else 1.0
-
-        elif self.metric.metric.type == 'scale':
-            # 1-5 scale. 
-            # If target is 'positive' (high is good): val/5
-            # If target is 'negative' (low is good, e.g., fatigue): 1 - (val/5)
-            # Assuming value is 1-5
-            norm_val = min(5, max(0, val))
-            if self.metric.isPostive:
-                return norm_val / 5.0
-            else:
-                return 1.0 - (norm_val / 5.0)
-
-        elif self.metric.metric.type == 'category':
-            # Check if value is in target list
-            target_list = self.metric.target if isinstance(self.metric.target, list) else [self.metric.target]
-            if self.metric.isPostive :
-                value = 1 if self.value in target_list else 0
-            else:
-                value = 0 if self.value not in target_list and self.value != "no entry" else 0
-            return value
-            
-        return 0.0
+            return 0.0
+        if not all(isfinite(number) for number in (val, start, target)):
+            return 0.0
+        if kind == "continues":
+            result = float(val == target) if start == target else (val - start) / (target - start)
+        elif kind == "daily":
+            if target <= 0:
+                return 0.0
+            result = val / target if positive else 2 - val / target
+        elif kind == "scale":
+            value = min(5, max(1, val))
+            result = (value - 1) / 4 if positive else (5 - value) / 4
+        else:
+            return 0.0
+        return min(1.0, max(0.0, result))

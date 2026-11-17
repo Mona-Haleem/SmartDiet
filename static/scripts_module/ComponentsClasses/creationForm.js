@@ -3,8 +3,9 @@ export default class CreationForm {
   constructor(data, refs) {
     this.data = data;
     this.refs = refs;
-    console.log(this.data)
-    const isPlan = this.data.$data.selectedPlanType
+    this.returnFocus = document.activeElement;
+    this.previousOverflow = document.body.style.overflow;
+    const isPlan = this.data.selectedPlanType;
     if(!!isPlan){
       this.data.currentType = 'plan';
     }
@@ -15,11 +16,10 @@ export default class CreationForm {
     const errors = {};
 
     const { formData, currentType } = this.data;
-    console.log(formData,this.data.formData,this.data.$data.formData)
     // Name validation
     if (!formData.name?.trim()) {
       errors.name = "Name is required";
-    } else if (formData.name.length > 50) {
+    } else if (formData.name.length > 100) {
       errors.name = "Name must be less than 100 characters";
     }
 
@@ -92,14 +92,14 @@ export default class CreationForm {
             homeManager.$data.allPlans?.push({
               id:ctx.data.id,
               name:ctx.data.name,
-              category: ctx.data.type
+              category: ctx.data.category
             })
           }else if (window.dayProgress && window.dayProgress.setCurrPlan){
             window.dayProgress.setCurrPlan(ctx.data.id,ctx.data.category)
             dayProgress.$data.allPlans?.push({
               id:ctx.data.id,
               name:ctx.data.name,
-              category: ctx.data.type
+              category: ctx.data.category
             })
           }else if (ctx.data.redirect) {
             window.location.href = ctx.data.redirect;
@@ -109,10 +109,10 @@ export default class CreationForm {
       },
       onError: (ctx) => {
         console.log(ctx.response)
-        if(ctx.response.data.errors)
-          this.data.errors = ctx.response.data.errors || {};
+        if(ctx.response?.data?.errors)
+          this.data.errors = ctx.response.data.errors;
         else
-          this.data.errors = { __all__: ctx.response.data.error };
+          this.data.errors = { __all__: ctx.response?.data?.error || 'Unable to save. Please try again.' };
         this.data.isSubmitting = false;
         console.log(this.data.errors)
       },
@@ -120,7 +120,10 @@ export default class CreationForm {
   }
 
   open(type = "recipe",planType='diet') {
-    setTimeout(() => (this.data.isOpen = true), 300);
+    setTimeout(() => {
+      this.data.isOpen = true;
+      this.refs.form?.querySelector('input[name="name"]')?.focus();
+    }, 0);
     this.resetForm(type);
     this.data.currentType = type;
     this.data.formData.category = planType; 
@@ -132,8 +135,22 @@ export default class CreationForm {
     this.data.showSuccess = false;
     this.data.errors = {};
     
-    setTimeout(() => (this.data.$data.showAddForm = false), 300);
-    console.log(this.data.$data.showAddForm);
+    document.body.style.overflow = this.previousOverflow;
+    setTimeout(() => {
+      this.data.showAddForm = false;
+      this.returnFocus?.focus();
+    }, 300);
+  }
+
+  trapFocus(event) {
+    const controls = [...this.refs.dialog.querySelectorAll('button, input, select, textarea, a[href], [tabindex="0"]')]
+      .filter(element => !element.disabled && element.offsetParent !== null);
+    const first = controls[0], last = controls.at(-1);
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault(); last?.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault(); first?.focus();
+    }
   }
 
   switchType(type) {
@@ -154,7 +171,7 @@ export default class CreationForm {
             prep_time_hours: 0,
             prep_time_minutes: 0,
             serv: 1,
-            ingredients: "",
+            ingredients: [],
           }
         : {
             duration_preset: "7",

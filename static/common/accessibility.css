@@ -1,0 +1,99 @@
+:root {
+  --readable-text: #29231d;
+  --readable-surface: #fffdf7;
+  --action-background: #245c31;
+  --action-text: #ffffff;
+  --navigation-background: #f4e5c1;
+  --navigation-text: #242b21;
+  --focus-ring: #075ab8;
+}
+[data-theme="dark"] {
+  --readable-text: #f5efe0;
+  --readable-surface: #242d27;
+  --action-background: #a8d890;
+  --action-text: #142417;
+  --navigation-background: #263e2d;
+  --navigation-text: #f5efe0;
+  --focus-ring: #8fc9ff;
+}
+:is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus-ring) !important;
+  outline-offset: 2px !important;
+}
+.book { color: var(--readable-text); }
+.nav-sections .nav-text { color: var(--navigation-text) !important; }
+nav.nav-sections { min-height: 36px; height: auto; gap: 3px; }
+nav.nav-sections > a.nav-item,
+nav.nav-sections > a.nav-item.activeNav-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 10px;
+  line-height: 1.2 !important;
+  color: var(--navigation-text) !important;
+  background-color: var(--navigation-background) !important;
+  border-color: var(--action-background) !important;
+}
+.btn.btn-primary, .main-btn.btn-primary {
+  background-color: var(--action-background) !important;
+  color: var(--action-text) !important;
+  border-color: var(--action-background) !important;
+}
+.bg-secondary.text-white {
+  background-color: #50584f !important;
+  color: #ffffff !important;
+}
+.bg-secondary.text-white .fw-bold { color: #ffffff !important; }
+.sub-btn { display: inline-flex; align-items: center; justify-content: center; }
+button.password-toggle { min-width: 32px; min-height: 32px; padding: 4px; line-height: 1; }
+.avg-score .score-value { color: var(--readable-text) !important; }
+.plan-badge { color: #173922 !important; background-color: #edf5e6 !important; }
+.plan-badge.exercise { color: #162e4e !important; background-color: #dceaff !important; }
+.calendar-day { font: inherit; color: var(--readable-text); text-align: left; }
+.image-details { color: #ffffff; background-color: rgba(0, 0, 0, .85); }
+.card-menu-btn { min-width: 28px; min-height: 28px; }
+#creationForm { position: fixed; inset: 0; z-index: 2000; }
+#creationForm .creation-form-container { color: var(--readable-text); background: var(--readable-surface); }
+.book button.active, .book button.active span, .action-btn, .action-btn span {
+  color: var(--action-text) !important;
+}
+.book button.active, .action-btn { background-color: var(--action-background) !important; }
+select { color: var(--readable-text) !important; background-color: var(--readable-surface) !important; }
+#creationForm label, #creationForm .form-check span { color: var(--readable-text); }
+#creationForm .creation-type-tabs button { transition: border-color .2s; }
+#creationForm .creation-type-tabs button:not(.active),
+#creationForm .creation-type-tabs button:not(.active):hover {
+  color: var(--readable-text);
+  background-color: var(--readable-surface);
+}
+.creation-form-container h3 { color: var(--readable-text) !important; }
+.creation-form-container .btn-secondary { background: #50584f !important; color: #ffffff !important; }
+@media (max-width: 768px) {
+  nav.nav-sections { width: calc(100% - 32px); left: 16px; padding-left: 0; }
+  nav.nav-sections > a.nav-item { min-width: 0; padding: 5px 2px; font-size: 11px; gap: 2px; }
+  nav.nav-sections .nav-text { overflow: hidden; text-overflow: ellipsis; }
+  .profile-layout { display: block !important; overflow-y: auto; padding-bottom: 60px; }
+  .profile-layout #left-page, .profile-layout #right-page { position: relative; width: 100%; }
+  .profile-layout .profile-nav { display: none; }
+  .profile-layout #profile-header { height: auto; flex-wrap: wrap; margin: 12px 0; gap: 12px; }
+  .profile-layout #profile-header #avatar { width: 80px; height: 80px; }
+  .profile-layout #profile-header h1 { font-size: 1.6rem; margin: 0; overflow-wrap: anywhere; max-width: 100%; }
+  .profile-layout #left-page .info-card, .profile-layout #right-page .info-card {
+    position: static; width: 100%; height: auto; display: block; overflow: visible;
+  }
+  .profile-layout #left-page .section-name { width: 100%; margin: 12px 0 0; align-items: center; gap: 10px; }
+  .profile-layout #left-page .section-name button { position: static; min-width: 24px; min-height: 24px; }
+  .profile-layout #left-page .section-content { position: static; width: 100%; padding: 8px 0; }
+  .profile-layout .section-content > .flex-column > [style*="width"] { width: 100% !important; }
+  .profile-layout .section-content .gap-5 { gap: 12px !important; }
+  .profile-layout .section-content input { min-width: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

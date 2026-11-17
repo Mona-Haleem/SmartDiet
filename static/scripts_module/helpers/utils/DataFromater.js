@@ -26,8 +26,9 @@ export function formatDuration(durationString) {
   let result = "";
 
   if (typeof durationString == "string") {
-    const regex = /P(?:(\d+)D)?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+    const regex = /^P(?:(\d+)D)?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
     const matches = durationString.match(regex);
+    if (!matches) return "0 mins";
 
     const days = matches[1] ? parseInt(matches[1]) : 0;
     const hours = matches[2] ? parseInt(matches[2]) : 0;

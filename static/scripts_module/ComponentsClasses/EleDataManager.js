@@ -1,7 +1,7 @@
 import { queryService, cache } from "../../common/script.js";
 import DietEle from "./DietEle.js";
 import { formatDate, formatDuration } from "../helpers/utils/DataFromater.js";
-import MediaManager from "./detailsPage/mediaManager.js";
+import MediaManager from "./detailsPage/MediaManager.js";
 import SectioEditor from "./SectionsEditor.js";
 import DetailsEditor from "./detailsEditor.js";
 export default class EleDataManager extends DietEle {
@@ -11,7 +11,7 @@ export default class EleDataManager extends DietEle {
     this.mediaManager = new MediaManager(
       this.$data.ele.creation_id,
       this.$data.ele.type,
-      this.updateServerData,
+      this.updateServerData.bind(this),
       this.extraRefs.anchor
     );
     if (this.$data.ele.type == "plan") {
@@ -122,7 +122,7 @@ export default class EleDataManager extends DietEle {
   }
   async updateServing(targetEle) {
     const serving = Number(targetEle.value.trim());
-    if (serving && !isNaN(serving)) {
+    if (Number.isFinite(serving) && serving >= 1) {
       await this.updateServerData(["updateServ", Math.max(serving, 1)], {
         serv: serving,
       });
@@ -160,16 +160,16 @@ export default class EleDataManager extends DietEle {
       },
       (ctx) => {
         this.orgIngridents = JSON.parse(JSON.stringify(ingredients));
-        this.$data.ele.nurtient = ctx.data.nutrients
+        this.$data.ele.nutrients = ctx.data.nutrients;
       },
       () => {
-        ingredients = this.orgIngridents;
+        this.cancelSaveIng();
       }
     );
   }
   cancelSaveIng() {
     console.log(this.orgIngridents);
-    this.$data.ele.ingredients = this.orgIngridents;
+    this.$data.ele.ingredients = JSON.parse(JSON.stringify(this.orgIngridents));
   }
   async updateDuration(targetEle) {
     let duration = Math.max(1, Number(targetEle.value.trim()));
@@ -182,7 +182,7 @@ export default class EleDataManager extends DietEle {
       },
       () => {
         this.$data.ele.formatedDuration = formatDuration(
-          `P${targetEle.value}D00H:00M:00S`
+          `P${duration}D`
         );
       }
     );

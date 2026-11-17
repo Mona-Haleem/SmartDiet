@@ -1,4 +1,5 @@
 import math 
+from django.db.models import QuerySet
 
 def paginator(data , pageSize , page):
     if not isinstance(page, int) or not isinstance(pageSize, int):
@@ -8,7 +9,7 @@ def paginator(data , pageSize , page):
     if page < 1:
         raise ValueError("Invalid Page number")
 
-    total_items = len(data)
+    total_items = data.count() if isinstance(data, QuerySet) else len(data)
     total_pages = math.ceil(total_items / pageSize) if total_items > 0 else 0
 
     start = (page - 1) * pageSize

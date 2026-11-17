@@ -26,9 +26,7 @@ export default class CardList extends Component {
         "rgb(var(--secondary-color-rgb)) !important";
       navItem.style.borderColor = "rgba(var(--highlight-rgb)) !important";
     }
-    if (!CardList.PopStateEvent) {
-      CardList.PopStateEvent = CardList.handelPopStateEvent(this.instanceId);
-    }
+    this.removePopState = CardList.handelPopStateEvent(this.instanceId);
     this.$data.items = this.$data.items?.map((i) => ({
       ...i,
       created: formatDate(i.created),
@@ -37,7 +35,7 @@ export default class CardList extends Component {
 
     NavigationManager.initState = false;
 
-    window.addEventListener("resize", () => this.OnResize());
+    this.addEventListener(window, "resize", () => this.OnResize());
   }
   getCurrentListSize() {
     const currScreen = window.location.pathname;
@@ -60,6 +58,7 @@ export default class CardList extends Component {
       }
     }
     if (!size) size = 6 * height;
+    size = Math.max(1, Math.min(24, size));
 
     return { sizeChanged: size !== this.size, size: size };
   }
@@ -120,20 +119,25 @@ export default class CardList extends Component {
   }
 
   static handelPopStateEvent(instanceId) {
-    NavigationManager.onPopState(async ({ url }) => {
+    return NavigationManager.onPopState(async ({ url }) => {
+      const instance = Component.instances[instanceId];
+      if (!instance) return;
       NavigationManager.allowPush = false;
-      console.log("componenet", Component.instances[instanceId]);
-
-      const data = await Component.instances[instanceId].onPaginate(
-        undefined,
-        new URL(url).searchParams.get("page") || 1
-      );
-      console.log("data", data);
-      Component.instances[instanceId].$data.items = data?.items || [];
-      Component.instances[instanceId].paginatorUpdateFn(data);
-      NavigationManager.allowPush = true;
+      try {
+        const data = await instance.onPaginate(
+          undefined, new URL(url).searchParams.get("page") || 1, true,
+        );
+        if (data) instance.paginatorUpdateFn(data);
+      } finally {
+        NavigationManager.allowPush = true;
+      }
     });
-    return true;
+  }
+
+  async delete() {
+    clearTimeout(this.handelSizeChange);
+    this.removePopState?.();
+    return super.delete();
   }
 
   async updateServerData(itemId, field, value) {

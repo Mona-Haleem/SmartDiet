@@ -2,7 +2,7 @@
   <div class="section-name">
     <p>Personal Info</p>
     <button
-      type="button"
+      type="button" aria-label="Show personal information"
       @click="active='personalInfo'"
       :style="(!full && active === 'personalInfo')
     ? 'background-color: rgb(var(--highlight-rgb))'
@@ -21,6 +21,7 @@
         @change="profile.updateUserData($event.target,'birth_date')"
           type="date"
           name="birth_date"
+          aria-label="Birth date"
           value="{{user.birth_date}}"
           x-model="user.birth_date"
           class="form-control"
@@ -49,6 +50,7 @@
             type="number"
             class="form-control"
             x-model.number="user.weight"
+            aria-label="Weight in kilograms"
           />
           <b>kg</b>
         </span>
@@ -61,6 +63,7 @@
             type="number"
             class="form-control"
             x-model.number="user.height"
+          aria-label="Height in centimeters"
           />
           <b>cm</b>
         </span>

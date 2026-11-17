@@ -172,3 +172,21 @@ def test_deleting_a_metric_with_history_preserves_its_records(client, user, plan
     tracker.refresh_from_db(); entry.refresh_from_db()
     assert tracker.isActive is False
     assert entry.value == 50
+
+
+@pytest.mark.parametrize("category", ["diet", "exercise", "full"])
+def test_calendar_assignments_return_the_correct_category_day(client, user, plan_factory, category):
+    plan = plan_factory(creator=user, category=category)
+    UserLog.objects.create(user=user, plan=plan, date=date(2026, 10, 31))
+    UserLog.objects.create(user=user, plan=plan, date=date(2026, 11, 2))
+    client.force_login(user)
+    response = client.get(reverse("assignedPlans"), {"year": 2026, "month": 11})
+    assert response.status_code == 200
+    day = response.json()["plans"]["2026-11-02"]
+    for kind in ("diet", "exercise"):
+        if category in {kind, "full"}:
+            assert day[kind] == {"plan_name": plan.base.name, "plan_id": plan.pk}
+            assert day[f"{kind}Day"] == 3
+        else:
+            assert day[kind] is False
+            assert day[f"{kind}Day"] is None

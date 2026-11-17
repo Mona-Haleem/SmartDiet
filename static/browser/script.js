@@ -10,8 +10,7 @@ window.CardList = CardList;
 let isUpdating;
 function updateFilters(data) {
   if (isUpdating) clearTimeout(isUpdating);
-  else
-    setTimeout(() => {
+  isUpdating = setTimeout(() => {
       const { searchInput, order, filters, type, favFilter, shareFilter } =
         data;
       const url = new URL(window.location.href);
@@ -21,6 +20,7 @@ function updateFilters(data) {
       addOnlyOnValue(url,searchInput,"q")
       addOnlyOnValue(url, favFilter, "favorite");
       addOnlyOnValue(url, shareFilter, "shared");
+      url.searchParams.set("page", "1");
 
       NavigationManager.pushUrl(
         url.pathname.replace("/diet/", "") + url.search
@@ -46,13 +46,13 @@ function setParams(dataObj) {
   const type = url.searchParams.get("type");
   const fav = url.searchParams.get("favorite");
   const shared = url.searchParams.get("shared");
-  dataObj.q = q || "";
+  dataObj.searchInput = q || "";
   dataObj.type = type || "";
   dataObj.order = order || "-edited";
   dataObj.filters = filters?.split(",") || [];
   dataObj.openFilters = false;
   dataObj.favFilter = fav;
-  dataObj.shared = shared;
+  dataObj.shareFilter = shared;
 }
 window.updateFilters = updateFilters;
 window.setParams = setParams;

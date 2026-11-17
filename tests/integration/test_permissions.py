@@ -114,8 +114,8 @@ def test_media_mutations_reject_foreign_owner_before_cloud_calls(
     plan = plan_factory(media=[url])
     upload = Mock(return_value={"secure_url": url, "public_id": "test/photo"})
     destroy = Mock(return_value={"result": "ok"})
-    monkeypatch.setattr("healthHub.views.cloudinary.uploader.upload", upload)
-    monkeypatch.setattr("healthHub.views.cloudinary.uploader.destroy", destroy)
+    monkeypatch.setattr("cloudinary.uploader.upload", upload)
+    monkeypatch.setattr("cloudinary.uploader.destroy", destroy)
     client.force_login(user)
     endpoint = reverse("media", kwargs={"type": "plan", "id": plan.base_id})
     if method == "post":

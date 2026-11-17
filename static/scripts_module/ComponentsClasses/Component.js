@@ -95,19 +95,15 @@ export default class Component {
     if (this.$el) {
       delete Component.instances[this.instanceId];
     }
-    // Dereference all internal data so GC can clean up
-    for (const key of Object.keys(this)) {
-      this[key] = null;
-    }
-
     if (this._eventListeners) {
       this._eventListeners.forEach(({ element, event, handler }) => {
         element.removeEventListener(event, handler);
       });
       this._eventListeners = [];
 
-      this.$el.remove();
     }
+    this.$el?.remove();
+    for (const key of Object.keys(this)) this[key] = null;
   }
 
   addEventListener(element, event, handler) {

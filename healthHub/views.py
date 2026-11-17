@@ -17,6 +17,7 @@ from healthHub.helpers.nurtientCalculator import *
 from django.views.decorators.http import require_GET
 from django.views import View
 from django.db.models import F
+from django.db import transaction
 
 from datetime import date, datetime, timedelta
 import json
@@ -50,8 +51,9 @@ def index(request,mode,userId=None):
     print(page, pageSize ,filters , order)
     if(userId):
         filters["creator__id"] = userId
-    query = UserCreation.objects.filter(**filters).exclude(**exclude).order_by(order) 
-    print("total items",len(query))
+    query = UserCreation.objects.filter(**filters).exclude(**exclude).select_related(
+        "creator", "recipe", "plan"
+    ).order_by(order, "pk")
 
    
 
@@ -148,7 +150,7 @@ class DetailsView(View):
     def get(self,request,id,name):
         try:
             ele = Plan.objects.get(id=id) if self.type == 'plan' else Recipe.objects.get(id=id)
-        except Plan.DoesNotExist or Recipe.DoesNotExist:
+        except (Plan.DoesNotExist, Recipe.DoesNotExist):
             raise Http404(f"{self.type.capitalize} not found")
         if ele.base.creator != request.user and ele.base.shared == False:
             raise Http404(f"{self.type.capitalize} not found")
@@ -166,7 +168,8 @@ class DetailsView(View):
             print("start creation logic")
             success, data, status = CreationHelper.create_element(request,self.type)
         else:
-            ele = UserCreation.objects.filter(id=id).first()
+            relation = "plan" if self.type == "plan" else "recipe"
+            ele = UserCreation.objects.filter(**{f"{relation}__id": id}).first()
             if not ele or ele.shared == False:
                 return JsonResponse({'error': 'Permission denied'}, status=403)
             if ele.creator == request.user:
@@ -211,7 +214,7 @@ class DetailsView(View):
                 "detail":detail
             })
         if key == 'ingredients':
-            ele.nutrients = get_nutrition_info_usda(ele)
+            ele.nutrients = get_nutrition_info_usda(value)
             ele.save()
             return JsonResponse({"message": "Element updated successfully", "data": {key: value,"nutrients":ele.nutrients}})
 
@@ -234,6 +237,9 @@ class DetailsView(View):
 
 
 def mediaManager(request,type,id):
+    # Authorize the base creation before validation, upload, or remote deletion.
+    get_object_or_404(UserCreation, id=id, creator=request.user, type=type)
+
     if request.method == "POST":
         print(request.FILES)
         if not request.FILES.get('media'):
@@ -286,6 +292,14 @@ def mediaManager(request,type,id):
 
 
 class sectionsManager(View):
+    @transaction.atomic
+    def dispatch(self, request, *args, **kwargs):
+        self.section = get_object_or_404(
+            PlanDetail.objects.select_related("plan__base"),
+            id=kwargs["id"], plan__base__creator=request.user,
+        )
+        return super().dispatch(request, *args, **kwargs)
+
     def get(self,request,id):
         return JsonResponse({"method": "GET"})
    
@@ -310,7 +324,7 @@ class sectionsManager(View):
 
         
         # Shift order of siblings if needed
-        siblings = PlanDetail.objects.filter(parent_section=parent_section).filter(order__gte=order)
+        siblings = PlanDetail.objects.filter(plan=plan, parent_section=parent_section, order__gte=order)
         siblings.update(order=F('order') + 1)
 
         # Create new section
@@ -338,7 +352,7 @@ class sectionsManager(View):
     def patch(self,request,id):
         print(id)
         data = json.loads(request.body)
-        ele = PlanDetail.objects.get(id=id)
+        ele = self.section
         key, value = list(data.items())[0]
             
         print(key)
@@ -359,9 +373,10 @@ class sectionsManager(View):
             })
         elif key == 'section':
             if PlanDetail.objects.filter(
+                plan=ele.plan,
                 parent_section=ele.parent_section,
                 section=value
-            ).exists():
+            ).exclude(pk=ele.pk).exists():
                 return JsonResponse(
                     {"error": "This section name already exists."},
                     status=400
@@ -369,10 +384,16 @@ class sectionsManager(View):
             ele.section = value
         elif key == 'order':
             parent_id = data.get("parentId")
-            parent_section = PlanDetail.objects.get(id=parent_id) if parent_id else None
+            parent_section = get_object_or_404(PlanDetail, id=parent_id, plan=ele.plan) if parent_id else None
+            ancestor = parent_section
+            while ancestor:
+                if ancestor.pk == ele.pk:
+                    return JsonResponse({'error': 'A section cannot contain itself'}, status=400)
+                ancestor = ancestor.parent_section
             ele.parent_section = parent_section
             ele.order = value
             PlanDetail.objects.filter(
+                plan=ele.plan,
                 parent_section=parent_section
             ).exclude(
                 id=ele.id
@@ -393,7 +414,7 @@ class sectionsManager(View):
 
     def delete(self, request, id):
         try:
-            section = PlanDetail.objects.get(id=id)
+            section = self.section
             plan = section.plan
             section.delete()
         except PlanDetail.DoesNotExist:

@@ -12,8 +12,19 @@
   <div class="chart-container">
     <canvas x-ref="chartCanvas" 
             id="progressChart"
+            role="img" aria-label="Progress over time; equivalent values follow in the data table"
             :height="$data.chartHeight"></canvas>
   </div>
+  <details class="chart-data-table">
+    <summary>View progress data</summary>
+    <table>
+      <caption>Daily overall progress scores</caption>
+      <thead><tr><th scope="col">Date</th><th scope="col">Score</th></tr></thead>
+      <tbody><template x-for="row in ($data.chartRows || [])" :key="row.date">
+        <tr><td x-text="row.date"></td><td x-text="row.overall_score + '%'"></td></tr>
+      </template></tbody>
+    </table>
+  </details>
 
   <!-- <div class="chart-footer">
     <button class="chart-btn" 

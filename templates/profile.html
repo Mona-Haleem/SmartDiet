@@ -5,7 +5,7 @@
 {% endblock %} {% block body %}
 <input type="hidden" id="csrf_token" value="{{ csrf_token }}" />
 <div
-  class="d-flex relative"
+  class="d-flex relative profile-layout"
   style="width: 100%; height: 100%"
   x-data="{user:{{user}},
   home:false,
@@ -29,6 +29,7 @@ editMode:false,  isAdding: false,
         <p>User Restrictions</p>
         <button
           type="button"
+          aria-label="Show restrictions"
           @click="active='restrictions'"
           :style="(!full && active === 'restrictions')
             ? 'background-color: rgb(var(--highlight-rgb))'

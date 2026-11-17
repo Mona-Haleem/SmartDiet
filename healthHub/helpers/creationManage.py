@@ -7,6 +7,7 @@ from healthHub.models.base import UserCreation, ElementType
 from healthHub.models.recipe import Recipe
 from healthHub.models.plan import Plan, PlanDetail, LinkedPlan, PlanType
 from django.db import transaction
+from django.core.exceptions import ValidationError
 from datetime import timedelta
 import json
 
@@ -91,9 +92,10 @@ class CreationHelper:
             }, 200
 
 
-        except Exception as e:
-            print("creation failed")
-        return False, {'errors': {'__all__': [str(e)]}}, 500
+        except ValidationError as error:
+            return False, {'errors': {'__all__': error.messages}}, 400
+        except Exception:
+            return False, {'errors': {'__all__': ['Unable to create this item.']}}, 500
 
     def create_Clone(request,type,ele):
         
@@ -114,9 +116,14 @@ class CreationHelper:
             if ele.type == "plan" and ele.category == PlanType.FULL:
                 try:
                     linked = ele.plan.linked_plan
-                    ele_data["diet_plan_id"] = linked.diet_plan_id
-                    ele_data["exercise_plan_id"] = linked.exercise_plan_id
-                except Exception:  # no linked plan
+                    for category in ("diet", "exercise"):
+                        child = getattr(linked, f"{category}_plan")
+                        if child and child.base.creator_id != request.user.pk:
+                            _, cloned, _ = CreationHelper.create_Clone(request, "plan", child.base)
+                            ele_data[f"{category}_plan_id"] = cloned["id"]
+                        else:
+                            ele_data[f"{category}_plan_id"] = child.pk if child else None
+                except LinkedPlan.DoesNotExist:
                     ele_data["diet_plan_id"] = None
                     ele_data["exercise_plan_id"] = None
 
@@ -135,6 +142,7 @@ class CreationHelper:
                 )
         return True, {
                 'success': True,
+                'id': new_ele.get_concrete().id,
                 'redirect': redirect_url,
                 'message': f'{type.capitalize()} created successfully!',
             }, 200

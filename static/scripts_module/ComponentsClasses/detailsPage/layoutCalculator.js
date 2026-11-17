@@ -16,7 +16,7 @@ export default class LayoutCalculator {
     }
     if(!size) size = 6 * height;
     
-    return  size;
+    return Math.max(1, Math.min(24, size));
   }
   calculatePages(ele, mode,page) {
     

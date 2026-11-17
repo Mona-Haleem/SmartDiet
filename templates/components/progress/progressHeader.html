@@ -21,6 +21,7 @@
 
   <div class="period-controls">
     <select class="period-select" 
+            aria-label="Progress period"
             x-model="selectedPeriod"
             @change="progressHeader?.changePeriod()"
             x-show="!!!home">

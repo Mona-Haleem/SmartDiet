@@ -10,7 +10,7 @@ export default class MediaManager {
 
   async uploadMedia(input, data) {
     const img = input.files[0];
-    if (!isValidImg(img)) return;
+    if (!img || !isValidImg(img)) return;
     const formData = new FormData();
     formData.append("media", img);
     const url = `/diet/collections/${this.type}/${this.eleId}/media/`;
@@ -33,10 +33,10 @@ export default class MediaManager {
   async appendMediaLink(input, data) {
     const mediaUrl = input.value.trim();
     if (isValidImgurl(mediaUrl)) {
-      data.ele.media.push(mediaUrl);
-      data.mediaIndex = data.ele.media.length - 1;
-      await this.updateServerData(["updateMediaList", data.ele.media], {
-        media: data.ele.media,
+      const media = [...data.ele.media, mediaUrl];
+      await this.updateServerData(["updateMediaList", media], { media }, () => {
+        data.ele.media = media;
+        data.mediaIndex = media.length - 1;
       });
     }
 
@@ -54,31 +54,12 @@ export default class MediaManager {
       ),
       onSuccess: (ctx) => {
         console.log(imgSrc, imgEle, data.ele.media);
-        data.ele.media.filter(
-          (media) =>
-            media != imgSrc &&
-            !(media.startsWith("/media") && imgSrc.includes(media))
-        );
-        const lastDisplayedImg =
-          data.displayedMedia[data.displayedMedia.length - 1];
-        const imageLength = data.ele.media.length;
-        const lastDisplayedIndex = data.ele.media.indexOf(lastDisplayedImg);
-        if (lastDisplayedIndex != imageLength - 1) {
-          data.displayedMedia = [
-            ...data.displayedMedia.filter(
-              (media) =>
-                media != imgSrc &&
-                !(media.startsWith("/media") && imgSrc.includes(media))
-            ),
-            data.ele.media[lastDisplayedIndex + 1],
-          ];
-        } else {
-          data.displayedMedia = data.displayedMedia.filter(
-            (media) =>
-              media != imgSrc &&
-              !(media.startsWith("/media") && imgSrc.includes(media))
-          );
-        }
+        const capacity = Math.max(1, data.displayedMedia.length);
+        const start = Math.max(0, data.ele.media.indexOf(data.displayedMedia[0]));
+        data.ele.media = data.ele.media.filter(media =>
+          new URL(media, window.location.href).href !== imgSrc);
+        const offset = Math.min(start, Math.max(0, data.ele.media.length - capacity));
+        data.displayedMedia = data.ele.media.slice(offset, offset + capacity);
         data.mediaIndex = 0;
         console.log(data, imgSrc);
 

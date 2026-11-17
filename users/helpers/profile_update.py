@@ -4,6 +4,9 @@ import os
 from django.conf import settings
 from django.utils.dateparse import parse_date
 from users.models import User
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.utils import timezone
 import json
 import os
 
@@ -43,22 +46,24 @@ def update_username(username,user):
         return {'username': username},200
 
 def update_profile_data(request):
-    age = None
     data = json.loads(request.body)
-    for key, value in data.items():
-        if hasattr(request.user, key):
-            field_type = type(getattr(request.user, key))
-            
-            if field_type == date:
-                setattr(request.user, key, parse_date(value))
-                age = request.user.age
-            elif field_type in (Decimal, float, int):
-                value = Decimal(value)
-                if value > 0:
-                    setattr(request.user, key, value)
-            else:
-                setattr(request.user, key, value)
-    
-    request.user.save()
-    return age
+    allowed = {"birth_date", "gender", "weight", "height", "activity_level",
+               "fluid_intake", "sleep_quality", "sleep_duration"}
+    if not isinstance(data, dict) or not data or set(data) - allowed:
+        raise ValidationError("Unsupported profile field.")
+    values = {}
+    for key, raw in data.items():
+        value = User._meta.get_field(key).clean(raw, request.user)
+        if key in {"weight", "height", "fluid_intake", "sleep_duration"}:
+            if not value.is_finite() or value <= 0:
+                raise ValidationError({key: "Enter a positive finite value."})
+        if key == "birth_date" and value > timezone.localdate():
+            raise ValidationError({key: "Birth date cannot be in the future."})
+        values[key] = value
+    with transaction.atomic():
+        for key, value in values.items():
+            setattr(request.user, key, value)
+        request.user.full_clean()
+        request.user.save(update_fields=list(values))
+    return request.user.age if "birth_date" in values else None
 
