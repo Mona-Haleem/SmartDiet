@@ -7,8 +7,10 @@ from datetime import date, timedelta
 from core.models import UserLog, DailyAchivedMetrics, TrackedMetrics
 from django.utils import timezone
 from django.db import transaction
+from django.contrib.auth import get_user_model
 
 
+@transaction.atomic
 def get_current_plan(user, type):
     """
     Get the current active plan for a user by type (diet/exercise).
@@ -19,6 +21,7 @@ def get_current_plan(user, type):
         user: User instance
         type: 'diet' or 'exercise'
     """
+    get_user_model().objects.select_for_update().get(pk=user.pk)
     today = timezone.localdate()
     
     # Find the most recent log for this specific plan type
@@ -106,7 +109,7 @@ def set_plan(user, plan, start_date, fill_duration=False, replace=False):
     else:
         end_date = start_date + timedelta(days=1)
     # Serialize assignments for this user on databases supporting row locks.
-    type(user).objects.select_for_update().get(pk=user.pk)
+    get_user_model().objects.select_for_update().get(pk=user.pk)
     # Determine the actual plan type we're setting
     plan_type = plan.base.category
     if plan_type == 'full':
@@ -138,6 +141,9 @@ def add_plan(user, plan, start_date, replace=False):
     """
     category = plan.base.category
     logs = UserLog.objects.filter(user=user, date=start_date).select_related('plan__base')
+    shared_values = dict(DailyAchivedMetrics.objects.filter(
+        log__in=logs, metric__linkedPlan__isnull=True
+    ).values_list('metric_id', 'value')) if replace else {}
     same = logs.filter(plan=plan).first()
     if same:
         update_metrics(same)
@@ -180,6 +186,14 @@ def add_plan(user, plan, start_date, replace=False):
             update_metrics(log)
     if start_date == timezone.localdate():
         update_active_metrics(user)
+    if replace:
+        for current_log in UserLog.objects.filter(user=user, date=start_date):
+            for metric_id, value in shared_values.items():
+                entry, _ = DailyAchivedMetrics.objects.get_or_create(
+                    log=current_log, metric_id=metric_id, defaults={'value': value})
+                if entry.value != value:
+                    entry.value = value
+                    entry.save(update_fields=['value'])
 
 
 def update_metrics(log, force_reinit=False):
@@ -194,7 +208,7 @@ def update_metrics(log, force_reinit=False):
     """
     if force_reinit:
         # Delete existing metrics for this log
-        DailyAchivedMetrics.objects.filter(log=log).delete()
+        DailyAchivedMetrics.objects.filter(log=log, metric__linkedPlan__isnull=False).delete()
     
     plan_category = log.plan.base.category if log.plan else None
     
@@ -217,8 +231,8 @@ def update_metrics(log, force_reinit=False):
         )
 
     for tm in all_metrics:
-        # Skip if already exists (unless force_reinit)
-        if not force_reinit and DailyAchivedMetrics.objects.filter(log=log, metric=tm).exists():
+        # Global values survive replacement and must not be initialized twice.
+        if DailyAchivedMetrics.objects.filter(log=log, metric=tm).exists():
             continue
 
         current_value = get_initial_value_for_metric(tm, log.date, plan_category)
@@ -245,6 +259,12 @@ def get_initial_value_for_metric(tracked_metric, log_date, plan_category=None):
         Initial value for the metric
     """
     metric_type = tracked_metric.metric.type
+    if tracked_metric.linkedPlan_id is None:
+        shared = DailyAchivedMetrics.objects.filter(
+            metric=tracked_metric, log__user=tracked_metric.metric.user, log__date=log_date
+        ).order_by('-pk').first()
+        if shared is not None:
+            return shared.value
     
     if metric_type == 'continues':
         # For continuous metrics, carry over from previous day
@@ -256,7 +276,7 @@ def get_initial_value_for_metric(tracked_metric, log_date, plan_category=None):
         )
         
         # Filter by plan category if specified
-        if plan_category:
+        if plan_category and tracked_metric.linkedPlan_id is not None:
             last_entry_query = last_entry_query.filter(
                 log__plan__base__category__in=[plan_category, 'full']
             )

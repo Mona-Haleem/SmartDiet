@@ -174,12 +174,8 @@ def formatMetricPeriodSummery(allRecords, prevPeriodRecords):
         if not isinstance(all_options, list):
             all_options = [all_options]
 
-        if metric_tracker.isPostive:
-            # Positive: include selected items
-            final_items = target_items
-        else:
-            # Negative: exclude selected items
-            final_items = [item for item in all_options if item not in target_items]
+        # The label names the selected target, including categories to avoid.
+        final_items = target_items
 
         target_str = ", ".join(map(str, final_items))
 
@@ -200,4 +196,4 @@ def to_scale(value):
     try:
         return SCALE_LABELS[max(1, min(5, round(float(value))))]
     except (TypeError, ValueError):
-        return 1
+        return SCALE_LABELS[1]

@@ -26,10 +26,12 @@ export default {
   // Ignore patterns
   testPathIgnorePatterns: [
     '/node_modules/',
+    '<rootDir>/[.]test-data/',
     '/static/__tests__/e2e/',
     '/venv/',
     '/.pytest_cache/'
   ],
+  modulePathIgnorePatterns: ['<rootDir>/[.]test-data/'],
   
   // Coverage configuration
   collectCoverageFrom: [

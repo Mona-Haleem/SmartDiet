@@ -15,6 +15,7 @@ export default class DetailsEditor {
    * Open the editor for a specific section
    */
   init(sectionId) {
+    this.returnFocus = document.activeElement;
     this.currentSectionId = sectionId;
     console.log("Initializing editor for section:", sectionId);
     // Get the main Alpine component
@@ -48,6 +49,7 @@ export default class DetailsEditor {
           JSON.stringify(sectionData.detail || [])
         );
         this.editorInstance.sectionId = sectionId;
+        document.querySelector('.details-editor-container button')?.focus();
       }
     });
   }
@@ -61,9 +63,7 @@ export default class DetailsEditor {
       return;
     }
     if(this.currentSectionId == "directions") return this.saveDirections(updatedDetails);
-    eleObj.$data.mode = "details";
     console.log(eleObj.$refs);
-    document.querySelector(".paginator-container").style.position = "relative";
     
     const url = `/diet/collections/plans/sections/${this.currentSectionId}/`;
     console.log(url);
@@ -77,6 +77,8 @@ export default class DetailsEditor {
         ),
         force: true,
         onSuccess: (ctx) => {
+          eleObj.$data.mode = "details";
+          document.querySelector(".paginator-container").style.position = "relative";
           console.log("Details saved successfully", eleObj);
 
           if (eleObj.$data.sections[this.currentSectionId]) {
@@ -110,9 +112,7 @@ export default class DetailsEditor {
       console.error("No section selected");
       return;
     }
-    eleObj.$data.mode = "details";
     console.log(eleObj.$refs);
-    document.querySelector(".paginator-container").style.position = "relative";
     
     await eleObj.updateServerData(
       ["updateDirections"],
@@ -120,6 +120,8 @@ export default class DetailsEditor {
         directions:updatedDetails,
       },
       (ctx) => {
+        eleObj.$data.mode = "details";
+        document.querySelector(".paginator-container").style.position = "relative";
         eleObj.$data.ele.directions = updatedDetails;
 
          const targetRef = eleObj.$refs.recDirections;
@@ -174,6 +176,9 @@ export default class DetailsEditor {
    * Clean up state
    */
   cleanup() {
+    const returnFocus = this.returnFocus;
+    this.returnFocus = null;
+    this.$nextTick(() => returnFocus?.focus());
     this.currentSectionId = null;
     this.editorInstance = null;
     this.originalData = null;

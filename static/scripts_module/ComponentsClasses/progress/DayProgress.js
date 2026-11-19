@@ -1,5 +1,6 @@
 import Component from "../Component.js";
 import { queryService } from "../../../common/script.js";
+import { trapDialogFocus } from '../../../common/dialog.js';
 
 export default class DayProgress extends Component {
   constructor(el, refs, data) {
@@ -24,6 +25,15 @@ export default class DayProgress extends Component {
 
   _init() {
     this.loadDayData(this.$data.selectedDate);
+  }
+
+  trapDialogFocus(event) { trapDialogFocus(event); }
+
+  focusDialog(selector) {
+    this.dialogReturnFocus = document.activeElement;
+    const focus = () => this.$el?.querySelector(selector)?.querySelector('button, input, select')?.focus();
+    if (globalThis.Alpine?.nextTick) Alpine.nextTick(focus);
+    else queueMicrotask(focus);
   }
 
   async loadDayData(date) {
@@ -95,6 +105,7 @@ export default class DayProgress extends Component {
       selectedExisting: ''
     };
     this.$data.showMetricModal = true;
+    this.focusDialog('.metric-modal');
   }
 onExistingMetricSelected() {
   const selectedId = this.$data.metricForm.selectedExisting;
@@ -137,7 +148,8 @@ editMetric(metric) {
       start:metric.start,
       selectedExisting: '',
     };
-    this.$data.showMetricModal = true
+    this.$data.showMetricModal = true;
+    this.focusDialog('.metric-modal');
   }
 
 
@@ -246,6 +258,7 @@ editMetric(metric) {
       onSuccess: (ctx) => {
         this.$data.inactiveMetrics = ctx.data.metrics || [];
         this.$data.showInactiveModal = true;
+        this.focusDialog('.inactive-modal');
       },
       force: true
     });
@@ -270,12 +283,14 @@ editMetric(metric) {
   closeInactiveModal() {
     this.$data.showInactiveModal = false;
     this.$data.inactiveMetrics = [];
+    this.dialogReturnFocus?.focus();
   }
 
   closeMetricModal() {
     this.$data.showMetricModal = false;
     this.$data.editingMetric = null;
     this.$data.metricForm = {};
+    this.dialogReturnFocus?.focus();
   }
 
   async saveFeedback() {

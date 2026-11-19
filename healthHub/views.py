@@ -1,3 +1,7 @@
+from django.utils.decorators import method_decorator
+from core.helpers.api import api_endpoint, read_object, number
+from healthHub.helpers.content import validate_details
+from healthHub.forms import RecipeForm
 from django.shortcuts import render,get_object_or_404#, redirect
 #from django.db import IntegrityError
 from django.http import Http404, JsonResponse#, HttpResponseRedirect
@@ -177,48 +181,48 @@ class DetailsView(View):
             success, data, status =  CreationHelper.create_Clone(request,self.type,ele)
         return JsonResponse(data, status=status)
 
-    def patch(self,request,id,name):
-        data = json.loads(request.body)
-        if self.type=='plan':
-            ele = Plan.objects.get(id=id)
-        else:
-            ele = Recipe.objects.get(id=id)
-        if ele.base.creator != request.user:
-            return JsonResponse({'error': 'not allowed'},status=400)
-
-        key, value = list(data.items())[0]
+    @method_decorator(api_endpoint)
+    def patch(self, request, id, name):
+        item = get_object_or_404(Plan if self.type == 'plan' else Recipe, pk=id)
+        if item.base.creator_id != request.user.pk:
+            return JsonResponse({'error': 'Permission denied'}, status=403)
+        data = read_object(request)
+        if len(data) != 1:
+            raise ValueError('Update one supported field at a time')
+        key, value = next(iter(data.items()))
+        base_fields = {'name', 'notes', 'media', 'shared', 'favorite'}
+        allowed = base_fields | ({'goal', 'duration'} if self.type == 'plan' else {'serv', 'prep_time', 'directions', 'ingredients'})
+        if key not in allowed:
+            raise ValueError('Unsupported field')
+        if key in {'name', 'notes', 'goal'} and not isinstance(value, str):
+            raise ValueError('Text is required')
         if key == 'name':
-            dublicate = UserCreation.objects.filter(creator=request.user,name=value,type=ele.base.type).exclude(id=ele.base.id)
-            if dublicate.exists():
-                return JsonResponse({'error': 'Invalid username'},status=400)
-        if key in ['name' ,'notes','media',"shared","favorite"]:
-            if key in ["shared","favorite"]:
-                value = bool(value)
-                print(ele)
-            setattr(ele.base, key, value)
-            ele.base.save()
-            return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
-        if key == 'duration'or key == 'prep_time':
-            value= timedelta(minutes=int(value))
-        print(key,value)
-        setattr(ele, key, value)
-        ele.save()
+            if not value.strip() or len(value) > 100 or UserCreation.objects.filter(creator=request.user, name=value).exclude(pk=item.base_id).exists():
+                raise ValueError('Choose a valid, unique name')
+        if key in {'shared', 'favorite'} and not isinstance(value, bool):
+            raise ValueError('A boolean is required')
+        if key == 'media' and (not isinstance(value, list) or any(not isinstance(v, str) for v in value)):
+            raise ValueError('Media must be a list of URLs')
+        if key in {'duration', 'prep_time', 'serv'}:
+            numeric = number(value)
+            if not numeric.is_integer() or numeric < (0 if key == 'prep_time' else 1):
+                raise ValueError('Enter a valid positive integer')
+            value = timedelta(minutes=int(numeric)) if key != 'serv' else int(numeric)
         if key == 'directions':
-            detail = {
-                "type": "div",
-                "content": value,
-                "effects": []
-            }
-            print(detail)
-            return render(request, "components/details/detailContent.html", {
-                "detail":detail
-            })
+            validate_details(value)
         if key == 'ingredients':
-            ele.nutrients = get_nutrition_info_usda(value)
-            ele.save()
-            return JsonResponse({"message": "Element updated successfully", "data": {key: value,"nutrients":ele.nutrients}})
+            form = RecipeForm({'serv': item.serv, 'ingredients': value}, calculate_nutrition=False)
+            if not form.is_valid():
+                raise ValueError(str(form.errors))
+            value = form.cleaned_data['ingredients']
+            item.nutrients = get_nutrition_info_usda(value)
+        target = item.base if key in base_fields else item
+        setattr(target, key, value)
+        target.save()
+        if key == 'directions':
+            return render(request, 'components/details/detailContent.html', {'detail': {'type': 'div', 'content': value, 'effects': []}})
+        return JsonResponse({'message': 'Element updated successfully', 'data': {key: data[key], **({'nutrients': item.nutrients} if key == 'ingredients' else {})}})
 
-        return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
  
 
     def put(self, request, id, name):
@@ -226,9 +230,9 @@ class DetailsView(View):
 
     def delete(self, request, id, name):
         if self.type == "plan":
-            ele = UserCreation.objects.get(plan__id=id)
+            ele = get_object_or_404(UserCreation, plan__id=id)
         else:
-            ele = UserCreation.objects.get(recipe__id=id)
+            ele = get_object_or_404(UserCreation, recipe__id=id)
         if ele.creator != request.user:
             return JsonResponse({'error': 'Permission denied'}, status=403)
         ele.delete()
@@ -292,7 +296,7 @@ def mediaManager(request,type,id):
 
 
 class sectionsManager(View):
-    @transaction.atomic
+    @method_decorator(api_endpoint)
     def dispatch(self, request, *args, **kwargs):
         self.section = get_object_or_404(
             PlanDetail.objects.select_related("plan__base"),
@@ -304,13 +308,18 @@ class sectionsManager(View):
         return JsonResponse({"method": "GET"})
    
     def post(self, request,id):
-        data = json.loads(request.body)
+        data = read_object(request)
         section_name = data.get("section", "section")
         detail = data.get("detail", [])
+        if not isinstance(section_name, str) or not section_name.strip():
+            raise ValueError('Section name is required')
+        validate_details(detail)
         target_id = id
         target_relation = data.get("targetRelation")  
         order = data.get("order", 1)
 
+        if not isinstance(order, int) or isinstance(order, bool) or order < 1:
+            raise ValueError('Order must be a positive integer')
         if target_relation == "parent":
             parent_section = get_object_or_404(PlanDetail, id=target_id)
         else:
@@ -351,9 +360,17 @@ class sectionsManager(View):
 
     def patch(self,request,id):
         print(id)
-        data = json.loads(request.body)
+        data = read_object(request)
         ele = self.section
-        key, value = list(data.items())[0]
+        if not data or set(data) - {'detail', 'section', 'order', 'parentId'}:
+            raise ValueError('Unsupported section fields')
+        key, value = next(iter(data.items()))
+        if key == 'section' and (not isinstance(value, str) or not value.strip()):
+            raise ValueError('Section name is required')
+        if key == 'order' and (not isinstance(value, int) or isinstance(value, bool) or value < 1):
+            raise ValueError('Order must be a positive integer')
+        if key == 'detail':
+            validate_details(value)
             
         print(key)
         if key == 'detail':

@@ -60,3 +60,30 @@ def test_calendar_batches_plan_start_dates(client, user, plan_factory, record_pr
     record_property("sql_queries", len(captured))
     assert len(response.json()["plans"]) == 31
     assert len(captured) <= 8, f"Calendar used {len(captured)} queries; budget is 8"
+
+
+def test_average_score_batches_monthly_metric_queries(client, user, plan_factory, metric_factory, record_property):
+    plan = plan_factory(creator=user)
+    tracker = metric_factory(user=user, linkedPlan=plan)
+    for day in range(1, 32):
+        log = UserLog.objects.create(user=user, plan=plan, date=date(2026, 3, day))
+        DailyAchivedMetrics.objects.create(log=log, metric=tracker, value=50)
+    client.force_login(user)
+    with CaptureQueriesContext(connection) as captured:
+        response = client.get(reverse("avgScore"), {"date": "2026-03-15", "period": "month", "type": "diet"})
+    assert response.status_code == 200 and response.json()["avgScore"] == 50
+    record_property("sql_queries", len(captured))
+    assert len(captured) <= 10, f"Monthly average used {len(captured)} queries; budget is 10"
+
+
+def test_daily_progress_batches_metric_relations(client, user, plan_factory, metric_factory, record_property):
+    plan = plan_factory(creator=user)
+    log = UserLog.objects.create(user=user, plan=plan, date=date(2026, 3, 15))
+    for _ in range(30):
+        DailyAchivedMetrics.objects.create(log=log, metric=metric_factory(user=user, linkedPlan=plan), value=50)
+    client.force_login(user)
+    with CaptureQueriesContext(connection) as captured:
+        response = client.get(reverse("dayData"), {"date": "2026-03-15", "type": "diet"})
+    assert response.status_code == 200 and len(response.json()["metrics"]) == 30
+    record_property("sql_queries", len(captured))
+    assert len(captured) <= 10, f"Daily progress used {len(captured)} queries; budget is 10"

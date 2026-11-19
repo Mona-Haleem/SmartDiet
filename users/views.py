@@ -1,3 +1,4 @@
+from core.helpers.api import api_endpoint, read_object
 from django.shortcuts import render, redirect
 from django.contrib.auth import  login, logout
 from django.db import IntegrityError
@@ -111,6 +112,12 @@ def profileUpdate(request):
             valid,error = validate_image(avatar_img)
             if not valid:
                 return JsonResponse({'error': error }, status=400)   
+            from PIL import Image, UnidentifiedImageError
+            try:
+                Image.open(avatar_img).verify()
+                avatar_img.seek(0)
+            except (UnidentifiedImageError, OSError, ValueError, Image.DecompressionBombError):
+                return JsonResponse({'error': 'Upload a valid image'}, status=400)
             image_url = update_profile_image(avatar_img, request)
             return JsonResponse({'image_url': image_url}, status=200)
     elif request.method == 'PATCH':
@@ -140,22 +147,27 @@ def profileUpdate(request):
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
 @method_decorator(login_required, name='dispatch')
+@method_decorator(api_endpoint, name='dispatch')
 class restrictionsManger(View):
     # def get(self,request,id):
     #     return JsonResponse({"method": "GET"})
    
     def post(self, request,id):
-        data = json.loads(request.body)
+        data = read_object(request)
         type = data.get("type")
         remark = data.get("remark","")
+        if type not in dict(RESTRICTIONS_TYPE_CHOICES):
+            raise ValueError('Invalid restriction type')
         if type == "medical":
             issueId = int(data.get("name"))
-            issue = MedicalIssues.objects.get(id=issueId)
+            issue = get_object_or_404(MedicalIssues, id=issueId)
             name = issue.name_en
         else:
             issue = None
             name = data.get("name")
         
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError('Name is required')
         newRestriction = UserRestriction.objects.create(
             name=name,
             user=request.user,
@@ -172,17 +184,22 @@ class restrictionsManger(View):
     #     return JsonResponse({"message": "Element updated successfully", "data": {key: value}})
 
     def put(self, request, id):
-        data = json.loads(request.body)
+        data = read_object(request)
         remark = data.get("remark","")
         type = data.get("type")
+        if type not in dict(RESTRICTIONS_TYPE_CHOICES):
+            raise ValueError('Invalid restriction type')
         if type == "medical":
             issueId = data.get("name")
-            issue = MedicalIssues.objects.get(id=issueId)
+            issue = get_object_or_404(MedicalIssues, id=issueId)
             name = issue.name_en
         else:
             issue = None
             name = data.get("name")
         restriction = get_object_or_404(UserRestriction, id=id, user=request.user)
+        if not isinstance(name, str) or not name.strip():
+            raise ValueError('Name is required')
+        restriction.type = type
         restriction.name = name
         restriction.remark = remark
         restriction.ref = issue

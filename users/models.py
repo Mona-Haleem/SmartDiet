@@ -67,9 +67,9 @@ class User(AbstractUser):
             "weight": float(self.weight) ,
             "height": float(self.height) ,
             "gender": self.gender,
-            "activity_level": dict(ACTIVITY_LEVEL_CHOICES).get(self.activity_level, 'Unknown'),
+            "activity_level": self.activity_level,
             "fluid_intake": float(self.fluid_intake),
-            "sleep_quality": dict(SLEEP_QUALITY_CHOICES).get(self.sleep_quality, 'Unknown'),
+            "sleep_quality": self.sleep_quality,
             "sleep_duration": float(self.sleep_duration),
             "restrictions":[r.serialize() for r in self.restrictions.all()]
         }
@@ -82,8 +82,7 @@ class User(AbstractUser):
     def image_exists(self):
         # Check if the file exists
         if self.avatar_img:
-            full_path = os.path.join(settings.MEDIA_ROOT, self.avatar_img.name)
-            return os.path.isfile(full_path)
+            return self.avatar_img.storage.exists(self.avatar_img.name)
         else:
             return ""
 class MedicalIssues(models.Model):

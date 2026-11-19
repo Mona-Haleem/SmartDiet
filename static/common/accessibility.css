@@ -70,6 +70,26 @@ select { color: var(--readable-text) !important; background-color: var(--readabl
 }
 .creation-form-container h3 { color: var(--readable-text) !important; }
 .creation-form-container .btn-secondary { background: #50584f !important; color: #ffffff !important; }
+.paginator-container > .nav-btn { z-index: 20; padding: 0; line-height: 1; }
+.section .editBtn, #directions .fa-edit {
+  background: transparent; border: 0; padding: 4px; min-width: 28px; min-height: 28px;
+  color: var(--readable-text); cursor: pointer;
+}
+.details-editor-container, .metric-modal, .inactive-modal {
+  color: var(--readable-text); background: var(--readable-surface) !important;
+}
+.details-editor-header, .details-editor-footer, .details-editor-toolbar {
+  color: var(--readable-text); background: var(--readable-surface) !important;
+}
+.details-editor-header h2, .details-editor-header .editor-close-btn,
+.modal-content :is(h5, label, p, .metric-type, .metric-target, strong) {
+  color: var(--readable-text) !important;
+}
+.details-editor-toolbar button {
+  color: var(--readable-text) !important; background: var(--readable-surface) !important;
+  border-color: var(--readable-text);
+}
+.details-editor-toolbar button :is(span, i), .btn.btn-primary :is(span, i) { color: inherit !important; }
 @media (max-width: 768px) {
   nav.nav-sections { width: calc(100% - 32px); left: 16px; padding-left: 0; }
   nav.nav-sections > a.nav-item { min-width: 0; padding: 5px 2px; font-size: 11px; gap: 2px; }

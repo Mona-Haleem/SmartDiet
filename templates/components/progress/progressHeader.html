@@ -4,13 +4,13 @@
   <template x-if="currentView === 'day'">
 
     <div class="plan-type-selector" >
-      <button class="plan-btn" 
+      <button class="plan-btn" aria-label="Diet"
       :class="{ 'active': selectedPlanType === 'diet' }"
       @click="progressHeader.switchPlanType('diet')">
       <i class="fas fa-utensils"></i>
       <span>Diet</span>
     </button>
-    <button class="plan-btn" 
+    <button class="plan-btn" aria-label="Exercise"
     :class="{ 'active': selectedPlanType === 'exercise' }"
     @click="progressHeader.switchPlanType('exercise')">
     <i class="fas fa-dumbbell"></i>

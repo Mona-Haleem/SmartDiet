@@ -106,7 +106,7 @@ class CreationHelper:
             )
             original_name = ele_data['name']
             counter = 1
-            while UserCreation.objects.filter(creator=request.user, name=ele_data['name'], type=ele_data['type']).exists():
+            while UserCreation.objects.filter(creator=request.user, name=ele_data['name']).exists():
                 ele_data['name'] = f"{original_name} ({counter})"
                 counter += 1
 
@@ -179,6 +179,20 @@ class CreationHelper:
                 new_detail = detail_map[detail.id]
                 new_detail.parent_section = detail_map[detail.parent_section_id]
                 new_detail.save(update_fields=["parent_section"])
+        def remap(value):
+            if isinstance(value, list):
+                return [remap(item) for item in value]
+            if not isinstance(value, dict):
+                return value
+            value = {key: remap(item) for key, item in value.items()}
+            if value.get('type') == 'ref' and value.get('refType') == 'detail' and value.get('eleId') in detail_map:
+                target = detail_map[value['eleId']]
+                value.update(eleId=target.pk, planId=new_plan.pk,
+                    href=reverse('plans', args=[new_plan.pk, new_plan.base.name]) + f'#section-{target.pk}')
+            return value
+        for section in detail_map.values():
+            section.detail = remap(section.detail)
+            section.save(update_fields=['detail'])
 
 
   

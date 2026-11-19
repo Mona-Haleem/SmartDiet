@@ -5,6 +5,7 @@ from healthHub.models.plan import PlanType
 from healthHub.helpers.nurtientCalculator import *
 from datetime import timedelta
 import json
+from math import isfinite
 
 
 class BaseCreationForm(forms.ModelForm):
@@ -69,6 +70,10 @@ class BaseCreationForm(forms.ModelForm):
 
 class RecipeForm(forms.Form):
     """Form for Recipe-specific fields"""
+    def __init__(self, *args, calculate_nutrition=True, **kwargs):
+        self.calculate_nutrition = calculate_nutrition
+        super().__init__(*args, **kwargs)
+
     prep_time_hours = forms.IntegerField(
         min_value=0,
         required=False,
@@ -120,7 +125,11 @@ class RecipeForm(forms.Form):
         return timedelta(hours=hours, minutes=minutes)
 
     def clean_ingredients(self):
-        ingredients = self.cleaned_data.get('ingredients') or []
+        if isinstance(self.data.get('ingredients'), dict):
+            raise forms.ValidationError('Ingredients must be a list')
+        ingredients = self.cleaned_data.get('ingredients')
+        if ingredients is None:
+            ingredients = []
 
         if not isinstance(ingredients, list):
             raise forms.ValidationError("Ingredients must be a list")
@@ -130,7 +139,13 @@ class RecipeForm(forms.Form):
 
         for ing in ingredients:
             if not isinstance(ing, dict):
-                continue  # or raise ValidationError if you prefer
+                raise forms.ValidationError('Each ingredient must be an object')
+            try:
+                amount = float(ing.get('amount', 0))
+            except (ValueError, TypeError):
+                raise forms.ValidationError('Ingredient amounts must be positive numbers')
+            if not isfinite(amount) or amount <= 0 or not str(ing.get('name', '')).strip() or not str(ing.get('unit', '')).strip():
+                raise forms.ValidationError('Each ingredient needs a name, unit and positive amount')
 
             # Normalize values to avoid false duplicates
             key = (
@@ -160,7 +175,7 @@ class RecipeForm(forms.Form):
             minutes=minutes
         )
         cleaned['directions'] = [] 
-        if len(cleaned["ingredients"]) > 0:
+        if self.calculate_nutrition and not self.errors and cleaned.get("ingredients"):
             cleaned["nutrients"] = get_nutrition_info_usda(cleaned["ingredients"])
 
         return cleaned

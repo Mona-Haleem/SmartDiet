@@ -358,6 +358,8 @@
 // FILE: static/js/sectionDetailsEditor.js
 // UPDATED: Enhanced UX with keyboard shortcuts and better interactions
 
+import { trapDialogFocus } from '../../common/dialog.js';
+
 export function createSectionDetailsEditor() {
   return {
     section: "",
@@ -411,6 +413,10 @@ export function createSectionDetailsEditor() {
     },
 
     handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        e.preventDefault(); e.stopPropagation(); this.cancelEdit(); return;
+      }
+      if (e.key === 'Tab') { trapDialogFocus(e); return; }
       const target = e.target;
       
       // Only handle if we're in an editable element
@@ -709,8 +715,9 @@ export function createSectionDetailsEditor() {
       }
       
       return (detail.content || []).map(f => {
-        const classes = (f.effects || []).filter(e => e !== "Default");
-        const styleAttr = f.color ? `style="color:${f.color}"` : "";
+        const classes = (f.effects || []).filter(e => e !== "Default" && /^[a-zA-Z0-9_-]+$/.test(e));
+        const color = typeof f.color === 'string' && !/[;{}"'<>]/.test(f.color) ? f.color : '';
+        const styleAttr = color ? `style="color:${color}"` : "";
         const classAttr = classes.length ? `class="${classes.join(' ')}"` : "";
         
         if (classAttr || styleAttr) {
@@ -832,6 +839,9 @@ export function createSectionDetailsEditor() {
     },
     addRef(refType,values){
       if(!values.href) return;
+      const normalized = values.href.replace(/[\u0000-\u0020]/g, '');
+      const scheme = normalized.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase();
+      if ((scheme && !['http', 'https', 'mailto'].includes(scheme)) || normalized.startsWith('//') || normalized.startsWith('\\')) return;
       const refData = {
         type:"ref",
         refType,
@@ -841,7 +851,7 @@ export function createSectionDetailsEditor() {
         eleId:values.id||"",
         href:values.href
       }
-      if( refData == 'detail')
+      if( refType == 'detail')
         refData.planId = values.planId
      
       this.details.push(refData); 

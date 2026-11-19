@@ -86,6 +86,11 @@ class DailyAchivedMetrics(models.Model):
             return float((self.value in targets) == positive)
         try:
             val = float(self.value)
+            if kind == "scale":
+                if not isfinite(val):
+                    return 0.0
+                value = min(5, max(1, val))
+                return (value - 1) / 4 if positive else (5 - value) / 4
             start = float(self.metric.start or 0)
             target = float(self.metric.target) if self.metric.target is not None else 1
         except (ValueError, TypeError):
@@ -98,9 +103,6 @@ class DailyAchivedMetrics(models.Model):
             if target <= 0:
                 return 0.0
             result = val / target if positive else 2 - val / target
-        elif kind == "scale":
-            value = min(5, max(1, val))
-            result = (value - 1) / 4 if positive else (5 - value) / 4
         else:
             return 0.0
         return min(1.0, max(0.0, result))

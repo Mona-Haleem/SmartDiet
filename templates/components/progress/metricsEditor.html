@@ -174,10 +174,10 @@
     x-transition
   >
   
-  <div class="modal-content metric-modal">
+  <div class="modal-content metric-modal" role="dialog" aria-modal="true" :aria-label="$data.editingMetric ? 'Edit Metric' : 'Add Metric'" @keydown.tab="dayProgress.trapDialogFocus($event)" @keydown.escape.stop.prevent="dayProgress.closeMetricModal()">
     <div class="modal-header">
       <h5 x-text="$data.editingMetric ? 'Edit Metric' : 'Add Metric'"></h5>
-      <button class="close-btn" @click="dayProgress.closeMetricModal()">
+      <button type="button" class="close-btn" aria-label="Close metric editor" @click="dayProgress.closeMetricModal()">
         <i class="fas fa-times"></i>
       </button>
     </div>
@@ -185,6 +185,7 @@
         <div class="form-group" x-show="$data.editingMetric == null">
           <label>Use Existing Metric</label>
           <select
+            aria-label="Use Existing Metric"
             class="form-control"
             x-model="$data.metricForm.selectedExisting"
             @change="dayProgress.onExistingMetricSelected()"
@@ -202,6 +203,7 @@
           <div class="form-group">
             <label>Metric Name</label>
             <input
+              aria-label="Metric Name"
               type="text"
               class="form-control"
               x-model="$data.metricForm.name"
@@ -213,6 +215,7 @@
           <div class="form-group" x-show="$data.editingMetric == null">
             <label>Type</label>
             <select
+              aria-label="Metric Type"
               class="form-control"
               x-model="$data.metricForm.type"
               @change="dayProgress.onMetricTypeChange()"
@@ -231,6 +234,7 @@
           <div class="form-group">
             <label>Target Value</label>
             <input
+              aria-label="Target Value"
               type="text"
               class="form-control"
               x-model="$data.metricForm.target"
@@ -249,6 +253,7 @@
             <div class="form-group">
               <label>Options (comma-separated)</label>
               <input
+                aria-label="Options (comma-separated)"
                 type="text"
                 class="form-control"
                 x-model="$data.metricForm.options"
@@ -261,6 +266,7 @@
           <div class="form-group" x-show="$data.metricForm.type === 'category'">
             <label>Default Value</label>
             <select
+              aria-label="Default Value"
               class="form-control"
               x-model="$data.metricForm.start"
               :disabled="!($data.metricForm.options || '')"
@@ -278,6 +284,7 @@
           <div class="form-group">
             <label>Goal Description</label>
             <textarea
+              aria-label="Goal Description"
               class="form-control"
               x-model="$data.metricForm.goal"
               rows="2"
@@ -320,10 +327,10 @@
     @click.self="dayProgress.closeInactiveModal()"
     x-transition
   >
-    <div class="modal-content inactive-modal">
+    <div class="modal-content inactive-modal" role="dialog" aria-modal="true" aria-label="Inactive Metrics" @keydown.tab="dayProgress.trapDialogFocus($event)" @keydown.escape.stop.prevent="dayProgress.closeInactiveModal()">
       <div class="modal-header">
         <h5>Inactive Metrics</h5>
-        <button class="close-btn" @click="dayProgress.closeInactiveModal()">
+        <button type="button" class="close-btn" aria-label="Close inactive metrics" @click="dayProgress.closeInactiveModal()">
           <i class="fas fa-times"></i>
         </button>
       </div>

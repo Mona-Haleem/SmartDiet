@@ -19,6 +19,7 @@ export default class Component {
   async swapContent(data, targetEle) {
     try {
       const html = data;
+      if (typeof html !== 'string' || !html.trim()) return false;
       const tpl = document.createElement("template");
       tpl.innerHTML = html.trim();
       //      const newEl = tpl.content.firstElementChild;
@@ -30,9 +31,13 @@ export default class Component {
       // console.log("====================>\n", newEl);
       // console.log("====================>\n",targetEle);
 
-      if (!newEl) throw new Error("No valid root element in template");
+      const inserted = Array.from(newEl.children);
+      if (!inserted.length) return false;
       targetEle = targetEle ? targetEle : this.$el;
       const parent = targetEle.parentNode;
+      if (!parent) return false;
+      const replacesRoot = targetEle === this.$el;
+      if (replacesRoot && inserted.length !== 1) return false;
 
       if (newEl && newEl.dataset?.instanceId) {
         newEl.dataset.instanceId = this.instanceId;
@@ -42,7 +47,19 @@ export default class Component {
         parent.replaceChild(newEl, targetEle);
       }
 
-      Alpine.initTree(targetEle);
+      for (const element of inserted) Alpine.initTree(element);
+      if (replacesRoot) {
+        this.$el = inserted[0];
+        this.$el.dataset.instanceId = this.instanceId;
+        Component.instances[this.instanceId] = this;
+        for (const listener of this._eventListeners || []) {
+          if (listener.element === targetEle) {
+            targetEle.removeEventListener(listener.event, listener.handler);
+            this.$el.addEventListener(listener.event, listener.handler);
+            listener.element = this.$el;
+          }
+        }
+      }
       await Alpine.nextTick();
 
       this.refreshRefs();

@@ -16,7 +16,7 @@
         class="fas fa-plus add-btn"  
         @click="eleObj.handleSectionAction({{node.id}},'createSection',{targetRelation:'parent'});"
         ></i>
-        <i class="fas fa-edit editBtn" x-show="{{ele.isOwner}}" @click="eleObj.detailsEditor.init({{node.id}})"></i>
+        <button type="button" class="fas fa-edit editBtn" aria-label="Edit {{node.section}}" x-show="{{ele.isOwner}}" @click="eleObj.detailsEditor.init({{node.id}})"></button>
     <span
         class="header display-input"
         contenteditable="{{ele.isOwner}}"

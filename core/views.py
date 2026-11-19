@@ -1,10 +1,11 @@
+from core.helpers.api import api_endpoint, read_object, validate_metric, metric_value
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, Http404
 from django.template import loader
 from users.models import User
 from users.forms import login_form , register_form
 from healthHub.models import Plan ,serializers
-from core.models import UserLog ,DailyAchivedMetrics 
+from core.models import UserLog ,DailyAchivedMetrics
 from core.helpers.assigned_plans import *
 from core.helpers import helpers as utils
 
@@ -30,7 +31,7 @@ from users.models import User
 # Create your views here.
 def index(request,slug="login"):
     if request.user.is_authenticated:
-        #user = User.objects.get() 
+        #user = User.objects.get()
         allPlans = list(
             Plan.objects.filter(base__creator=request.user)
             .values(
@@ -79,10 +80,10 @@ def logs(request):
             category=F("base__category"),
         )
     )
-         
+
     print("=======start_date========",start_date)
     return render(request, 'logs.html',{
-        "startDate":start_date, 
+        "startDate":start_date,
         "allPlans":allPlans,
         "recipeCategories":[""]
     })
@@ -90,11 +91,13 @@ def logs(request):
 @login_required
 def assignedPlans(request):
 
-    year = int(request.GET.get('year', timezone.localdate().year))
-    month = int(request.GET.get('month', timezone.localdate().month))
-
-    first_day = date(year, month, 1)
-    last_day = date(year, month, monthrange(year, month)[1])
+    try:
+        year = int(request.GET.get('year', timezone.localdate().year))
+        month = int(request.GET.get('month', timezone.localdate().month))
+        first_day = date(year, month, 1)
+        last_day = date(year, month, monthrange(year, month)[1])
+    except (ValueError, TypeError):
+        return JsonResponse({'error': 'Invalid calendar month'}, status=400)
 
     logs = list(UserLog.objects.filter(
         user=request.user,
@@ -134,233 +137,81 @@ def assignedPlans(request):
 
 
 @login_required
+@api_endpoint
 def avgScore(request):
-
-    plan_type = request.GET.get('type', 'diet')
+    slot = request.GET.get('type', 'diet')
     period = request.GET.get('period', 'month')
-    date_str = request.GET.get('date', timezone.localdate().isoformat())
-
-
-    selected_date = datetime.fromisoformat(date_str).date()
-
-    if period == 'day':
-        start_date = end_date = selected_date
-    elif period == 'week':
-        start_date = selected_date - timedelta(days=selected_date.weekday())
-        end_date = start_date + timedelta(days=6)
-    elif period == 'month':
-        start_date = selected_date.replace(day=1)
-        end_date = date(
-            selected_date.year,
-            selected_date.month,
-            monthrange(selected_date.year, selected_date.month)[1]
-        )
-    else:
-        start_date = selected_date.replace(month=1, day=1)
-        end_date = selected_date.replace(month=12, day=31)
-
-
-    logs = UserLog.objects.filter(
-        user=request.user,
-        date__gte=start_date,
-        date__lte=end_date
-    )
-
-    if period == 'day':
-        if plan_type == 'diet':
-            logs = logs.filter(Q(plan__base__category='diet') | Q(plan__base__category='full'))
-            others = logs.filter(Q(plan__base__category='exercise') | Q(plan__base__category='full'))
-        elif plan_type == 'exercise':
-            others = logs.filter(Q(plan__base__category='diet') | Q(plan__base__category='full'))
-            logs = logs.filter(Q(plan__base__category='exercise') | Q(plan__base__category='full'))
-
-
-    total_score = 0
-    count = 0
-    if logs and logs.count() == 0 and others and others.count() > 0:
-        logs = others
-    for log in logs:
-        score = log.calculate_Total_score()
-        total_score += score
-        count += 1
-    
-    avg_score = (total_score / count) if count > 0 else 0
-    print("======Average score:=======", avg_score)
-
-    return JsonResponse({'avgScore': round(avg_score, 2)})
+    if slot not in ('diet', 'exercise') or period not in ('day', 'week', 'month', 'year'):
+        raise ValueError('Invalid type or period')
+    selected = datetime.strptime(request.GET.get('date', timezone.localdate().isoformat()), '%Y-%m-%d').date()
+    start, end = utils.get_period_dates(period, selected)
+    entries = DailyAchivedMetrics.objects.filter(
+        Q(metric__linkedPlan__isnull=True) | Q(metric__linkedPlan__base__category__in=[slot, 'full'])
+    ).select_related('metric__metric')
+    logs = list(UserLog.objects.filter(user=request.user, date__range=(start, end),
+        plan__base__category__in=[slot, 'full']).prefetch_related(Prefetch('AchivedMetrics', queryset=entries)))
+    average = sum(log.calculate_Total_score() for log in logs) / len(logs) if logs else 0
+    return JsonResponse({'avgScore': round(average, 2)})
 
 
 @login_required
+@api_endpoint
 def dayaData(request):
-
-    date_str = request.GET.get("date")
-    plan_type = request.GET.get("type")
-
-    if not date_str or plan_type not in ['diet', 'exercise']:
-        return JsonResponse({"error": "date and valid type are required"}, status=400)
-
-    try:
-        day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    except ValueError:
-        return JsonResponse({"error": "Invalid date format"}, status=400)
-
-    dayLogs = UserLog.objects.filter(user=request.user, date=day_date).select_related("plan", "plan__base")
-    log = dayLogs.filter(plan__base__category__in=[plan_type, 'full']).first()
-    other= dayLogs.exclude(plan__base__category=plan_type).first()
-
-    planData = {
-        "plan_name": "",
-        "plan_goal": "",
-        "current_day": 1,
-        "plan_sections":[],
-        
-    } 
-    plan = None
-    if not log and day_date == timezone.localdate():
-        plan = get_current_plan(request.user,plan_type)
-    elif log:
-        plan = log.plan
-
-    if plan :
+    slot = request.GET.get('type')
+    if slot not in ('diet', 'exercise') or not request.GET.get('date'):
+        raise ValueError('Date and valid type are required')
+    day = datetime.strptime(request.GET['date'], '%Y-%m-%d').date()
+    def daily_logs():
+        return list(UserLog.objects.filter(user=request.user, date=day).select_related('plan__base'))
+    logs = daily_logs()
+    log = next((item for item in logs if item.plan and item.plan.base.category in (slot, 'full')), None)
+    if log is None and day == timezone.localdate():
+        get_current_plan(request.user, slot)
+        logs = daily_logs()
+        log = next((item for item in logs if item.plan and item.plan.base.category in (slot, 'full')), None)
+    assignment = log.plan if log else None
+    plan = assignment
+    linked_ids = [plan.pk] if plan else []
+    plan_data = {'plan_name': '', 'plan_goal': '', 'current_day': 1, 'plan_sections': []}
+    if plan:
         if plan.base.category == 'full':
-            linked = getattr(plan, "linked_plan", None)
-
-            if not linked:
-                return JsonResponse({"error": "Linked plan missing"}, status=404)
-
-            plan = linked.diet_plan if plan_type == 'diet' else linked.exercise_plan
+            linked = getattr(plan, 'linked_plan', None)
+            plan = getattr(linked, slot + '_plan', None) if linked else None
             if plan is None:
-                return JsonResponse({"error": "Linked plan missing"}, status=404)
-
-        start_log = (
-            UserLog.objects
-            .filter(user=request.user, plan=plan, date__lte=day_date)
-            .order_by("date")
-            .first()
-        )
-
-        current_day = (day_date - start_log.date).days + 1 if start_log else 1
-
-        plan_sections = plan.get_daily_schedule(current_day)
-
-        planData = {
-            "planId": plan.pk,
-            "plan_name": plan.base.name,
-            "plan_goal": plan.goal,
-            "current_day": current_day,
-            "plan_sections": plan_sections,
-        }   
-
-    unused_metrics = Metric.objects.filter(
-        user=request.user
-    ).exclude(
-        trackedMetric__linkedPlan=plan
-    ).values('id', 'name', 'type','options')
-
-
-
-    if not log:
-    # use other_log ONLY for metrics fallback
-        metrics = []
-
-        tracked_metrics = (
-            TrackedMetrics.objects
-            .filter(metric__user=request.user, isActive=True)
-            .select_related("metric")
-        )
-
-        for tm in tracked_metrics:
-            metric_type = tm.metric.type
-
-            if other:
-                prev_metric_log = (
-                    DailyAchivedMetrics.objects
-                    .filter(metric=tm, log=other)
-                    .first()
-                )
-                value = prev_metric_log.value if prev_metric_log else None
-            else:
-                value = None
-
-            # defaults if still None
-            if value is None:
-                if metric_type == "continues":
-                    prev = (
-                        DailyAchivedMetrics.objects
-                        .filter(
-                            metric=tm,
-                            log__user=request.user,
-                            log__date__lt=day_date
-                        )
-                        .order_by("-log__date")
-                        .first()
-                    )
-                    value = prev.value if prev else tm.start or 0
-                elif metric_type == "daily":
-                    value = 0
-                elif metric_type == "boolean":
-                    value = tm.start or False
-                elif metric_type == "scale":
-                    value = tm.start or 1
-                elif metric_type == "category":
-                    value = tm.start or "no entry"
-
-            metric_data = {
-                "id": tm.id,
-                "name": tm.metric.name,
-                "type": metric_type,
-                "value": value,
-                "isActive":tm.isActive,
-                "isPostive":tm.isPostive,
-                "goal":tm.goal or tm.linkedPlan.goal if tm.linkedPlan else "",
-                "target":tm.target,
-                "start":tm.start
-            }
-
-            if metric_type == "scale":
-                metric_data["options"] = SCALE_LEVELS
-            elif metric_type == "category":
-                metric_data["options"] = tm.metric.options
-
-            metrics.append(metric_data)
-
-        return JsonResponse({
-            **planData,
-            "metrics": metrics,
-            "feedback": "",
-            "unusedMetrics":list(unused_metrics)
-        })
-
-
-    achieved_metrics = DailyAchivedMetrics.objects.filter(log=log).select_related(
-        'metric__metric', 'metric__linkedPlan__base'
-    )
-
+                return JsonResponse({'error': 'Linked plan missing'}, status=404)
+            linked_ids.append(plan.pk)
+        first = UserLog.objects.filter(user=request.user, plan=assignment, date__lte=day).order_by('date').first()
+        current_day = (day - first.date).days + 1 if first else 1
+        plan_data = {'planId': plan.pk, 'plan_name': plan.base.name, 'plan_goal': plan.goal,
+            'current_day': current_day, 'plan_sections': plan.get_daily_schedule(current_day)}
+    entries = list(DailyAchivedMetrics.objects.filter(log__user=request.user, log__date=day).select_related('metric__metric', 'metric__linkedPlan__base').order_by('pk'))
+    selected = {e.metric_id: (e.metric, e.value) for e in entries if log and e.log_id == log.pk
+        and (e.metric.linkedPlan_id is None or e.metric.linkedPlan_id in linked_ids)}
+    # Global values are shared, including false/zero and values first saved in the other slot.
+    for entry in entries:
+        if entry.metric.linkedPlan_id is None:
+            selected[entry.metric_id] = (entry.metric, entry.value)
+    active = TrackedMetrics.objects.filter(metric__user=request.user, isActive=True).filter(
+        Q(linkedPlan__isnull=True) | Q(linkedPlan_id__in=linked_ids)
+    ).select_related('metric', 'linkedPlan__base')
+    for tracker in active:
+        if tracker.pk not in selected:
+            value = get_initial_value_for_metric(tracker, day, slot)
+            if tracker.metric.type == 'category' and tracker.start == '':
+                value = 'no entry'
+            selected[tracker.pk] = (tracker, value)
     metrics = []
-    for entry in achieved_metrics:
-        metric_data = {
-            "id": entry.metric.id,
-            "name": entry.metric.metric.name,
-            "type": entry.metric.metric.type,
-            "value": entry.value,
-            "isActive":entry.metric.isActive,
-            "isPostive":entry.metric.isPostive,
-            "goal":entry.metric.goal or entry.metric.linkedPlan.goal if entry.metric.linkedPlan else "",
-            "target": entry.metric.target,
-            "start":entry.metric.start
-        }
-        if metric_data["type"] == 'category':
-            metric_data["options"] = entry.metric.metric.options
-        elif metric_data["type"] == 'scale':
-            metric_data["options"] = SCALE_LEVELS
-        metrics.append(metric_data)
+    for tracker, value in selected.values():
+        item = {'id': tracker.pk, 'name': tracker.metric.name, 'type': tracker.metric.type, 'value': value,
+            'isActive': tracker.isActive, 'isPostive': tracker.isPostive,
+            'goal': tracker.goal or (tracker.linkedPlan.goal if tracker.linkedPlan else ''),
+            'target': tracker.target, 'start': tracker.start}
+        if tracker.metric.type in ('category', 'scale'):
+            item['options'] = SCALE_LEVELS if tracker.metric.type == 'scale' else tracker.metric.options
+        metrics.append(item)
+    unused = Metric.objects.filter(user=request.user).exclude(trackedMetric__linkedPlan=plan).values('id', 'name', 'type', 'options')
+    return JsonResponse({**plan_data, 'metrics': metrics, 'feedback': log.feedback or '' if log else '', 'unusedMetrics': list(unused)})
 
-    return JsonResponse({
-        **planData,
-        "metrics": metrics,
-        "feedback": log.feedback or "",
-        "unusedMetrics":list(unused_metrics)
-    })
 
 @login_required
 def period_progress_view(request):
@@ -378,9 +229,13 @@ def period_progress_view(request):
     except ValueError:
         return JsonResponse({"error": "Invalid date format"}, status=400)
 
+    slot = request.GET.get('type')
+    if period not in ('day', 'week', 'month', 'year') or (slot and slot not in ('diet', 'exercise')):
+        return JsonResponse({'error': 'Invalid type or period'}, status=400)
+
     # 1. Determine Date Ranges
     start_date, end_date = utils.get_period_dates(period, date_obj)
-    
+
     # Calculate Previous Period Range (for comparison)
     if period == 'week':
         prev_end_date = start_date - timedelta(days=1)
@@ -395,7 +250,7 @@ def period_progress_view(request):
         # Default fallback for daily or other
         prev_end_date = start_date - timedelta(days=1)
         prev_start_date = prev_end_date
-    
+
 
     # 2. Fetch Logs for Chart Data
     logs = UserLog.objects.filter(
@@ -404,12 +259,18 @@ def period_progress_view(request):
     ).order_by("date").prefetch_related(Prefetch(
         'AchivedMetrics', queryset=DailyAchivedMetrics.objects.select_related('metric__metric')
     ))
-    
+
     # Also fetch previous logs to find metrics recorded in the past
     prev_logs = UserLog.objects.filter(
         user=user,
         date__range=(prev_start_date, prev_end_date)
     )
+
+    if slot:
+        scope = Q(metric__linkedPlan__isnull=True) | Q(metric__linkedPlan__base__category__in=[slot, 'full'])
+        logs = logs.filter(plan__base__category__in=[slot, 'full']).prefetch_related(None).prefetch_related(Prefetch(
+            'AchivedMetrics', queryset=DailyAchivedMetrics.objects.filter(scope).select_related('metric__metric')))
+        prev_logs = prev_logs.filter(plan__base__category__in=[slot, 'full'])
 
     # 3. Build Chart Data
     from collections import defaultdict
@@ -421,7 +282,7 @@ def period_progress_view(request):
         metric_data = {}
         for m in log.AchivedMetrics.all():
             metric_data[m.metric.id] = round(m.calculate_score() * 100, 2)
-        
+
         aggregated[log.date].append({"overall_score": score, "metrics": metric_data})
 
     chart_data = []
@@ -431,28 +292,31 @@ def period_progress_view(request):
             chart_data.append({"date": date, **entries[0]})
         else:
             avg_score = round(sum(e["overall_score"] for e in entries) / len(entries), 2)
-            
+
             all_metrics = defaultdict(list)
             for e in entries:
                 for metric_id, value in e["metrics"].items():
                     all_metrics[metric_id].append(value)
-            
+
             avg_metrics = {mid: round(sum(vals)/len(vals), 2) for mid, vals in all_metrics.items()}
-            
+
             chart_data.append({"date": date, "overall_score": avg_score, "metrics": avg_metrics})
 
 
 
-    
     # Fetch current period metric entries
     current_period_entries = DailyAchivedMetrics.objects.filter(
         log__in=logs
     ).select_related('metric', 'metric__metric', 'log')
-    
+
     # Fetch previous period metric entries
     prev_period_entries = DailyAchivedMetrics.objects.filter(
         log__in=prev_logs
     ).select_related('metric', 'metric__metric', 'log')
+
+    if slot:
+        current_period_entries = current_period_entries.filter(scope)
+        prev_period_entries = prev_period_entries.filter(scope)
 
     # 5. Group Data by Metric ID
     # structure: { metric_id: { 'current': [records], 'prev': [records] } }
@@ -460,13 +324,13 @@ def period_progress_view(request):
 
     for entry in current_period_entries:
         grouped_metrics[entry.metric.id]['current'].append(entry)
-        
+
     for entry in prev_period_entries:
         grouped_metrics[entry.metric.id]['prev'].append(entry)
 
     # 6. Generate Metrics Map
     metrics_list = []
-    
+
     for metric_id, data in grouped_metrics.items():
         # Only process if we have data in the current period
         if data['current']:
@@ -492,486 +356,275 @@ def history_is_editable(day):
 
 @login_required
 @require_http_methods(["POST"])
+@api_endpoint
 def create_metric(request):
-    """Create a new metric and tracked metric"""
-    try:
-        data = json.loads(request.body)
-        # Extract data
-        name = data.get('name')
-        metric_type = data.get('type', 'continues')
-        target = data.get('target')
-        goal = data.get('goal', '')
-        plan_type = data.get('plan_type')
-        date_str = data.get('date')
-        metric_source = data.get('metricType', 'customGoal')  # 'toPlan' or 'customGoal'
-        is_positive = data.get('isPositive', True)
-        options = data.get('options', [])
-        start_value = data.get('start', '')
-        existing_metric_id = data.get('existingMetricId')  # NEW
-
-        if not name or not target:
-            return JsonResponse({'error': 'Name and target are required'}, status=400)
-        
-        if existing_metric_id:
-            try:
-                metric = Metric.objects.get(
-                    id=existing_metric_id,
-                    user=request.user
-                )
-                # Update options if they differ (for editable cases)
-                if metric_type in ['category', 'scale'] and options:
-                    metric.options = options
-                    metric.save()
-            except Metric.DoesNotExist:
-                return JsonResponse({'error': 'Selected metric not found'}, status=404)
+    data = read_object(request)
+    name = data.get('name')
+    kind = data.get('type', 'continues')
+    target = data.get('target')
+    options = data.get('options', [])
+    positive = data.get('isPositive', True)
+    start = data.get('start')
+    if kind == 'category' and start == 0:
+        start = None
+    slot = data.get('plan_type', 'diet')
+    if slot not in ('diet', 'exercise'):
+        raise ValueError('Invalid plan_type')
+    day = datetime.strptime(data['date'], '%Y-%m-%d').date() if data.get('date') else None
+    if day and not history_is_editable(day):
+        return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
+    validate_metric(name, kind, target, options, positive, start)
+    if data.get('existingMetricId'):
+        metric = get_object_or_404(Metric, pk=data['existingMetricId'], user=request.user)
+        if metric.type != kind:
+            raise ValueError('Metric type does not match its definition')
+        metric.options = options if kind in ('category', 'scale') else []
+        metric.save(update_fields=['options'])
+    else:
+        metric, _ = Metric.objects.get_or_create(user=request.user, name=name, type=kind,
+            defaults={'options': options})
+        if kind in ('category', 'scale'):
+            metric.options = options
+            metric.save(update_fields=['options'])
+    linked_plan = get_current_plan(request.user, slot) if data.get('metricType') == 'toPlan' else None
+    if start is None or start == '':
+        if kind == 'continues':
+            previous = TrackedMetrics.objects.filter(metric=metric, isActive=True).first()
+            last = DailyAchivedMetrics.objects.filter(metric=previous, log__date__lte=day or timezone.localdate()).order_by('-log__date', '-pk').first() if previous else None
+            start = last.value if last else (previous.start if previous else 0)
         else:
-            # Create or get the base Metric
-            metric, created = Metric.objects.get_or_create(
-                user=request.user,
-                name=name,
-                type=metric_type,
-                defaults={'options': options if metric_type in ['category', 'scale'] else []}
-            )
-            
-            # If not created and options differ, update
-            if not created and metric_type in ['category', 'scale']:
-                metric.options = options
-                metric.save()
+            start = {'daily': 0, 'boolean': False, 'scale': 1, 'category': options[0] if options else 'no entry'}.get(kind, 0)
+    tracker = TrackedMetrics.objects.create(metric=metric, goal=data.get('goal', ''), linkedPlan=linked_plan,
+        target=target, start=start, isActive=True, isPostive=positive)
+    if day:
+        logs = UserLog.objects.filter(user=request.user, date=day)
+        if linked_plan:
+            logs = logs.filter(plan=linked_plan)
+        for log in logs:
+            DailyAchivedMetrics.objects.get_or_create(log=log, metric=tracker, defaults={'value': start})
+    return JsonResponse({'success': True, 'metric': {'id': tracker.pk, 'name': name, 'type': kind,
+        'target': target, 'goal': tracker.goal, 'isActive': True}})
 
-        # Get linked plan if metricType is 'toPlan'
-        linked_plan = None
-        if metric_source == 'toPlan' and plan_type:
-            linked_plan = get_current_plan(request.user, plan_type)
-        
-        # Determine start value based on metric type
-        
-        if not start_value:
-            if metric_type == 'continues':
-                # For continuous metrics, try to get the last recorded value
-                last_tracked = TrackedMetrics.objects.filter(
-                    metric=metric,
-                    isActive=True
-                ).first()
-                
-                if last_tracked:
-                    last_entry = DailyAchivedMetrics.objects.filter(
-                        metric=last_tracked
-                    ).order_by('-log__date').first()
-                    
-                    if last_entry:
-                        start_value = last_entry.value
-            elif metric_type == 'boolean':
-                start_value = False
-            elif metric_type == 'scale':
-                start_value = 1
-            elif metric_type == 'category':
-                start_value = options[0] if options else "no entry"
-            
-        # Create TrackedMetric
-        tracked_metric = TrackedMetrics.objects.create(
-            metric=metric,
-            goal=goal,
-            linkedPlan=linked_plan,
-            target=target,
-            start=start_value,
-            isActive=True,
-            isPostive=is_positive
-        )
-        
-        # Add to current day's log if date is provided
-        if date_str:
-            day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-            log = UserLog.objects.filter(
-                user=request.user,
-                date=day_date
-            ).first()
-            
-            if log:
-                # Check if already exists
-                if not DailyAchivedMetrics.objects.filter(log=log, metric=tracked_metric).exists():
-                    DailyAchivedMetrics.objects.create(
-                        log=log,
-                        metric=tracked_metric,
-                        value=start_value
-                    )
-        
-        return JsonResponse({
-            'success': True,
-            'metric': {
-                'id': tracked_metric.id,
-                'name': name,
-                'type': metric_type,
-                'target': target,
-                'goal': goal,
-                'isActive': True
-            }
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
 
 @login_required
 @require_http_methods(["PUT", "PATCH"])
+@api_endpoint
 def update_metric(request, metric_id):
-    """Update a tracked metric's configuration"""
-    try:
-        tracked_metric = get_object_or_404(
-            TrackedMetrics,
-            id=metric_id,
-            metric__user=request.user
-        )
-        
-        data = json.loads(request.body)
-        
-        # Update fields if provided
-        if 'name' in data:
-            tracked_metric.metric.name = data['name']
-            tracked_metric.metric.save()
-        
-        if 'type' in data:
-            tracked_metric.metric.type = data['type']
-            tracked_metric.metric.save()
-        
-        if 'target' in data:
-            tracked_metric.target = data['target']
-        
-        if 'goal' in data:
-            tracked_metric.goal = data['goal']
-        
-        if 'start' in data:
-            tracked_metric.start = data['start']
-        
-        if 'isPositive' in data:
-            tracked_metric.isPostive = data['isPositive']
-        
-        if 'options' in data and tracked_metric.metric.type in ['category', 'scale']:
-            tracked_metric.metric.options = data['options']
-            tracked_metric.metric.save()
-        
-        tracked_metric.save()
-        
-        return JsonResponse({
-            'success': True,
-            'metric': {
-                'id': tracked_metric.id,
-                'name': tracked_metric.metric.name,
-                'type': tracked_metric.metric.type,
-                'target': tracked_metric.target,
-                'goal': tracked_metric.goal
-            }
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
+    tracker = get_object_or_404(TrackedMetrics.objects.select_related('metric'), pk=metric_id, metric__user=request.user)
+    data = read_object(request)
+    base = tracker.metric
+    name = data.get('name', base.name)
+    kind = data.get('type', base.type)
+    target = data.get('target', tracker.target)
+    options = data.get('options', base.options)
+    positive = data.get('isPositive', tracker.isPostive)
+    start = data.get('start', tracker.start)
+    validate_metric(name, kind, target, options, positive, start)
+    base.name, base.type, base.options = name, kind, options
+    tracker.target, tracker.start, tracker.isPostive = target, start, positive
+    tracker.goal = data.get('goal', tracker.goal)
+    base.save()
+    tracker.save()
+    return JsonResponse({'success': True, 'metric': {'id': tracker.pk, 'name': name, 'type': kind,
+        'target': target, 'goal': tracker.goal}})
 
 
 @login_required
 @require_http_methods(["POST"])
+@api_endpoint
 def update_feedback(request):
-    """Update feedback for a specific date"""
-    try:
-        data = json.loads(request.body)
-        date_str = data.get('date')
-        plan_type = data.get('plan_type')
-        feedback = data.get('feedback', '')
-        if not date_str:
-            return JsonResponse({'error': 'Date is required'}, status=400)
-        
-        day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        if not history_is_editable(day_date):
-            return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
-        
-        # Get or create log
-        log = UserLog.objects.filter(
-            user=request.user,
-            date=day_date
-        ).first()
-        
-        if not log:
-            latest_log = UserLog.objects.filter(
-                user=request.user,
-                plan__base__category__in=[plan_type, 'full']
-            ).order_by('-date').first()
-            
-            plan = latest_log.plan if latest_log else None
-            # Create a log without a plan if none exists
-            log = UserLog.objects.create(
-                user=request.user,
-                date=day_date,
-                feedback=feedback,
-                plan=plan
-            )
-        else:
-            log.feedback = feedback
-            log.save()
-        return JsonResponse({
-            'success': True,
-            'feedback': feedback
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    data = read_object(request)
+    day = datetime.strptime(data.get('date', ''), '%Y-%m-%d').date()
+    slot = data.get('plan_type', 'diet')
+    if slot not in ('diet', 'exercise') or not isinstance(data.get('feedback', ''), str):
+        raise ValueError('Invalid feedback or plan_type')
+    if not history_is_editable(day):
+        return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
+    log = UserLog.objects.filter(user=request.user, date=day, plan__base__category__in=[slot, 'full']).first()
+    if log is None:
+        previous = UserLog.objects.filter(user=request.user, date__lte=day,
+            plan__base__category__in=[slot, 'full']).order_by('-date', '-pk').first()
+        log, _ = UserLog.objects.get_or_create(user=request.user, date=day, plan=previous.plan if previous else None)
+    log.feedback = data.get('feedback', '')
+    log.save(update_fields=['feedback'])
+    return JsonResponse({'success': True, 'feedback': log.feedback})
 
 
 @login_required
 @require_http_methods(["PATCH"])
+@api_endpoint
 def update_metric_value(request, metric_id):
-    """Update daily metric value - creates log if needed"""
-    try:
-        data = json.loads(request.body)
-        value = data.get('value')
-        date_str = data.get('date')
-        plan_type = data.get('plan_type')  # 'diet' or 'exercise'
-        
-        if value is None:
-            return JsonResponse({'error': 'Value is required'}, status=400)
-        
-        if not plan_type or plan_type not in ['diet', 'exercise']:
-            return JsonResponse({'error': 'Valid plan_type (diet/exercise) is required'}, status=400)
-        
-        # Get the tracked metric
-        tracked_metric = get_object_or_404(
-            TrackedMetrics,
-            id=metric_id,
-            metric__user=request.user
-        )
-        
-        # Parse date
-        if date_str:
-            day_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-        else:
-            day_date = timezone.localdate()
-        if not history_is_editable(day_date):
-            return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
-        if tracked_metric.metric.type == 'scale':
-            try:
-                number = float(value)
-                if not number.is_integer() or not 1 <= number <= 5:
-                    raise ValueError
-                value = int(number)
-            except (TypeError, ValueError, OverflowError):
-                return JsonResponse({'error': 'Scale value must be an integer from 1 to 5'}, status=400)
-        
-        # Try to find existing log for this date and plan type
-        log = UserLog.objects.filter(
-            user=request.user,
-            date=day_date,
-            plan__base__category__in=[plan_type, 'full']
-        ).first()
-        
-        # If no log exists, create one
-        if not log:
-            # Determine which plan to use for the new log
-            plan_to_use = None
-            
-            # Option 1: Check if this metric is linked to a plan of the same type
-            if tracked_metric.linkedPlan and tracked_metric.linkedPlan.base.category in [plan_type, 'full']:
-                plan_to_use = tracked_metric.linkedPlan
-            
-            # Option 2: Get the latest plan used for this plan type
-            if not plan_to_use:
-                latest_log = UserLog.objects.filter(
-                    user=request.user,
-                    plan__base__category__in=[plan_type, 'full']
-                ).order_by('-date').first()
-                
-                if latest_log:
-                    plan_to_use = latest_log.plan
-            # If still no plan found, we can't create a log
-            if not plan_to_use:
-                return JsonResponse({
-                    'error': f'No {plan_type} plan found. Please set a plan first.'
-                }, status=404)
-            
-            # Create the log with the determined plan
-            log = UserLog.objects.create(
-                user=request.user,
-                date=day_date,
-                plan=plan_to_use
-            )
-            
-            # Initialize metrics for this new log
-            from core.helpers.assigned_plans import update_metrics
-            update_metrics(log)
-        
-        # Get or create daily metric entry
-        daily_metric, created = DailyAchivedMetrics.objects.get_or_create(
-            log=log,
-            metric=tracked_metric,
-            defaults={'value': value}
-        )
-        
-        if not created:
-            daily_metric.value = value
-            daily_metric.save()
-        
-        return JsonResponse({
-            'success': True,
-            'value': value,
-            'score': daily_metric.calculate_score(),
-            'log_created': not log.pk if created else False
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    data = read_object(request)
+    slot = data.get('plan_type')
+    if slot not in ('diet', 'exercise') or data.get('value') is None:
+        raise ValueError('Value and valid plan_type are required')
+    tracker = get_object_or_404(TrackedMetrics.objects.select_related('metric', 'linkedPlan__base'), pk=metric_id, metric__user=request.user)
+    value = metric_value(tracker.metric.type, data['value'], tracker.metric.options)
+    day = datetime.strptime(data['date'], '%Y-%m-%d').date() if data.get('date') else timezone.localdate()
+    if not history_is_editable(day):
+        return JsonResponse({'error': 'Only the last 30 days can be edited'}, status=403)
+    log = UserLog.objects.filter(user=request.user, date=day, plan__base__category__in=[slot, 'full']).first()
+    log_created = log is None
+    if log is None:
+        plan = tracker.linkedPlan if tracker.linkedPlan and tracker.linkedPlan.base.category in (slot, 'full') else None
+        if plan is None:
+            previous = UserLog.objects.filter(user=request.user, date__lte=day,
+                plan__base__category__in=[slot, 'full']).order_by('-date', '-pk').first()
+            plan = previous.plan if previous else None
+        if plan is None:
+            return JsonResponse({'error': 'Set a matching plan first'}, status=404)
+        log = UserLog.objects.create(user=request.user, date=day, plan=plan)
+        update_metrics(log)
+    entry, _ = DailyAchivedMetrics.objects.get_or_create(log=log, metric=tracker, defaults={'value': value})
+    entry.value = value
+    entry.save(update_fields=['value'])
+    if tracker.linkedPlan_id is None:
+        # Existing daily slots contain copies for compatibility with historical data.
+        # Keep them synchronized; initialize subsequent slots from this same-day value.
+        DailyAchivedMetrics.objects.filter(metric=tracker, log__user=request.user, log__date=day).update(value=value)
+        for other in UserLog.objects.filter(user=request.user, date=day).exclude(pk=log.pk):
+            DailyAchivedMetrics.objects.get_or_create(log=other, metric=tracker, defaults={'value': value})
+    return JsonResponse({'success': True, 'value': value, 'score': entry.calculate_score(), 'log_created': log_created})
 
 
 @login_required
 @require_http_methods(["PATCH"])
+@api_endpoint
 def toggle_metric_active(request, metric_id):
     """Activate or deactivate a tracked metric"""
-    try:
-        tracked_metric = get_object_or_404(
-            TrackedMetrics,
-            id=metric_id,
-            metric__user=request.user
-        )
-        
-       
-        tracked_metric.isActive = not tracked_metric.isActive      
-        tracked_metric.save()
-        
-        return JsonResponse({
-            'success': True,
-            'isActive': tracked_metric.isActive
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    tracked_metric = get_object_or_404(
+        TrackedMetrics,
+        id=metric_id,
+        metric__user=request.user
+    )
+
+
+    tracked_metric.isActive = not tracked_metric.isActive
+    tracked_metric.save()
+
+    return JsonResponse({
+        'success': True,
+        'isActive': tracked_metric.isActive
+    })
 
 
 @login_required
 @require_http_methods(["DELETE"])
+@api_endpoint
 def delete_metric(request, metric_id):
     """Delete a tracked metric if not associated with any logs"""
-    try:
-        tracked_metric = get_object_or_404(
-            TrackedMetrics,
-            id=metric_id,
-            metric__user=request.user
-        )
-        
-        # Check if metric has any associated daily entries
-        has_entries = DailyAchivedMetrics.objects.filter(metric=tracked_metric).exists()
-        
-        if has_entries:
-            # Instead of deleting, just deactivate
-            tracked_metric.isActive = False
-            tracked_metric.save()
-            return JsonResponse({
-                'success': True,
-                'message': 'Metric deactivated (has historical data)',
-                'deactivated': True
-            })
-        else:
-            # Safe to delete
-            base_metric = tracked_metric.metric
-            tracked_metric.delete()
-            
-            # Delete base metric if no other tracked metrics reference it
-            if not TrackedMetrics.objects.filter(metric=base_metric).exists():
-                base_metric.delete()
-            
-            return JsonResponse({
-                'success': True,
-                'message': 'Metric deleted',
-                'deleted': True
-            })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    tracked_metric = get_object_or_404(
+        TrackedMetrics,
+        id=metric_id,
+        metric__user=request.user
+    )
+
+    # Check if metric has any associated daily entries
+    has_entries = DailyAchivedMetrics.objects.filter(metric=tracked_metric).exists()
+
+    if has_entries:
+        # Instead of deleting, just deactivate
+        tracked_metric.isActive = False
+        tracked_metric.save()
+        return JsonResponse({
+            'success': True,
+            'message': 'Metric deactivated (has historical data)',
+            'deactivated': True
+        })
+    else:
+        # Safe to delete
+        base_metric = tracked_metric.metric
+        tracked_metric.delete()
+
+        # Delete base metric if no other tracked metrics reference it
+        if not TrackedMetrics.objects.filter(metric=base_metric).exists():
+            base_metric.delete()
+
+        return JsonResponse({
+            'success': True,
+            'message': 'Metric deleted',
+            'deleted': True
+        })
 
 
 @login_required
 @require_http_methods(["GET"])
+@api_endpoint
 def get_inactive_metrics(request):
     """Get all inactive metrics for the user"""
-    try:
-        inactive_metrics = TrackedMetrics.objects.filter(
-            metric__user=request.user,
-            isActive=False
-        ).select_related('metric', 'linkedPlan')
-        
-        metrics_list = []
-        for tm in inactive_metrics:
-            metrics_list.append({
-                'id': tm.id,
-                'name': tm.metric.name,
-                'type': tm.metric.type,
-                'target': tm.target,
-                'goal': tm.goal,
-                'linkedPlan': tm.linkedPlan.base.name if tm.linkedPlan else None
-            })
-        
-        return JsonResponse({'metrics': metrics_list})
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    inactive_metrics = TrackedMetrics.objects.filter(
+        metric__user=request.user,
+        isActive=False
+    ).select_related('metric', 'linkedPlan__base')
+
+    metrics_list = []
+    for tm in inactive_metrics:
+        metrics_list.append({
+            'id': tm.id,
+            'name': tm.metric.name,
+            'type': tm.metric.type,
+            'target': tm.target,
+            'goal': tm.goal,
+            'linkedPlan': tm.linkedPlan.base.name if tm.linkedPlan else None
+        })
+
+    return JsonResponse({'metrics': metrics_list})
 
 
 @login_required
 @require_http_methods(["POST"])
+@api_endpoint
 def set_current_plan(request):
     """Set the current plan for a user"""
-    try:
-        data = json.loads(request.body)
-        plan_id = data.get('plan_id')
-        start_date_str = data.get('start_date')
-        replace = data.get('replace', True)
-        
-        if not plan_id:
-            return JsonResponse({'error': 'Plan ID is required'}, status=400)
-        
-        plan = get_object_or_404(Plan, id=plan_id, base__creator=request.user)
-        
-        if start_date_str:
-            start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
-        else:
-            start_date = timezone.localdate()
-        if start_date < timezone.localdate():
-            return JsonResponse({'error': 'Plans must start today or later'}, status=400)
-        print("replace",replace,start_date)
-        # Use helper function to set plan
-        set_plan(request.user, plan, start_date, True, replace)
-        
-        return JsonResponse({
-            'success': True,
-            'plan': serializers.plan([plan],request)[0]
-        })
-        
-    except Exception as e:
-        print(e)
-        return JsonResponse({'error': str(e)}, status=500)
+    data = read_object(request)
+    plan_id = data.get('plan_id')
+    start_date_str = data.get('start_date')
+    replace = data.get('replace', True)
+
+    if not plan_id:
+        return JsonResponse({'error': 'Plan ID is required'}, status=400)
+
+    plan = get_object_or_404(Plan, id=plan_id, base__creator=request.user)
+
+    if start_date_str:
+        start_date = datetime.strptime(start_date_str, "%Y-%m-%d").date()
+    else:
+        start_date = timezone.localdate()
+    if start_date < timezone.localdate():
+        return JsonResponse({'error': 'Plans must start today or later'}, status=400)
+    print("replace",replace,start_date)
+    # Use helper function to set plan
+    set_plan(request.user, plan, start_date, True, replace)
+
+    return JsonResponse({
+        'success': True,
+        'plan': serializers.plan([plan],request)[0]
+    })
 
 
 @login_required
 @require_http_methods(["POST"])
+@api_endpoint
 def cleanup_unused_metrics(request):
     """Delete metrics that have no associated data"""
-    try:
-        # Find tracked metrics with no daily entries
-        unused_tracked = TrackedMetrics.objects.filter(
-            metric__user=request.user,
-            isActive=False
-        ).exclude(
-            id__in=DailyAchivedMetrics.objects.values_list('metric_id', flat=True)
-        )
-        
-        count = 0
-        for tm in unused_tracked:
-            base_metric = tm.metric
-            tm.delete()
-            
-            # Delete base metric if no other tracked metrics reference it
-            if not TrackedMetrics.objects.filter(metric=base_metric).exists():
-                base_metric.delete()
-                count += 1
-        
-        return JsonResponse({
-            'success': True,
-            'deleted_count': count
-        })
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    unused_tracked = TrackedMetrics.objects.filter(
+        metric__user=request.user,
+        isActive=False
+    ).exclude(
+        id__in=DailyAchivedMetrics.objects.values_list('metric_id', flat=True)
+    )
+
+    count = 0
+    for tm in unused_tracked:
+        base_metric = tm.metric
+        tm.delete()
+
+        # Delete base metric if no other tracked metrics reference it
+        if not TrackedMetrics.objects.filter(metric=base_metric).exists():
+            base_metric.delete()
+            count += 1
+
+    return JsonResponse({
+        'success': True,
+        'deleted_count': count
+    })

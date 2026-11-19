@@ -1,8 +1,10 @@
 # Test and fix verification results
 
+This is the historical passing baseline from commit `249f29b`. The subsequent [test expansion](TEST_EXPANSION_RESULTS.md) exposed further defects. See [the latest application fix verification](TEST_FIX_RESULTS.md) for current passing counts and coverage.
+
 Verified 17 November 2026 on `codex/test-regressions-and-fixes`. The testing baseline was committed as `b9fdc97` before application fixes began. The follow-up commit contains the fixes and subsequent regression cases. Pre-existing Cloudinary/deployment changes are excluded from this commit and preserved in the working tree.
 
-| Current suite | Passed | Failed | Total |
+| Suite at commit `249f29b` | Passed | Failed | Total |
 | --- | ---: | ---: | ---: |
 | Python units, integration, security, and SQL budgets | 251 | 0 | 251 |
 | JavaScript units and service integration | 325 | 0 | 325 |
@@ -43,7 +45,7 @@ Django checks completed with four existing warnings (one leading-slash URL and t
 
 Firefox/WebKit, production PostgreSQL load/concurrency, real-user Web Vitals, forced-colors/zoom coverage, and manual screen-reader review have not been completed. Passing axe scans do not establish complete WCAG conformance. No production deployment or historical-data migration was performed; existing duplicate full-plan logs were not merged.
 
-The browser supplies a validated IANA timezone cookie. Requests without a valid timezone retain the active/configured timezone until the browser supplies one. A persistent per-account timezone preference remains future work, alongside the unresolved plan-expiry/global-metric policies documented in the analysis.
+The browser supplies a validated IANA timezone cookie. Requests without a valid timezone retain the active/configured timezone until the browser supplies one. A persistent per-account timezone preference remains future work. The subsequent test expansion uses the user's decisions to continue an expired plan and share one daily value for global metrics across diet/exercise views.
 
 ## Original failing baseline
 

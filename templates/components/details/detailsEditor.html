@@ -1,6 +1,6 @@
 <template x-if="{{ele.isOwner}} && mode === 'editor'">
   <div class="details-editor-overlay" @click.self="cancelEdit()">
-    <div class="details-editor-container" x-data="createSectionDetailsEditor()">
+    <div class="details-editor-container" x-data="createSectionDetailsEditor()" role="dialog" aria-modal="true" :aria-label="section || 'Edit details'">
       <!-- Header -->
       <div class="details-editor-header">
         <h2 x-text="section"></h2>

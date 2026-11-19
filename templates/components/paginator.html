@@ -6,16 +6,16 @@
   class="paginator-container w-100 h-100"
 >
   {% include children_template %}
-  <div
+  <button type="button" aria-label="Previous page"
     class="nav-btn"
     style="left: 0px"
     x-show="prev"
     @click="paginator.paginateTo('prev')"
   >
     <i id="prev" class="fas fa-caret-left icon" style="vertical-align: top"></i>
-  </div>
+  </button>
 
-  <div
+  <button type="button" aria-label="Next page"
     class="nav-btn"
     style="right: 0px"
     x-show="next"
@@ -26,5 +26,5 @@
       class="fas fa-caret-right icon"
       style="vertical-align: top"
     ></i>
-  </div>
+  </button>
 </div>

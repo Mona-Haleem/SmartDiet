@@ -1,6 +1,6 @@
 # SmartDiet: project analysis and test plan
 
-Reviewed 16 November 2026. This records the analysis before test implementation. See [the run guide](TESTING.md) and [implementation results](TEST_RESULTS.md) for subsequent work.
+Reviewed 16 November 2026. This records the analysis before test implementation. See [the run guide](TESTING.md), [the earlier fix results](TEST_RESULTS.md), and [the expanded test results](TEST_EXPANSION_RESULTS.md) for subsequent work. The product decisions below were updated on 17 November.
 
 **Scope and agreed behavior**
 
@@ -13,6 +13,8 @@ The following decisions came directly from this review:
 - Avoiding an explicitly undesirable category earns full credit. Missing data must be distinguished from a recorded acceptable category.
 - A 1–5 scale uses its full range: positive score = `(value - 1) / 4`; negative score = `(5 - value) / 4`. Values outside 1–5 are rejected at the write boundary.
 - The description's rule that new plan assignments start today or later remains part of the expected behavior.
+- Once its duration ends, continue using the same plan during tracking/backfill; do not stop or repeat it automatically.
+- Metrics without a linked plan share one daily value across diet and exercise views. Tests cover reading/writing either slot and preserving that value during plan replacement.
 
 **What the application is expected to do**
 
@@ -166,10 +168,9 @@ Do not lower the current JavaScript coverage threshold merely to get a green bui
 
 **Remaining product details for the implementation pass**
 
-- How does a user choose/store a timezone, and what is the fallback before it is set? The required behavior is user-local days; the storage/UI mechanism remains to be implemented.
-- Should an expired finite plan continue indefinitely during backfill, stop after duration, or repeat its schedule? The current code keeps the last plan going; the report does not silently make that permanent policy.
-- Is a global metric shared once across diet/exercise slots or intentionally recorded in both, and how is it weighted in the daily aggregate? Define this before locking summary tests.
-- Confirm that the proposed day-30-inclusive edit boundary above matches the desired 30-day policy. Preserve historical targets/options when later edits would otherwise rewrite old scores, or explicitly choose recomputation.
+- The browser now supplies a validated IANA timezone cookie; invalid/missing values fall back to the active/configured timezone. A persistent per-account preference and settings UI remain future work.
+- Plan continuation and shared global daily values are now confirmed, and have regression tests. The precise weighting of a global metric in an aggregate spanning both slots still needs a product decision; tests do not assume a new weighting rule.
+- The implemented edit boundary includes day 30 and rejects day 31/future writes. Whether later target/options changes should preserve historical snapshots or recompute past scores still needs a separate product decision.
 - Keep the current registration-to-profile route as the initial onboarding step unless that behavior is deliberately changed.
 
 These details do not prevent the initial harness, authorization, or confirmed-defect work. They need explicit decisions before their dependent assertions are implemented.

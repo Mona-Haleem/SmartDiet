@@ -37,6 +37,10 @@ def update_profile_image(img, request):
     return request.user.avatar_img.url
 
 def update_username(username,user):
+    try:
+        User._meta.get_field('username').clean(username, user)
+    except (ValidationError, TypeError):
+        return {'error': 'Invalid username'}, 400
     exist = User.objects.filter(username=username).exclude(id=user.id)
     if exist:
         return {'error': 'Invalid username'},400
